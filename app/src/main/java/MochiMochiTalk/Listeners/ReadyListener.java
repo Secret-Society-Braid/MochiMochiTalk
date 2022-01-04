@@ -1,4 +1,4 @@
-package MochiMochiTalk.Listeners;
+package MochiMochiTalk.listeners;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;

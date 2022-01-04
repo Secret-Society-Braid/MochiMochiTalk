@@ -8,7 +8,8 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import MochiMochiTalk.Listeners.ReadyListener;
+import MochiMochiTalk.commands.CommandPing;
+import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -33,7 +34,8 @@ public class App {
             .setStatus(OnlineStatus.ONLINE)
             .addEventListeners(
                 new ReadyListener(),
-                new VoiceEventListener()
+                new VoiceEventListener(),
+                new CommandPing()
             )
             .build();
             logger.info("JDA was successfully built.");

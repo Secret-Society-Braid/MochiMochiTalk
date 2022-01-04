@@ -51,7 +51,7 @@ public class VoiceEventListener extends ListenerAdapter {
             onDisconnectCommand(event);
         }
 
-        if(channel != null && !content.equalsIgnoreCase("!!connect")) {
+        if(channel != null && !content.startsWith("!!")) {
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());

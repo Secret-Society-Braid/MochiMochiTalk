@@ -61,7 +61,9 @@ public class VoiceEventListener extends ListenerAdapter {
             builder.append("**" + author.getName() + "**さん: " + content)
                 .build();
             channel.sendMessage(builder.build()).queue();
-            message.delete().queue();
+            if(!(content.contains("http://") || content.contains("https://"))) {
+                message.delete().queue();
+            }
         }
     }
 

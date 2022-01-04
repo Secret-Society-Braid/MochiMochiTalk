@@ -28,6 +28,9 @@ public class CommandPing extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
         Guild guild = event.getGuild();
         Member member = event.getMember();
+        if(author.isBot()) {
+            return;
+        }
         logger.info("Channel: {}", channel.getName());
         logger.info("Author: {}", author.getName());
         logger.info("Guild: {}", guild.getName());

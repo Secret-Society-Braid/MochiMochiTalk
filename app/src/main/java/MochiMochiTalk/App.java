@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.Listeners.ReadyListener;
+import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -31,7 +32,8 @@ public class App {
             .setActivity(Activity.competing("ドリームホープスプリング"))
             .setStatus(OnlineStatus.ONLINE)
             .addEventListeners(
-                new ReadyListener()
+                new ReadyListener(),
+                new VoiceEventListener()
             )
             .build();
             logger.info("JDA was successfully built.");

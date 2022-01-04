@@ -4,15 +4,20 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.audio.CombinedAudio;
 import net.dv8tion.jda.api.audio.UserAudio;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SingHandler implements AudioSendHandler, AudioReceiveHandler {
+public class SingHandler extends ListenerAdapter implements AudioSendHandler, AudioReceiveHandler  {
 
     private Logger logger = LoggerFactory.getLogger(SingHandler.class);
     //set queue
@@ -21,18 +26,11 @@ public class SingHandler implements AudioSendHandler, AudioReceiveHandler {
     // receive handling
     @Override
     public boolean canReceiveCombined() {
-        return queue.size() < 20;
+        return true;
     }
 
     @Override
-    public void handleCombinedAudio(CombinedAudio combinedAudio) {
-        if(combinedAudio.getUsers().isEmpty()) {
-            logger.info("No users in the queue.");
-            return;
-        }
-        byte[] data = combinedAudio.getAudioData(1.0F);
-        queue.add(data);
-    }
+    public void handleCombinedAudio(CombinedAudio combinedAudio) { /* no operation required */ }
 
     @Override
     public boolean canReceiveUser() {
@@ -49,10 +47,7 @@ public class SingHandler implements AudioSendHandler, AudioReceiveHandler {
     }
 
     @Override
-    public ByteBuffer provide20MsAudio() {
-        byte[] data = queue.poll();
-        return data == null ? null : ByteBuffer.wrap(data);
-    }
+public ByteBuffer provide20MsAudio() { return null;}
     
     @Override
     public boolean isOpus() {

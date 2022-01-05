@@ -61,5 +61,5 @@ tasks.named('test') {
 task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter clean
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8

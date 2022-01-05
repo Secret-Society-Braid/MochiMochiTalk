@@ -39,9 +39,9 @@ public class VoiceEventListener extends ListenerAdapter {
 
     private MessageChannel channel = null;
     private AudioManager audioManager;
-    private AudioSendHandler sendHandler;
-    private AudioReceiveHandler receiveHandler;
-    private SingHandler singHandler;
+    private DeprecatedTTSEngine ttsEngine = new DeprecatedTTSEngine();
+    private boolean flag = false;
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -50,8 +50,6 @@ public class VoiceEventListener extends ListenerAdapter {
         Message message = event.getMessage();
         String content = message.getContentRaw();
         audioManager = event.getGuild().getAudioManager();
-        sendHandler = audioManager.getSendingHandler();
-        receiveHandler = audioManager.getReceivingHandler();
 
         // ignore messages from bots
         if (author.isBot()) {
@@ -68,101 +66,38 @@ public class VoiceEventListener extends ListenerAdapter {
             onDisconnectCommand(event);
         }
 
-        if(channel != null && !content.startsWith("!!")) {
+        if(flag && !content.startsWith("!!")) {
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());
             logger.info("Guild: {}", event.getGuild().getName());
-            MessageBuilder builder = new MessageBuilder();
-            builder.setTTS(true);
-            builder.append("**" + author.getName() + "**さん: " + content)
-                .build();
-            channel.sendMessage(builder.build()).queue();
-            message.delete().queue();/*
-            ProcessBuilder pBuilder = new ProcessBuilder();
-            Path path = Paths.get("").toAbsolutePath();
-            String curAbsolutePath = path.toString() + "\\tmp.wav";
-            pBuilder.directory(path.toFile());
-            pBuilder.command("softalkw.exe", "/R:" + curAbsolutePath, "/W:" + content);
             try {
-                Process process = pBuilder.start();
-                process.waitFor();
-            } catch (IOException | InterruptedException e) {
-                logger.warn("Failed to execute softalkw.exe", e);
+                ttsEngine.say(content);
+            } catch (Exception e) {
+                logger.error("Cannot handle tts:", e);
             }
-            Path wavPath = Paths.get(curAbsolutePath);
-            byte[] wavBytes = fileToByteArray(wavPath.toString());
-            singHandler.addQueue(wavBytes);
-            singHandler.provide20MsAudio();
-            try {
-                Files.delete(wavPath);
-            } catch (IOException e) {
-                logger.warn("Failed to delete wav file", e);
-            }*/
         }
-    }
-
-    private void connect(VoiceChannel channel) {
-        Guild guild = channel.getGuild();
-        audioManager = guild.getAudioManager();
-        singHandler = new SingHandler();
-        audioManager.setReceivingHandler(singHandler);
-        audioManager.setSendingHandler(singHandler);
-        audioManager.openAudioConnection(channel);
-    }
-
-    private void disconnect(VoiceChannel channel) {
-        Guild guild = channel.getGuild();
-        audioManager = guild.getAudioManager();
-        audioManager.closeAudioConnection();
-        
-    }
-
-    private void onConnecting(VoiceChannel voice, MessageChannel text) {
-        text.sendMessage(voice.getName() + "で準備できました…！").queue();
-        channel = text;
-    }
-
-    private void onDisconnecting(MessageChannel text) {
-        text.sendMessage("終わりますか？お疲れ様でした…").queue();
-        channel = null;
     }
 
     private void onConnectCommand(MessageReceivedEvent event) {
-        MessageChannel text = event.getChannel();
-        Member member = event.getMember();
-        VoiceChannel voice = member.getVoiceState().getChannel();
-
-        if (voice == null) {
-            text.sendMessage("まだボイスチャンネルに入っていないみないです。プロデューサーさん").queue();
+        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        if(voiceChannel == null) {
+            event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
+            logger.info("User is not in a voice channel.");
             return;
         }
-
-        connect(voice);
-        onConnecting(voice, event.getChannel());
+        audioManager.setSendingHandler(ttsEngine);
+        audioManager.openAudioConnection(voiceChannel);
+        channel = event.getChannel();
+        flag = true;
+        channel.sendMessage("準備ができました！いつでもお喋りできます…！").queue();
+        logger.info("Connected to voice channel.");
     }
 
     private void onDisconnectCommand(MessageReceivedEvent event) {
-        MessageChannel text = event.getChannel();
-        Member member = event.getMember();
-        VoiceChannel voice = member.getVoiceState().getChannel();
-
-        if(voice == null) {
-            text.sendMessage("まだボイスチャンネルに入っていないみないです。プロデューサーさん").queue();
-            return;
-        }
-
-        disconnect(voice);
-        onDisconnecting(event.getChannel());
-    }
-
-    public static byte[] fileToByteArray(String name){
-        Path path = Paths.get(name);
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        audioManager.closeAudioConnection();
+        channel = null;
+        event.getChannel().sendMessage("終わりますか？お疲れ様でした…").queue();
+        logger.info("Disconnected from voice channel.");
     }
 }

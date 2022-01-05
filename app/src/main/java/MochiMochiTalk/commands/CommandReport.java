@@ -30,7 +30,7 @@ public class CommandReport extends ListenerAdapter {
             String sendBody = content.substring(9);
             logger.info("Sending report message.");
             String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-            dev.openPrivateChannel().queue();
+            dev.openPrivateChannel();
             event.getJDA().getPrivateChannelById("399143446939697162").sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
                     + "送信したプロデューサーさん：**{}**さん\n"
                     + "送信内容：\n```{}```\n"

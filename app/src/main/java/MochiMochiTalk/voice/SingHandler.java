@@ -53,4 +53,8 @@ public ByteBuffer provide20MsAudio() { return null;}
     public boolean isOpus() {
         return false;
     }
+
+    public void addQueue(byte[] data) {
+        queue.add(data);
+    }
 }

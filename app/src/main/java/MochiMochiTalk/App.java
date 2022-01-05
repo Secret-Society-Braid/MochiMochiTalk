@@ -8,7 +8,9 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandPing;
+import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDABuilder;
@@ -35,7 +37,9 @@ public class App {
             .addEventListeners(
                 new ReadyListener(),
                 new VoiceEventListener(),
-                new CommandPing()
+                new CommandPing(),
+                new CommandHelp(),
+                new CommandReport()
             )
             .build();
             logger.info("JDA was successfully built.");

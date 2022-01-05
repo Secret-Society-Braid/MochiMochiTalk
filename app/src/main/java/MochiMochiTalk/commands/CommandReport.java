@@ -33,10 +33,10 @@ public class CommandReport extends ListenerAdapter {
             logger.info("Date: {}", formattedDate);
             dev.openPrivateChannel().queue(pChannel -> {
                 pChannel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-                    + "送信したプロデューサーさん：**{}**さん\n"
-                    + "送信内容：\n```{}```\n"
+                    + "送信したプロデューサーさん：** %s **さん\n"
+                    + "送信内容：\n``` %s ```\n"
                     + "が報告されました。\n"
-                    + "障害発生予想時刻：{}\n"
+                    + "障害発生予想時刻： %s \n"
                 , author.getName(), sendBody, formattedDate).queue();
             });
         } else if (content.equals("!!report")) {

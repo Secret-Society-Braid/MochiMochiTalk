@@ -30,13 +30,14 @@ public class CommandReport extends ListenerAdapter {
             String sendBody = content.substring(9);
             logger.info("Sending report message.");
             String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-            dev.openPrivateChannel().queue(response -> {
-                event.getJDA().getPrivateChannelById("399143446939697162").sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-                + "送信したプロデューサーさん：**{}**さん\n"
-                + "送信内容：\n```{}```\n"
-                + "が報告されました。\n"
-                + "障害発生予想時刻：{}\n"
-        , author.getName(), sendBody, formattedDate).queue();
+            logger.info("Date: {}", formattedDate);
+            dev.openPrivateChannel().queue(pChannel -> {
+                pChannel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
+                    + "送信したプロデューサーさん：**{}**さん\n"
+                    + "送信内容：\n```{}```\n"
+                    + "が報告されました。\n"
+                    + "障害発生予想時刻：{}\n"
+                , author.getName(), sendBody, formattedDate).queue();
             });
         } else if (content.equals("!!report")) {
             logger.warn("sendBody parameter is missing.");

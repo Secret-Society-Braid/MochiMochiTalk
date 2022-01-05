@@ -39,6 +39,7 @@ public class CommandReport extends ListenerAdapter {
                     + "障害発生予想時刻： %s \n"
                 , author.getName(), sendBody, formattedDate).queue();
             });
+            channel.sendMessage("報告ありがとうございます。治るまで時間が掛かるかもしれないので、気長にお待ちください by 中の人").queue();
         } else if (content.equals("!!report")) {
             logger.warn("sendBody parameter is missing.");
             channel.sendMessage("!!reportの後に半角のスペースを入れて、その後に伝えたい内容を入れてください。").queue();

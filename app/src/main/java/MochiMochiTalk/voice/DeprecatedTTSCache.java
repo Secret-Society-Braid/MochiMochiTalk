@@ -12,6 +12,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DeprecatedTTSCache {
     
     private final File cacheFile;
@@ -19,6 +22,8 @@ public class DeprecatedTTSCache {
     private static final int FREQUENT_THRESHOLD = 1;
 
     private final HashMap<String, byte[]> cachedPhrases;
+
+    private Logger logger = LoggerFactory.getLogger(DeprecatedTTSCache.class);
 
     // Phrases that TTSCache is currently monitoring to decide if they are frequent enough to be cached
     private final HashMap<String, Integer> considerations = new HashMap<>();
@@ -28,7 +33,7 @@ public class DeprecatedTTSCache {
 
     static class CacheResponse {
         byte[] pcmIfCached;
-        boolean shouldCache;
+        boolean shouldCache = false;
 
         public static CacheResponse phraseAlreadyCached(byte[] pcmIfCached) {
             CacheResponse r = new CacheResponse();
@@ -51,22 +56,25 @@ public class DeprecatedTTSCache {
     }
 
     DeprecatedTTSCache() throws Exception {
-         cacheFile = new File(System.getProperty("user.home") + File.separator + ".vocalcord" + File.separator + "vocalcord_phrases.cache");
+         cacheFile = new File(".vocalcord" + File.separator + "vocalcord_phrases.cache");
 
          if(!cacheFile.exists()) {
              if(cacheFile.getParentFile().mkdir() && cacheFile.createNewFile()) {
-                 cachedPhrases = new HashMap<>();
+                logger.info("Created cache file");
+                cachedPhrases = new HashMap<>();
              } else {
                  throw new RuntimeException("Error creating cache file");
              }
          } else {
-             cachedPhrases = load();
+            logger.info("Loading cache file");
+            cachedPhrases = load();
+            cachedPhrases.forEach((key, value) -> logger.info("cached sentences -> {} : {}", key, value.length));
          }
 
          // Clear considerations every day, this means that a phrase can only be frequent if FREQUENT_THRESHOLD
-        // is acquired in a day
+        // is acquired in a week
         ScheduledExecutorService streamDaemon = Executors.newScheduledThreadPool(1);
-        streamDaemon.scheduleAtFixedRate(considerations::clear, 0, 1, TimeUnit.DAYS);
+        streamDaemon.scheduleAtFixedRate(considerations::clear, 0, 7, TimeUnit.DAYS);
     }
 
     CacheResponse checkCache(String phrase) {
@@ -77,13 +85,15 @@ public class DeprecatedTTSCache {
         if(pcm == null) {
             int count = considerations.getOrDefault(cleaned, 0);
             considerations.put(cleaned, ++count);
+            logger.info("Phrase {} is frequent enough to be cached. count : {}", phrase, count);
             if(count >= FREQUENT_THRESHOLD) {
-                return CacheResponse.shouldCachePhrase();
+                logger.info("Phrase {} is frequent enough to be cached. count : {}", phrase, count);
             } else {
-                return CacheResponse.doNothing();
+                logger.info("Phrase {} is not frequent enough to be cached. count : {}", phrase, count);
             }
+            return CacheResponse.shouldCachePhrase();
         }
-
+        logger.info("Phrase {} is cached. count : {}", phrase, considerations.get(cleaned));
         return CacheResponse.phraseAlreadyCached(pcm);
     }
 

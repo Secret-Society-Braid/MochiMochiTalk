@@ -31,7 +31,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
             try {
                 ttsCache = new DeprecatedTTSCache();
             } catch(Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to load cache", e);
             }
     }
 
@@ -71,18 +71,23 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
         if(ttsCache != null) {
             DeprecatedTTSCache.CacheResponse response = ttsCache.checkCache(phrase);
 
-            byte[] data = tts(phrase);
+            byte[] data = null;
 
             if(response.pcmIfCached != null) {
+                logger.info("Using cached TTS");
                 this.out = response.pcmIfCached;
             } else {
+                data = tts(phrase);
+                logger.info("Using TTS");
                 this.out = data;
             }
 
             if(response.shouldCache) {
+                logger.info("Caching TTS");
                 ttsCache.cache(phrase, data);
             }
         } else {
+            logger.info("Using TTS");
             this.out = tts(phrase);
         }
 

@@ -40,7 +40,7 @@ public class CommandChangePrefix extends ListenerAdapter {
                 write(split[1]);
                 channel.sendMessage("prefixを" + App.prefix + "に変更しました").queue();
             } else {
-                channel.sendMessage("prefixを変更するには2つの引数が必要です").queue();
+                channel.sendMessage("prefixを変更するには1つの引数が必要です").queue();
             }
         }
     }

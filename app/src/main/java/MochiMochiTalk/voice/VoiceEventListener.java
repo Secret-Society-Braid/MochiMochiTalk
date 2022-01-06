@@ -1,10 +1,13 @@
 package MochiMochiTalk.voice;
 
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
+import MochiMochiTalk.commands.CommandDictionary;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -21,6 +24,8 @@ public class VoiceEventListener extends ListenerAdapter {
     private AudioManager audioManager;
     private DeprecatedTTSEngine ttsEngine = new DeprecatedTTSEngine();
     private boolean flag = false;
+    private String replaced = "";
+    private boolean isReplaced = false;
 
 
     @Override
@@ -51,8 +56,21 @@ public class VoiceEventListener extends ListenerAdapter {
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());
             logger.info("Guild: {}", event.getGuild().getName());
+            Map<String, String> dic = CommandDictionary.getDictionary();
+            dic.forEach((key, value) -> {
+                if(content.contains(key)) {
+                    logger.info("Found Dic: {}", key);
+                    replaced = content.replace(content, value);
+                    logger.info("Dic: {}", value);
+                    isReplaced = true;
+                }
+            });
             try {
-                ttsEngine.say(content);
+                if(isReplaced) {
+                    ttsEngine.say(replaced);
+                } else {
+                    ttsEngine.say(content);
+                }
             } catch (Exception e) {
                 logger.error("Cannot handle tts:", e);
             }

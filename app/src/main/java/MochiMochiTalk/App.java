@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.commands.CommandChangePrefix;
+import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandPing;
 import MochiMochiTalk.commands.CommandReport;
@@ -60,7 +61,8 @@ public class App {
                 new CommandPing(),
                 new CommandHelp(),
                 new CommandReport(),
-                new CommandChangePrefix()
+                new CommandChangePrefix(),
+                new CommandDictionary()
             )
             .build();
             logger.info("JDA was successfully built.");

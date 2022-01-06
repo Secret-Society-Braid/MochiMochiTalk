@@ -32,6 +32,7 @@ public class CommandHelp extends ListenerAdapter {
                     App.prefix + "ping - （開発者向け）わたしのPingを測定します\n" +
                     App.prefix + "report 【内容】 - もしわたしが変な動き方（テキストを全然喋ってくれない）をしたときに、わたしを作ってくれた人へそのことを伝えておきます\n" +
                     App.prefix + "prefix 【新しいprefix】コマンドの接頭辞を変更します。\n" + 
+                    App.prefix + "dic 【読み方を変えたい単語】 【読み方】 - その単語の読み方を変更します。\n" +
                     App.prefix + "help - このお助けメッセージを表示します```").queue();
         }
     }

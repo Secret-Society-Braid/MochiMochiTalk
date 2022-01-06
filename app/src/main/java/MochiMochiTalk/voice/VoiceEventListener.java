@@ -1,30 +1,10 @@
 package MochiMochiTalk.voice;
 
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.DataLine.Info;
-
-import com.google.protobuf.Struct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.audio.AudioReceiveHandler;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
+import MochiMochiTalk.App;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -56,17 +36,17 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        if(content.equalsIgnoreCase("!!connect")) {
+        if(content.equalsIgnoreCase(App.prefix + "connect")) {
             logger.info("Connecting to voice channel.");
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase("!!disconnect")) {
+        if(content.equalsIgnoreCase(App.prefix + "disconnect")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
 
-        if(flag && !content.startsWith("!!")) {
+        if(flag && !content.startsWith(App.prefix)) {
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());

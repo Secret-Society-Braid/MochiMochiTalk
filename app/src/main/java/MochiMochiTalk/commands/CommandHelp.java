@@ -3,6 +3,7 @@ package MochiMochiTalk.commands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import MochiMochiTalk.App;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -22,15 +23,16 @@ public class CommandHelp extends ListenerAdapter {
         if(author.isBot()) {
             return;
         }
-        if(content.equalsIgnoreCase("!!help")) {
+        if(content.equalsIgnoreCase(App.prefix + "help")) {
             logger.info("Sending help message.");
             channel.sendMessage("```" +
                     "使い方は次の通りです…！プロデューサーさん！\n" +
-                    "!!connect - コマンドを打った本人が入っているボイスチャンネルにわたしを入室させます\n" +
-                    "!!disconnect - わたしをボイスチャンネルから退出させます\n" +
-                    "!!ping - （開発者向け）わたしのPingを測定します\n" +
-                    "!!report 【内容】 - もしわたしが変な動き方（テキストを全然喋ってくれない）をしたときに、わたしを作ってくれた人へそのことを伝えておきます\n" +
-                    "!!help - このお助けメッセージを表示します```").queue();
+                    App.prefix + "connect - コマンドを打った本人が入っているボイスチャンネルにわたしを入室させます\n" +
+                    App.prefix + "disconnect - わたしをボイスチャンネルから退出させます\n" +
+                    App.prefix + "ping - （開発者向け）わたしのPingを測定します\n" +
+                    App.prefix + "report 【内容】 - もしわたしが変な動き方（テキストを全然喋ってくれない）をしたときに、わたしを作ってくれた人へそのことを伝えておきます\n" +
+                    App.prefix + "prefix 【新しいprefix】コマンドの接頭辞を変更します。\n" + 
+                    App.prefix + "help - このお助けメッセージを表示します```").queue();
         }
     }
 }

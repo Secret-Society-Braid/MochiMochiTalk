@@ -4,6 +4,7 @@ package MochiMochiTalk.commands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import MochiMochiTalk.App;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -34,7 +35,7 @@ public class CommandPing extends ListenerAdapter {
         logger.info("Channel: {}", channel.getName());
         logger.info("Author: {}", author.getName());
         logger.info("Guild: {}", guild.getName());
-        if(content.equalsIgnoreCase("!!ping")) {
+        if(content.equalsIgnoreCase(App.prefix + "ping")) {
             logger.info("Pong!");
             long time = System.currentTimeMillis();
             channel.sendMessage("ぽ…ぽんっ…！").queue(response -> {

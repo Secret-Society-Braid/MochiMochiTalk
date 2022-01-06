@@ -12,6 +12,8 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import MochiMochiTalk.App;
+
 public class CommandReport extends ListenerAdapter {
     
     private Logger logger = LoggerFactory.getLogger(CommandReport.class);
@@ -26,7 +28,7 @@ public class CommandReport extends ListenerAdapter {
         if(author.isBot()) {
             return;
         }
-        if(content.startsWith("!!report ")) {
+        if(content.startsWith(App.prefix + "report ")) {
             String sendBody = content.substring(9);
             logger.info("Sending report message.");
             String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
@@ -40,7 +42,7 @@ public class CommandReport extends ListenerAdapter {
                 , author.getName(), sendBody, formattedDate).queue();
             });
             channel.sendMessage("報告ありがとうございます。治るまで時間が掛かるかもしれないので、気長にお待ちください by 中の人").queue();
-        } else if (content.equals("!!report")) {
+        } else if (content.equals(App.prefix + "report")) {
             logger.warn("sendBody parameter is missing.");
             channel.sendMessage("!!reportの後に半角のスペースを入れて、その後に伝えたい内容を入れてください。").queue();
         }

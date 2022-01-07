@@ -1,7 +1,10 @@
 package MochiMochiTalk.voice;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +24,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
     private byte[] out;
     private int index;
     private ByteBuffer lastFrame;
+    private boolean isSpeaking = false;
 
     private DeprecatedTTSCache ttsCache;
 
@@ -68,6 +72,10 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
     }
 
     public void say(String phrase) throws Exception {
+        while(this.isSpeaking) {
+            TimeUnit.SECONDS.sleep(1);
+        }
+        this.isSpeaking = true;
         if(ttsCache != null) {
             DeprecatedTTSCache.CacheResponse response = ttsCache.checkCache(phrase);
 
@@ -104,6 +112,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
 
             if(index >= out.length) {
                 logger.info("maybe Finished speaking");
+                this.isSpeaking = false;
             }
         }
 

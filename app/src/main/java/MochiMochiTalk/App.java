@@ -3,10 +3,6 @@
  */
 package MochiMochiTalk;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
@@ -41,6 +37,7 @@ public class App {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 logger.error("Error: ", e);
+                Thread.currentThread().interrupt();
             }
             logger.debug("Waiting for file read thread to finish.");
         }

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -31,6 +32,7 @@ public class VoiceEventListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         logger.info("Message received: {}", event.getMessage().getContentRaw());
+        Guild guild = event.getGuild();
         User author = event.getAuthor();
         Message message = event.getMessage();
         String content = message.getContentRaw();
@@ -49,6 +51,17 @@ public class VoiceEventListener extends ListenerAdapter {
         if(content.equalsIgnoreCase(App.prefix + "disconnect")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
+        }
+
+        if(content.contains("<:") && content.contains(">")) {
+            logger.info("Received emoji.");
+            return;
+        }
+
+
+        if(content.startsWith("```")) {
+            logger.info("Received code block.");
+            return;
         }
 
         if(flag && !content.startsWith(App.prefix)) {

@@ -74,7 +74,7 @@ public class DeprecatedTTSCache {
          // Clear considerations every day, this means that a phrase can only be frequent if FREQUENT_THRESHOLD
         // is acquired in a week
         ScheduledExecutorService streamDaemon = Executors.newScheduledThreadPool(1);
-        streamDaemon.scheduleAtFixedRate(considerations::clear, 0, 7, TimeUnit.DAYS);
+        streamDaemon.scheduleAtFixedRate(considerations::clear, 0, (365 * 100), TimeUnit.DAYS);
     }
 
     CacheResponse checkCache(String phrase) {

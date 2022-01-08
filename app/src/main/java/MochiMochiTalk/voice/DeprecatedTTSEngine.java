@@ -1,14 +1,18 @@
 package MochiMochiTalk.voice;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
-import com.google.cloud.texttospeech.v1.*;
+import com.google.cloud.texttospeech.v1.AudioConfig;
+import com.google.cloud.texttospeech.v1.AudioEncoding;
+import com.google.cloud.texttospeech.v1.SsmlVoiceGender;
+import com.google.cloud.texttospeech.v1.SynthesisInput;
+import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
+import com.google.cloud.texttospeech.v1.TextToSpeechClient;
+import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
 
 import org.slf4j.Logger;
@@ -39,7 +43,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
             }
     }
 
-    byte[] tts(String text) throws Exception {
+    byte[] tts(String text) throws IOException {
         try(TextToSpeechClient client = TextToSpeechClient.create()) {
             SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
 
@@ -71,7 +75,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
         }
     }
 
-    public void say(String phrase) throws Exception {
+    public void say(String phrase) throws InterruptedException, IOException {
         while(this.isSpeaking) {
             TimeUnit.SECONDS.sleep(1);
         }

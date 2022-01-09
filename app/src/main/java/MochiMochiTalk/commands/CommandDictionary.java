@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class CommandDictionary extends ListenerAdapter {
     
     private Logger logger = LoggerFactory.getLogger(CommandDictionary.class);
-    private Map<String, String> dictionary = new HashMap<String, String>();
+    private Map<String, String> dictionary = new HashMap<>();
     private final String DICPATH = "dictionary.json";
     
 

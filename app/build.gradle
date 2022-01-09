@@ -42,6 +42,11 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-speech:1.22.6'
     implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
     implementation 'com.github.wdavies973:VocalCord:2.3'
+
+    // jackson core, databind, annotation
+    implementation('com.fasterxml.jackson.core:jackson-core:2.9.6')
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.9.6')
+    implementation('com.fasterxml.jackson.core:jackson-annotations:2.9.6')
 }
 
 application {

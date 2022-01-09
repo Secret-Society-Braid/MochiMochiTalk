@@ -32,7 +32,6 @@ public class VoiceEventListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         logger.info("Message received: {}", event.getMessage().getContentRaw());
-        Guild guild = event.getGuild();
         User author = event.getAuthor();
         Message message = event.getMessage();
         String content = message.getContentRaw();
@@ -113,6 +112,7 @@ public class VoiceEventListener extends ListenerAdapter {
     private void onDisconnectCommand(MessageReceivedEvent event) {
         audioManager.closeAudioConnection();
         channel = null;
+        flag = false;
         event.getChannel().sendMessage("終わりますか？お疲れ様でした…").queue();
         logger.info("Disconnected from voice channel.");
     }

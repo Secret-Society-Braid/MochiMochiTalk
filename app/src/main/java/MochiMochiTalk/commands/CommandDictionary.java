@@ -32,7 +32,7 @@ public class CommandDictionary extends ListenerAdapter {
     public CommandDictionary() {
         if(Files.notExists(Paths.get(DICPATH))) {
             logger.info("dictionary.json is not found. Create new dictionary.json.");
-            Map<String, String> initMap = new HashMap<String, String>();
+            Map<String, String> initMap = new HashMap<>();
             initMap.put("IDOLM@STER", "アイドルマスター");
             writeDic(initMap);
         }

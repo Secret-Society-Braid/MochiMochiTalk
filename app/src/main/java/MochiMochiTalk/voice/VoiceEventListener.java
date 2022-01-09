@@ -64,6 +64,11 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
+        if(content.matches("\\d.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+            logger.info("Received URL.");
+            return;
+        }
+
         if(flag && !content.startsWith(App.prefix)) {
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
@@ -73,7 +78,7 @@ public class VoiceEventListener extends ListenerAdapter {
             dic.forEach((key, value) -> {
                 if(content.contains(key)) {
                     logger.info("Found Dic: {}", key);
-                    replaced = content.replace(content, value);
+                    replaced = content.replace(key, value);
                     logger.info("Dic: {}", value);
                     isReplaced = true;
                 }

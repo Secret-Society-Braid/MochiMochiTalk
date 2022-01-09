@@ -32,10 +32,11 @@ public class CommandPing extends ListenerAdapter {
         if(author.isBot()) {
             return;
         }
-        logger.info("Channel: {}", channel.getName());
-        logger.info("Author: {}", author.getName());
-        logger.info("Guild: {}", guild.getName());
         if(content.equalsIgnoreCase(App.prefix + "ping")) {
+            logger.info("Ping command received.");
+            logger.info("Channel: {}", channel.getName());
+            logger.info("Author: {}", author.getName());
+            logger.info("Guild: {}", guild.getName());
             logger.info("Pong!");
             long time = System.currentTimeMillis();
             channel.sendMessage("ぽ…ぽんっ…！").queue(response -> {

@@ -2,6 +2,9 @@ package MochiMochiTalk;
 
 import static MochiMochiTalk.mocks.GeneralExpressionMocks.emoteExpression;
 import static MochiMochiTalk.mocks.GeneralExpressionMocks.generalExpression;
+import static MochiMochiTalk.mocks.GeneralExpressionMocks.detectCommand;
+import static MochiMochiTalk.mocks.GeneralExpressionMocks.detectCodeBlock;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,22 @@ public class MatchTest {
 
         assertTrue(emoteExpression(testbegin));
         assertTrue(emoteExpression(testBetween));
+    }
+
+    @Test
+    public void commandMatchTest() {
+        String testString = "!!test";
+        String testBetween = "テスト!!test";
+
+        assertTrue(detectCommand(testString));
+        assertTrue(!detectCommand(testBetween));
+    }
+
+    @Test
+    public void codeBlockMatchTest() {
+        String testString = "``` Here comes the code block ```";
+
+        assertTrue(detectCodeBlock(testString));
     }
 
 }

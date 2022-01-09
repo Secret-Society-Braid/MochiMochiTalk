@@ -14,4 +14,7 @@ public class GeneralExpressionMocks {
         return testString.startsWith("!!");
     }
     
+    public static boolean detectCodeBlock(String testString) {
+        return testString.startsWith("```");
+    }
 }

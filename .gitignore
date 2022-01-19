@@ -1,5 +1,12 @@
 # Ignore Gradle project-specific cache directory
 .gradle
+.vocalcord
 
 # Ignore Gradle build output directory
 build
+
+logs/
+property.json
+dictionary.json
+.vocalcord/vocalcord_phrases.cache
+.vscode/launch.json

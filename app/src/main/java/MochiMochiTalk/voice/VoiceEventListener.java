@@ -1,30 +1,14 @@
 package MochiMochiTalk.voice;
 
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.DataLine.Info;
-
-import com.google.protobuf.Struct;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.audio.AudioReceiveHandler;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
+import MochiMochiTalk.App;
+import MochiMochiTalk.commands.CommandDictionary;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -41,6 +25,8 @@ public class VoiceEventListener extends ListenerAdapter {
     private AudioManager audioManager;
     private DeprecatedTTSEngine ttsEngine = new DeprecatedTTSEngine();
     private boolean flag = false;
+    private String replaced = "";
+    private boolean isReplaced = false;
 
 
     @Override
@@ -56,26 +42,56 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        if(content.equalsIgnoreCase("!!connect")) {
+        if(content.equalsIgnoreCase(App.prefix + "connect")) {
             logger.info("Connecting to voice channel.");
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase("!!disconnect")) {
+        if(content.equalsIgnoreCase(App.prefix + "disconnect")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
 
-        if(flag && !content.startsWith("!!")) {
+        if(content.contains("<:") && content.contains(">")) {
+            logger.info("Received emoji.");
+            return;
+        }
+
+
+        if(content.startsWith("```")) {
+            logger.info("Received code block.");
+            return;
+        }
+
+        if(content.matches("\\d.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+            logger.info("Received URL.");
+            return;
+        }
+
+        if(flag && !content.startsWith(App.prefix)) {
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());
             logger.info("Guild: {}", event.getGuild().getName());
+            Map<String, String> dic = CommandDictionary.getDictionary();
+            dic.forEach((key, value) -> {
+                if(content.contains(key)) {
+                    logger.info("Found Dic: {}", key);
+                    replaced = content.replace(key, value);
+                    logger.info("Dic: {}", value);
+                    isReplaced = true;
+                }
+            });
             try {
-                ttsEngine.say(content);
+                if(isReplaced) {
+                    ttsEngine.say(replaced);
+                } else {
+                    ttsEngine.say(content);
+                }
             } catch (Exception e) {
                 logger.error("Cannot handle tts:", e);
             }
+            isReplaced = false;
         }
     }
 
@@ -97,6 +113,7 @@ public class VoiceEventListener extends ListenerAdapter {
     private void onDisconnectCommand(MessageReceivedEvent event) {
         audioManager.closeAudioConnection();
         channel = null;
+        flag = false;
         event.getChannel().sendMessage("終わりますか？お疲れ様でした…").queue();
         logger.info("Disconnected from voice channel.");
     }

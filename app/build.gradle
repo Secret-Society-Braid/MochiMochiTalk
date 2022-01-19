@@ -31,7 +31,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation 'com.google.guava:guava:31.0.1-jre'
 
     // Java Discord API
     implementation('net.dv8tion:JDA:4.3.0_277')
@@ -44,9 +44,9 @@ dependencies {
     implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // jackson core, databind, annotation
-    implementation('com.fasterxml.jackson.core:jackson-core:2.9.6')
-    implementation('com.fasterxml.jackson.core:jackson-databind:2.9.6')
-    implementation('com.fasterxml.jackson.core:jackson-annotations:2.9.6')
+    implementation('com.fasterxml.jackson.core:jackson-core:2.13.1')
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.13.1')
+    implementation('com.fasterxml.jackson.core:jackson-annotations:2.13.1')
 }
 
 application {

@@ -1,10 +1,10 @@
 package MochiMochiTalk;
 
+import static MochiMochiTalk.mocks.GeneralExpressionMocks.detectCodeBlock;
+import static MochiMochiTalk.mocks.GeneralExpressionMocks.detectCommand;
 import static MochiMochiTalk.mocks.GeneralExpressionMocks.emoteExpression;
 import static MochiMochiTalk.mocks.GeneralExpressionMocks.generalExpression;
-import static MochiMochiTalk.mocks.GeneralExpressionMocks.detectCommand;
-import static MochiMochiTalk.mocks.GeneralExpressionMocks.detectCodeBlock;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class MatchTest {
         String testBetween = "テスト!!test";
 
         assertTrue(detectCommand(testString));
-        assertTrue(!detectCommand(testBetween));
+        assertFalse(detectCommand(testBetween));
     }
 
     @Test

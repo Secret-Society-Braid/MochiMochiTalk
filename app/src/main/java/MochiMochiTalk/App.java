@@ -8,7 +8,12 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import MochiMochiTalk.commands.CommandChangePrefix;
+import MochiMochiTalk.commands.CommandDictionary;
+import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandPing;
+import MochiMochiTalk.commands.CommandReport;
+import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDABuilder;
@@ -18,14 +23,29 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class App {
 
-    private static final String TOKEN = "OTI3NzkwMDQ2NzkzMzE4NDQw.YdPV0A.aXz6PxWBwvFoHA2vB00IfMiOZSc";
+    public static String token = "";
     private static Logger logger = LoggerFactory.getLogger(App.class);
 
-    public static String prefix = "!!";
+    public static String prefix = "";
 
     public static void main(String[] args) {
         logger.info("Hello, world!");
-        JDABuilder builder = JDABuilder.createDefault(TOKEN);
+        FileReadThreadImpl fileReadThread = new FileReadThreadImpl();
+        fileReadThread.run();
+        while (!fileReadThread.getFlag()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.error("Error: ", e);
+                Thread.currentThread().interrupt();
+            }
+            logger.debug("Waiting for file read thread to finish.");
+        }
+        token = fileReadThread.getToken();
+        prefix = fileReadThread.getPrefix();
+        logger.info("token: {}", token);
+        logger.info("prefix: {}", prefix);
+        JDABuilder builder = JDABuilder.createDefault(token);
         logger.info("TOKEN was successfully set.");
         try {
             builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
@@ -35,7 +55,11 @@ public class App {
             .addEventListeners(
                 new ReadyListener(),
                 new VoiceEventListener(),
-                new CommandPing()
+                new CommandPing(),
+                new CommandHelp(),
+                new CommandReport(),
+                new CommandChangePrefix(),
+                new CommandDictionary()
             )
             .build();
             logger.info("JDA was successfully built.");

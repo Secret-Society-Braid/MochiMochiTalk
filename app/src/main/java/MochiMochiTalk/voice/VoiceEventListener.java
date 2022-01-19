@@ -91,6 +91,7 @@ public class VoiceEventListener extends ListenerAdapter {
             } catch (Exception e) {
                 logger.error("Cannot handle tts:", e);
             }
+            isReplaced = false;
         }
     }
 

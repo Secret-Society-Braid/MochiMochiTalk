@@ -19,5 +19,7 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-    - name: Test with Gradle
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Tests with Gradle
       run: ./gradlew test

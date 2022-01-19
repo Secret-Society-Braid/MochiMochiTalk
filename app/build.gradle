@@ -37,7 +37,7 @@ dependencies {
     implementation('net.dv8tion:JDA:4.3.0_277')
 
     // logback
-    implementation('ch.qos.logback:logback-classic:1.2.3')
+    implementation('ch.qos.logback:logback-classic:1.2.10')
 
     implementation 'com.google.cloud:google-cloud-speech:1.22.6'
     implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'

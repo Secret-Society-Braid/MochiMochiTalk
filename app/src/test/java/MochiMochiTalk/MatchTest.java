@@ -34,9 +34,11 @@ public class MatchTest {
     public void emoteMatchTest() {
         String testBetween = "テスト<:test:123456789012345678>";
         String testbegin = "<:test:123456789012345678>";
+        String testEnd = "<:test:123456789012345678>テスト";
 
         assertTrue(emoteExpression(testbegin));
         assertTrue(emoteExpression(testBetween));
+        assertTrue(emoteExpression(testEnd));
     }
 
     @Test

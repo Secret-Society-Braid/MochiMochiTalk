@@ -52,7 +52,7 @@ public class VoiceEventListener extends ListenerAdapter {
             onDisconnectCommand(event);
         }
 
-        if(content.contains("<:") && content.contains(">")) {
+        if(content.matches(".*<:[A-Za-z].+\\d*>*")) {
             logger.info("Received emoji.");
             return;
         }

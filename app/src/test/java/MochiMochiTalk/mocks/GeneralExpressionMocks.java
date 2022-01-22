@@ -7,7 +7,11 @@ public class GeneralExpressionMocks {
     }
 
     public static boolean emoteExpression(String testString) {
+        /**
+         * Deprecated
         return testString.contains("<:") && testString.contains(">");
+        */
+        return testString.matches(".*<:[A-Za-z].+\\d*>*");
     }
 
     public static boolean detectCommand(String testString) {

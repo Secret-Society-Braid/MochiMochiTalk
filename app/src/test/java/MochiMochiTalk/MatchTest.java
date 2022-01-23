@@ -23,11 +23,29 @@ public class MatchTest {
 
     @Test
     public void anyUrlMatchTest() {
+        String regex = "\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         String testBetween = "テストhttps://www.youtube.com/watch?v=dQw4w9WgXcQ";
         String testbegin = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        String escapeTest = "テスト\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
-        assertTrue(generalExpression(testbegin, "\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"));
-        assertTrue(generalExpression(testBetween, "\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"));
+        assertTrue(generalExpression(testbegin, ".*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"));
+        assertTrue(generalExpression(escapeTest, ".*\\s?(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"));
+        assertTrue(generalExpression(testBetween, ".*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"));
+        assertTrue(generalExpression(escapeTest, ".*\\s.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"));
+    }
+
+    @Test
+    public void urlRegexTest() {
+        String regex = "(.|\\s)*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]*(.|\\s)";
+        String testBetween = "テストhttps://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        String testbegin = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        String escapeTest = "テスト\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        String escapeDoubleTest = "テスト\n\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ\n";
+
+        assertTrue(generalExpression(testBetween, regex));
+        assertTrue(generalExpression(escapeTest, regex));
+        assertTrue(generalExpression(testbegin, regex));
+        assertTrue(generalExpression(escapeDoubleTest, regex));
     }
 
     @Test

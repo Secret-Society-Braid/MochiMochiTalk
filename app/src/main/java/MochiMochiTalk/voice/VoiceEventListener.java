@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -52,21 +51,22 @@ public class VoiceEventListener extends ListenerAdapter {
             onDisconnectCommand(event);
         }
 
-        if(content.matches(".*<:[A-Za-z].+\\d*>*")) {
-            logger.info("Received emoji.");
+        String[] split = content.split("\n");
+
+        boolean isEscaped = false;
+
+        for( String str : split ) {
+            isEscaped = escapeProgression(str);
+            if(isEscaped)
+                break;
+        }
+
+        if(isEscaped) {
             return;
         }
 
-
-        if(content.startsWith("```")) {
-            logger.info("Received code block.");
-            return;
-        }
-
-        if(content.matches("\\d.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
-            logger.info("Received URL.");
-            return;
-        }
+        String unicoded = convertToUnicode(content);
+        logger.info("Unicoded: {}", unicoded);
 
         if(flag && !content.startsWith(App.prefix)) {
             logger.info("Analyzing message: {}", content);
@@ -116,5 +116,34 @@ public class VoiceEventListener extends ListenerAdapter {
         flag = false;
         event.getChannel().sendMessage("終わりますか？お疲れ様でした…").queue();
         logger.info("Disconnected from voice channel.");
+    }
+
+    private static String convertToUnicode(String original)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < original.length(); i++) {
+            sb.append(String.format("\\u%04X", Character.codePointAt(original, i)));
+            }
+        String unicode = sb.toString();
+        return unicode;
+        }
+
+    private boolean escapeProgression(String content) {
+        if(content.matches(".*<:[A-Za-z].+\\d*>*")) {
+            logger.info("Received emoji.");
+            return true;
+        }
+
+
+        if(content.startsWith("```")) {
+            logger.info("Received code block.");
+            return true;
+        }
+
+        if(content.matches("\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+            logger.info("Received URL.");
+            return true;
+        }
+        return false;
     }
 }

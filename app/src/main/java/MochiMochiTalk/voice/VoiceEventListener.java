@@ -57,9 +57,8 @@ public class VoiceEventListener extends ListenerAdapter {
 
         for( String str : split ) {
             isEscaped = escapeProgression(str);
-            if(isEscaped) {
+            if(isEscaped)
                 break;
-            }
         }
 
         if(isEscaped) {

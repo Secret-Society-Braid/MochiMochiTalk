@@ -1,9 +1,12 @@
 package MochiMochiTalk.commands;
 
+import java.awt.Color;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -25,15 +28,20 @@ public class CommandHelp extends ListenerAdapter {
         }
         if(content.equalsIgnoreCase(App.prefix + "help")) {
             logger.info("Sending help message.");
-            channel.sendMessage("```" +
-                    "使い方は次の通りです…！プロデューサーさん！\n" +
-                    App.prefix + "connect - コマンドを打った本人が入っているボイスチャンネルにわたしを入室させます\n" +
-                    App.prefix + "disconnect - わたしをボイスチャンネルから退出させます\n" +
-                    App.prefix + "ping - （開発者向け）わたしのPingを測定します\n" +
-                    App.prefix + "report 【内容】 - もしわたしが変な動き方（テキストを全然喋ってくれない）をしたときに、わたしを作ってくれた人へそのことを伝えておきます\n" +
-                    App.prefix + "prefix 【新しいprefix】コマンドの接頭辞を変更します。\n" + 
-                    App.prefix + "dic 【読み方を変えたい単語】 【読み方】 - その単語の読み方を変更します。\n" +
-                    App.prefix + "help - このお助けメッセージを表示します```").queue();
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setTitle("Help");
+            builder.setColor(Color.YELLOW);
+            builder.setDescription("使い方は次の通りです…！プロデューサーさん！");
+            builder.addField(App.prefix + "help", "このお助けメッセージを表示します", false);
+            builder.addField(App.prefix + "ping", "(開発者向け)わたしのpingを表示します", false);
+            builder.addField(App.prefix + "connect", "コマンドを打った本人が入っているボイスチャンネルにわたしを入室させます", false);
+            builder.addField(App.prefix + "disconnect", "わたしをボイスチャンネルから退出させます", false);
+            builder.addField(App.prefix + "report 【内容】", "もしわたしが変な動き方（テキストを全然喋ってくれないなど）をしたときに、わたしを作ってくれた人へそのことを伝えておきます", false);
+            builder.addField(App.prefix + "prefix 【新しいprefix】", "コマンドの接頭辞を変更します", false);
+            builder.addField(App.prefix + "dic 【読み方を変えたい単語】 【読み方】", "Botに指定したEmbedのタイトルを変更します", false);
+            builder.addField(App.prefix + "whatsnew", "一個前のバージョン(Github Release基準)からの変更点を表示します", false);
+            //send message
+            channel.sendMessageEmbeds(builder.build()).queue();
         }
     }
 }

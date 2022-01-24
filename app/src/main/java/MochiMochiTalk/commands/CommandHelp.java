@@ -38,7 +38,7 @@ public class CommandHelp extends ListenerAdapter {
             builder.addField(App.prefix + "disconnect", "わたしをボイスチャンネルから退出させます", false);
             builder.addField(App.prefix + "report 【内容】", "もしわたしが変な動き方（テキストを全然喋ってくれないなど）をしたときに、わたしを作ってくれた人へそのことを伝えておきます", false);
             builder.addField(App.prefix + "prefix 【新しいprefix】", "コマンドの接頭辞を変更します", false);
-            builder.addField(App.prefix + "dic 【読み方を変えたい単語】 【読み方】", "Botに指定したEmbedのタイトルを変更します", false);
+            builder.addField(App.prefix + "dic 【読み方を変えたい単語】 【読み方】", "その単語の読み方を変更します", false);
             builder.addField(App.prefix + "whatsnew", "一個前のバージョン(Github Release基準)からの変更点を表示します", false);
             //send message
             channel.sendMessageEmbeds(builder.build()).queue();

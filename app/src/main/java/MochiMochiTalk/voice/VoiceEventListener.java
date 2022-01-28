@@ -2,6 +2,7 @@ package MochiMochiTalk.voice;
 
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,11 @@ public class VoiceEventListener extends ListenerAdapter {
         }
 
         if(isEscaped) {
+            logger.info("Escaped: {}", content);
+            logger.info("target messageID: {}", message.getId());
+            channel.sendMessage("メッセージに絵文字、URL、コードブロックその他が含まれていたため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
+                response.delete().queueAfter(10, TimeUnit.SECONDS);
+            });
             return;
         }
 
@@ -134,6 +140,10 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
 
+        if(content.length() > 40) {
+            logger.info("Received long message.");
+            return true;
+        }
 
         if(content.startsWith("```")) {
             logger.info("Received code block.");

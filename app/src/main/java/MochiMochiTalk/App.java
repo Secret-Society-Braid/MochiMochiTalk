@@ -13,6 +13,7 @@ import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandPing;
 import MochiMochiTalk.commands.CommandReport;
+import MochiMochiTalk.commands.CommandSkip;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.ReadyListener;
@@ -61,7 +62,8 @@ public class App {
                 new CommandReport(),
                 new CommandChangePrefix(),
                 new CommandDictionary(),
-                new CommandWhatsNew()
+                new CommandWhatsNew(),
+                new CommandSkip()
             )
             .build();
             logger.info("JDA was successfully built.");

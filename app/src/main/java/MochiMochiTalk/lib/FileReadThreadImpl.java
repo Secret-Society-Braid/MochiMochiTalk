@@ -71,4 +71,14 @@ public class FileReadThreadImpl {
         return flag ? (String) propertyMap.get("token") : null;
     }
 
+    public String getSkipSec() {
+        return flag ? (String) propertyMap.get("skipSec") : null;
+    }
+
+    public static String skipSecond() {
+        var tmp = new FileReadThreadImpl();
+        tmp.run();
+        return tmp.getSkipSec();
+    }
+
 }

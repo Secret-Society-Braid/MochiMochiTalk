@@ -43,13 +43,13 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
             }
     }
 
-    byte[] tts(String text) throws IOException {
+    byte[] tts(String text, double speed) throws IOException {
         try(TextToSpeechClient client = TextToSpeechClient.create()) {
             SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
 
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("ja_JP").setSsmlGender(SsmlVoiceGender.NEUTRAL).build();
 
-            AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.LINEAR16).setSampleRateHertz(48_000).build();
+            AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.LINEAR16).setSampleRateHertz(48_000).setSpeakingRate(speed).build();
 
             SynthesizeSpeechResponse response = client.synthesizeSpeech(input, voice, audioConfig);
 
@@ -73,6 +73,10 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
 
             return converted;
         }
+    }
+
+    byte[] tts(String text) throws IOException {
+        return tts(text, 1.0);
     }
 
     public void say(String phrase) throws InterruptedException, IOException {

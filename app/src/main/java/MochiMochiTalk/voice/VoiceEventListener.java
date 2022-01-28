@@ -2,6 +2,7 @@ package MochiMochiTalk.voice;
 
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class VoiceEventListener extends ListenerAdapter {
     private boolean flag = false;
     private String replaced = "";
     private boolean isReplaced = false;
+    private boolean isThresholdReached = false;
 
 
     @Override
@@ -62,6 +64,12 @@ public class VoiceEventListener extends ListenerAdapter {
         }
 
         if(isEscaped) {
+            channel.sendMessage("メッセージの読み上げが中断されました。(このメッセージは15秒後に自動削除されます)").queue(response -> {
+                channel.deleteMessageById(response.getId()).queueAfter(15, TimeUnit.SECONDS);
+                logger.debug("Reading aborted.");
+                logger.debug("Target message: {}", message.getContentRaw());
+                logger.debug("Target messageID: {}", message.getId());
+            });
             return;
         }
 
@@ -134,6 +142,10 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
 
+        if(isThresholdReached) {
+            logger.info("Threshold reached.");
+            return true;
+        }
 
         if(content.startsWith("```")) {
             logger.info("Received code block.");
@@ -145,5 +157,17 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
         return false;
+    }
+
+    public boolean isThresholdReached() {
+        return isThresholdReached;
+    }
+
+    public void setThresholdReached(boolean switcher) {
+        this.isThresholdReached = switcher;
+    }
+
+    public MessageChannel getChannel() {
+        return channel;
     }
 }

@@ -41,12 +41,12 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "connect")) {
+        if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
             logger.info("Connecting to voice channel.");
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "disconnect")) {
+        if(content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }

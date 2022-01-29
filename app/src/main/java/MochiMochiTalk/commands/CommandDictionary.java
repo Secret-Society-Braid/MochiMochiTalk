@@ -53,10 +53,17 @@ public class CommandDictionary extends ListenerAdapter {
                 String word = split[1];
                 String meaning = split[2];
                 Map<String, String> dic = readDic();
+                if(split[1].equals("del")) {
+                    dic.remove(split[2]);
+                    writeDic(dic);
+                    channel.sendMessageFormat("読み方を削除しました: %s", split[2]).queue();
+                    logger.info("Deleted word: {}", split[2]);
+                } else {
                 dic.put(word, meaning);
                 writeDic(dic);
                 channel.sendMessageFormat("読み方を更新しました： %s -> %s", word, meaning).queue();
                 logger.info("dic updated: {} -> {}", word, meaning);
+                }
             } else if(split.length == 2) {
                 String word = split[1];
                 Map<String, String> dic = readDic();

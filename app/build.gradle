@@ -40,7 +40,7 @@ dependencies {
     implementation('ch.qos.logback:logback-classic:1.2.10')
 
     implementation 'com.google.cloud:google-cloud-speech:2.2.2'
-    implementation 'com.google.cloud:google-cloud-texttospeech:2.1.1'
+    implementation 'com.google.cloud:google-cloud-texttospeech:2.1.2'
     implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // jackson core, databind, annotation

@@ -15,6 +15,7 @@ import MochiMochiTalk.commands.CommandPing;
 import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.FileReadThreadImpl;
+import MochiMochiTalk.listeners.CheckContainsDiscordURL;
 import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDABuilder;
@@ -30,43 +31,44 @@ public class App {
     public static String prefix = "";
 
     public static void main(String[] args) {
-        logger.info("Hello, world!");
-        FileReadThreadImpl fileReadThread = new FileReadThreadImpl();
-        fileReadThread.run();
-        while (!fileReadThread.getFlag()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                logger.error("Error: ", e);
-                Thread.currentThread().interrupt();
-            }
-            logger.debug("Waiting for file read thread to finish.");
-        }
-        token = fileReadThread.getToken();
-        prefix = fileReadThread.getPrefix();
-        logger.info("token: {}", token);
-        logger.info("prefix: {}", prefix);
-        JDABuilder builder = JDABuilder.createDefault(token);
-        logger.info("TOKEN was successfully set.");
-        try {
-            builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
-            .setBulkDeleteSplittingEnabled(false)
-            .setActivity(Activity.competing("ドリームホープスプリング"))
-            .setStatus(OnlineStatus.ONLINE)
-            .addEventListeners(
-                new ReadyListener(),
-                new VoiceEventListener(),
-                new CommandPing(),
-                new CommandHelp(),
-                new CommandReport(),
-                new CommandChangePrefix(),
-                new CommandDictionary(),
-                new CommandWhatsNew()
-            )
-            .build();
-            logger.info("JDA was successfully built.");
-        } catch (LoginException e) {
-            logger.error("Failed to login.", e);
-        }
+	logger.info("Hello, world!");
+	FileReadThreadImpl fileReadThread = new FileReadThreadImpl();
+	fileReadThread.run();
+	while (!fileReadThread.getFlag()) {
+	    try {
+		Thread.sleep(100);
+	    } catch (InterruptedException e) {
+		logger.error("Error: ", e);
+		Thread.currentThread().interrupt();
+	    }
+	    logger.debug("Waiting for file read thread to finish.");
+	}
+	token = fileReadThread.getToken();
+	prefix = fileReadThread.getPrefix();
+	logger.info("token: {}", token);
+	logger.info("prefix: {}", prefix);
+	JDABuilder builder = JDABuilder.createDefault(token);
+	logger.info("TOKEN was successfully set.");
+	try {
+	    builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
+	    .setBulkDeleteSplittingEnabled(false)
+	    .setActivity(Activity.competing("ドリームホープスプリング"))
+	    .setStatus(OnlineStatus.ONLINE)
+	    .addEventListeners(
+		    new ReadyListener(),
+		    new VoiceEventListener(),
+		    new CommandPing(),
+		    new CommandHelp(),
+		    new CommandReport(),
+		    new CommandChangePrefix(),
+		    new CommandDictionary(),
+		    new CommandWhatsNew(),
+		    new CheckContainsDiscordURL()
+		    )
+	    .build();
+	    logger.info("JDA was successfully built.");
+	} catch (LoginException e) {
+	    logger.error("Failed to login.", e);
+	}
     }
 }

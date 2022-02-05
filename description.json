@@ -3,5 +3,5 @@
 	"major" : "破壊的な変更はありません。メジャーデビュー！",
 	"minor" : "辞書に削除機能を追加しました。「dic del [削除したい読み方]」で削除できます。\nまた、同サーバー内のメッセージリンクが投稿された場合、内容を自動的に表示するようになりました。\n新しいコマンド「song」を試験実装しています。アイマスの曲情報を検索、閲覧することができます！（Powered by ふじわらはじめAPI）",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-Alpha-2.0.0-Experimental"
+	"version" : "MochiMochiTalk-Alpha-2.0.0-Experimental-74d4bc0"
 }

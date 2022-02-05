@@ -40,6 +40,7 @@ public class CommandHelp extends ListenerAdapter {
             builder.addField(App.prefix + "prefix 【新しいprefix】", "コマンドの接頭辞を変更します", false);
             builder.addField(App.prefix + "dic 【読み方を変えたい単語】 【読み方】", "その単語の読み方を変更します", false);
             builder.addField(App.prefix + "whatsnew", "一個前のバージョン(Github Release基準)からの変更点を表示します", false);
+            builder.addField(App.prefix + "song 【検索キーワードもしくは ふじわらはじめ楽曲DB内部管理ID】", "ふじわらはじめ楽曲DB様のAPIから曲情報を検索、取得します。(試験実装中)", false);
             //send message
             channel.sendMessageEmbeds(builder.build()).queue();
         }

@@ -47,6 +47,9 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-core:2.13.1')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.13.1')
     implementation('com.fasterxml.jackson.core:jackson-annotations:2.13.1')
+
+    // HajimeAPI wrapper
+    implementation(fileTree(dir: 'D:\\pleiades-latest', include: ['HajimeAPI4J-v2.0.1-Experimental.jar']))
 }
 
 application {
@@ -62,6 +65,9 @@ tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter clean

@@ -1,13 +1,18 @@
 package MochiMochiTalk.commands;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +23,6 @@ import HajimeAPI4J.api.HajimeAPI4J.Music_Params;
 import HajimeAPI4J.api.HajimeAPI4J.Token;
 import HajimeAPI4J.api.HajimeAPIBuilder;
 import HajimeAPI4J.api.util.HajimeAPI4JImpl;
-import HajimeAPI4J.api.util.parse.ParseList;
 import MochiMochiTalk.App;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -96,23 +100,26 @@ public class CommandSong extends ListenerAdapter {
                         response.editMessage("取得完了。表示します……").queue();
                         response.editMessageEmbeds(embedBuilder.build()).queue();
                     } else {
-                        ParseList parsed = new ParseList(node);
-                        int size = parsed.converse().asList().size();
-                        Map<String, String> mostRelated = null;
-                        for(Map<String, String> map : parsed.asList()) {
-                            if(map.get("name").contains(data)) {
-                                mostRelated = new HashMap<>(map);
-                                logger.info("escaping detected name: {}", map.get("name"));
+                        List<Map<String, Object>> list;
+                        try {
+                            list = new ObjectMapper().readValue(node.traverse(), new TypeReference<List<Map<String, Object>>>() {});
+                        } catch (IOException e) {
+                            logger.error("Error while traversing json", e);
+                            return;
+                        }
+                        int size = list.size();
+                        Map<String, Object> mostRelated = new HashMap<>(list.get(0));
+                        for(Map<String, Object> map : list) {
+                            logger.info("map: {}", map);
+                            if(map.get("name").toString().contains(data)) {
+                                mostRelated = new LinkedHashMap<>(map);
+                                break;
                             }
                         }
-                        if(mostRelated == null) {
-                            mostRelated = new HashMap<>(parsed.asList().get(0));
-                            logger.info("detected name: {}", mostRelated.get("name"));
-                        }
-                        name = mostRelated.get("name");
-                        link = mostRelated.get("link");
-                        id = Integer.parseInt(mostRelated.get("song_id"));
-                        api = mostRelated.get("api");
+                        name = mostRelated.get("name").toString();
+                        link = mostRelated.get("link").toString();
+                        id = Integer.parseInt(mostRelated.get("song_id").toString());
+                        api = mostRelated.get("api").toString();
                         logger.info("name: {}", name);
                         logger.info("link: {}", link);
                         logger.info("id: {}", id);
@@ -131,15 +138,17 @@ public class CommandSong extends ListenerAdapter {
                         logger.info("Successfully completed.");
                         return;
                     }
-                    logger.info("Failed to complete.", ex);
+                    logger.error("Failed to complete.", ex);
                     EmbedBuilder onException = new EmbedBuilder();
-                    onException.setTitle(ex.getClass().toString())
+                    onException.setTitle(ex.getClass().getName())
                         .setDescription(ex.getMessage())
                         .addField("StackTrace", Arrays.toString(ex.getStackTrace()), false)
-                        .addField("CAUTION", "このメッセージは15秒後に自動削除されます。", false)
+                        .addField("Caused by", ex.getCause() == null ? "null" : ex.getCause().getClass().getName(), false)
+                        .addField("Cause StackTrace", ex.getCause() == null ? "null" : Arrays.toString(ex.getCause().getStackTrace()), false)
+                        .addField("CAUTION", "このメッセージは20秒後に自動削除されます。", false)
                         .setColor(Color.RED);
                     channel.sendMessageEmbeds(onException.build()).queue(success -> {
-                        success.delete().queueAfter(15, TimeUnit.SECONDS);
+                        success.delete().queueAfter(20, TimeUnit.SECONDS);
                     });
                 });
             }

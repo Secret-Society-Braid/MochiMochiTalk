@@ -49,7 +49,7 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-annotations:2.13.1')
 
     // HajimeAPI wrapper
-    runtimeOnly(fileTree(dir: '..\\native', include: ['HajimeAPI4J-v2.0.1-Experimental.jar']))
+    implementation(fileTree(dir: '..\\native', include: ['HajimeAPI4J-v2.0.1-Experimental.jar']))
 }
 
 application {

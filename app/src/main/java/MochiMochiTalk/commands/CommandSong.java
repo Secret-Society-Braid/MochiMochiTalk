@@ -39,6 +39,7 @@ public class CommandSong extends ListenerAdapter {
     private HajimeAPI4JImpl apiImpl = null;
     private CompletableFuture<JsonNode> hajimeApiFuture = null;
     private boolean isDigit;
+    private String data;
     
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -57,9 +58,17 @@ public class CommandSong extends ListenerAdapter {
             logger.info("channel: {}", channel);
             logger.info("message: {}", message);
             String[] split = content.split(" ");
-            if(split.length == 2) {
+            if(split.length >= 2) {
                 HajimeAPIBuilder builder = HajimeAPIBuilder.create();
-                String data = split[1];
+                StringBuilder sb = new StringBuilder();
+                if(split.length == 2)
+                    data = split[1];
+                else {
+                    for(String tmp : Arrays.copyOfRange(split, 1, split.length))
+                        sb.append(tmp).append(" ");
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                data = sb.toString();
                 isDigit = false;
                 if(!data.matches("\\d{4}-\\d{2}-\\d{2}")) {
                     for(int i = 0; i < data.length(); i++) {

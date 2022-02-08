@@ -23,6 +23,8 @@ repositories {
     maven {
         url 'https://jitpack.io'
     }
+    // for jda-chewtils
+    maven { url 'https://m2.chew.pro/releases' }
     jcenter()
 }
 
@@ -47,6 +49,9 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-core:2.13.1')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.13.1')
     implementation('com.fasterxml.jackson.core:jackson-annotations:2.13.1')
+
+    // for jda-chewtils
+    implementation 'pw.chew:jda-chewtils:1.24.1'
 
     // HajimeAPI wrapper
     implementation(fileTree(dir: '..\\native', include: ['HajimeAPI4J-v2.0.1-Experimental.jar']))

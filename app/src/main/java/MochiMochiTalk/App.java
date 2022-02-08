@@ -56,16 +56,16 @@ public class App {
 	    .setActivity(Activity.competing("ドリームホープスプリング"))
 	    .setStatus(OnlineStatus.ONLINE)
 	    .addEventListeners(
-		    new ReadyListener(),
-		    new VoiceEventListener(),
-		    new CommandPing(),
-		    new CommandHelp(),
-		    new CommandReport(),
-		    new CommandChangePrefix(),
-		    new CommandDictionary(),
-		    new CommandWhatsNew(),
-		    new CheckContainsDiscordURL(),
-            new CommandSong()
+		    new ReadyListener(), // recognizes when the bot is ready
+		    new VoiceEventListener(), // Event for text-to-speech
+		    new CommandPing(), // ping command
+		    new CommandHelp(), // help command
+		    new CommandReport(), // report command
+		    new CommandChangePrefix(), // change prefix command
+		    new CommandDictionary(), // dictionary command
+		    new CommandWhatsNew(), // whats new command
+		    new CheckContainsDiscordURL(), // check if the message contains a discord url
+            new CommandSong() //  song information command
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");

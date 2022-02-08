@@ -22,7 +22,6 @@ import HajimeAPI4J.api.HajimeAPI4J.List_Type;
 import HajimeAPI4J.api.HajimeAPI4J.Music_Params;
 import HajimeAPI4J.api.HajimeAPI4J.Token;
 import HajimeAPI4J.api.HajimeAPIBuilder;
-import HajimeAPI4J.api.util.HajimeAPI4JImpl;
 import MochiMochiTalk.App;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -36,7 +35,6 @@ public class CommandSong extends ListenerAdapter {
 
     // logger
     private Logger logger = LoggerFactory.getLogger(CommandSong.class);
-    private HajimeAPI4JImpl apiImpl = null;
     private CompletableFuture<JsonNode> hajimeApiFuture = null;
     private boolean isDigit;
     private String data;
@@ -66,9 +64,9 @@ public class CommandSong extends ListenerAdapter {
                 else {
                     for(String tmp : Arrays.copyOfRange(split, 1, split.length))
                         sb.append(tmp).append(" ");
+                    sb.deleteCharAt(sb.length() - 1);
+                    data = sb.toString();
                 }
-                sb.deleteCharAt(sb.length() - 1);
-                data = sb.toString();
                 isDigit = false;
                 if(!data.matches("\\d{4}-\\d{2}-\\d{2}")) {
                     for(int i = 0; i < data.length(); i++) {
@@ -86,8 +84,7 @@ public class CommandSong extends ListenerAdapter {
                         .addParameter(List_Params.TYPE, List_Type.MUSIC.toString())
                         .addParameter(List_Params.SEARCH, data);
                 }
-                apiImpl = builder.build();
-                hajimeApiFuture = apiImpl.getAsync();
+                hajimeApiFuture = builder.build().getAsync();
                 CompletableFuture<Message> sendMessageFuture = channel.sendMessage("楽曲情報APIのレスポンスを待っています……(Powered by ふじわらはじめAPI)").submit();
                 sendMessageFuture.thenAcceptBothAsync(hajimeApiFuture, (response, node) -> {
                     EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -114,6 +111,7 @@ public class CommandSong extends ListenerAdapter {
                             list = new ObjectMapper().readValue(node.traverse(), new TypeReference<List<Map<String, Object>>>() {});
                         } catch (IOException e) {
                             logger.error("Error while traversing json", e);
+                            response.delete().queue();
                             return;
                         }
                         int size = list.size();

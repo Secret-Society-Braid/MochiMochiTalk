@@ -108,7 +108,7 @@ public class CommandWhatsNew extends ListenerAdapter {
             builder.addField("メジャー", description.get("major"), false);
             builder.addField("機能追加", description.get("minor"), false);
             builder.addField("修正", description.get("patch"), false);
-            builder.setFooter("Version " + description.get("version") + " by " + description.get("Developer"));
+            builder.setFooter(description.get("version") + " by " + description.get("Developer"));
             channel.sendMessageEmbeds(builder.build()).queue();
         }
     }

@@ -43,12 +43,12 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "connect")) {
+        if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
             logger.info("Connecting to voice channel.");
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "disconnect")) {
+        if(content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
@@ -64,11 +64,10 @@ public class VoiceEventListener extends ListenerAdapter {
         }
 
         if(isEscaped) {
-            channel.sendMessage("メッセージの読み上げが中断されました。(このメッセージは15秒後に自動削除されます)").queue(response -> {
-                channel.deleteMessageById(response.getId()).queueAfter(15, TimeUnit.SECONDS);
-                logger.debug("Reading aborted.");
-                logger.debug("Target message: {}", message.getContentRaw());
-                logger.debug("Target messageID: {}", message.getId());
+            logger.info("Escaped: {}", content);
+            logger.info("target messageID: {}", message.getId());
+            channel.sendMessage("メッセージに絵文字、URL、コードブロックその他が含まれていたため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
+                response.delete().queueAfter(10, TimeUnit.SECONDS);
             });
             return;
         }
@@ -142,8 +141,8 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
 
-        if(isThresholdReached) {
-            logger.info("Threshold reached.");
+        if(content.length() > 40) {
+            logger.info("Received long message.");
             return true;
         }
 

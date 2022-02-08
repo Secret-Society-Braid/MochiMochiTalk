@@ -8,8 +8,6 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import MochiMochiTalk.Listeners.CheckContainsDiscordURL;
-import MochiMochiTalk.Listeners.ReadyListener;
 import MochiMochiTalk.commands.CommandChangePrefix;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
@@ -18,6 +16,8 @@ import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.FileReadThreadImpl;
+import MochiMochiTalk.listeners.CheckContainsDiscordURL;
+import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;

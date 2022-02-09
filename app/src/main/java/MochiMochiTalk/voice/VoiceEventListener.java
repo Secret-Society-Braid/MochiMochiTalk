@@ -1,8 +1,9 @@
 package MochiMochiTalk.voice;
 
-
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 public class VoiceEventListener extends ListenerAdapter {
-    
+
     private Logger logger = LoggerFactory.getLogger(VoiceEventListener.class);
 
     private MessageChannel channel = null;
@@ -28,7 +29,13 @@ public class VoiceEventListener extends ListenerAdapter {
     private String replaced = "";
     private boolean isReplaced = false;
     private boolean isThresholdReached = false;
+    private EventWaiter waiter;
+    private int waitSec;
 
+    public VoiceEventListener(EventWaiter waiter, int waitSec) {
+        this.waiter = waiter;
+        this.waitSec = waitSec;
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -43,46 +50,62 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
+        if (content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
             logger.info("Connecting to voice channel.");
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
+        if (content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
+
+        waiter.waitForEvent(MessageReceivedEvent.class, e -> {
+            return !e.getAuthor().isBot() && e.getChannel().equals(channel)
+                    && e.getMessage().getContentRaw().startsWith(App.prefix + "skip");
+        }, e -> {
+            logger.info("deafening myself with {} seconds", waitSec);
+            event.getGuild().getAudioManager().setSelfMuted(true);
+            try {
+                TimeUnit.SECONDS.sleep(waitSec);
+            } catch (InterruptedException ex) {
+                logger.error("Exception while waiting for skip command", ex);
+            } finally {
+                event.getGuild().getAudioManager().setSelfMuted(false);
+            }
+        });
 
         String[] split = content.split("\n");
 
         boolean isEscaped = false;
 
-        for( String str : split ) {
+        for (String str : split) {
             isEscaped = escapeProgression(str);
-            if(isEscaped)
+            if (isEscaped)
                 break;
         }
 
-        if(isEscaped) {
+        if (isEscaped) {
             logger.info("Escaped: {}", content);
             logger.info("target messageID: {}", message.getId());
-            channel.sendMessage("メッセージに絵文字、URL、コードブロックその他が含まれていたため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
-                response.delete().queueAfter(10, TimeUnit.SECONDS);
-            });
+            channel.sendMessage("メッセージに絵文字、URL、コードブロックその他が含まれていたため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）")
+                    .queue(response -> {
+                        response.delete().queueAfter(10, TimeUnit.SECONDS);
+                    });
             return;
         }
 
         String unicoded = convertToUnicode(content);
         logger.info("Unicoded: {}", unicoded);
 
-        if(flag && !content.startsWith(App.prefix)) {
+        if (flag && !content.startsWith(App.prefix)) {
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());
             logger.info("Guild: {}", event.getGuild().getName());
             Map<String, String> dic = CommandDictionary.getDictionary();
             dic.forEach((key, value) -> {
-                if(content.contains(key)) {
+                if (content.contains(key)) {
                     logger.info("Found Dic: {}", key);
                     replaced = content.replace(key, value);
                     logger.info("Dic: {}", value);
@@ -90,7 +113,7 @@ public class VoiceEventListener extends ListenerAdapter {
                 }
             });
             try {
-                if(isReplaced) {
+                if (isReplaced) {
                     ttsEngine.say(replaced);
                 } else {
                     ttsEngine.say(content);
@@ -104,7 +127,7 @@ public class VoiceEventListener extends ListenerAdapter {
 
     private void onConnectCommand(MessageReceivedEvent event) {
         VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
-        if(voiceChannel == null) {
+        if (voiceChannel == null) {
             event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
             logger.info("User is not in a voice channel.");
             return;
@@ -125,33 +148,32 @@ public class VoiceEventListener extends ListenerAdapter {
         logger.info("Disconnected from voice channel.");
     }
 
-    private static String convertToUnicode(String original)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < original.length(); i++) {
+    private static String convertToUnicode(String original) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < original.length(); i++) {
             sb.append(String.format("\\u%04X", Character.codePointAt(original, i)));
-            }
+        }
         String unicode = sb.toString();
         return unicode;
-        }
+    }
 
     private boolean escapeProgression(String content) {
-        if(content.matches(".*<:[A-Za-z].+\\d*>*")) {
+        if (content.matches(".*<:[A-Za-z].+\\d*>*")) {
             logger.info("Received emoji.");
             return true;
         }
 
-        if(content.length() > 40) {
+        if (content.length() > 40) {
             logger.info("Received long message.");
             return true;
         }
 
-        if(content.startsWith("```")) {
+        if (content.startsWith("```")) {
             logger.info("Received code block.");
             return true;
         }
 
-        if(content.matches("\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+        if (content.matches("\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
             logger.info("Received URL.");
             return true;
         }

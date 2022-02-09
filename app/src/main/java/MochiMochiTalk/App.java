@@ -5,6 +5,8 @@ package MochiMochiTalk;
 
 import javax.security.auth.login.LoginException;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ public class App {
     private static Logger logger = LoggerFactory.getLogger(App.class);
 
     public static String prefix = "";
+	public static int skipSec = 0;
 
     public static void main(String[] args) {
 	logger.info("Hello, world!");
@@ -44,10 +47,13 @@ public class App {
 	    }
 	    logger.debug("Waiting for file read thread to finish.");
 	}
+	EventWaiter waiter = new EventWaiter();
 	token = fileReadThread.getToken();
 	prefix = fileReadThread.getPrefix();
+	skipSec = Integer.parseInt(fileReadThread.getSkipSec());
 	logger.info("token: {}", token);
 	logger.info("prefix: {}", prefix);
+	logger.info("skipSec: {}", skipSec);
 	JDABuilder builder = JDABuilder.createDefault(token);
 	logger.info("TOKEN was successfully set.");
 	try {
@@ -57,7 +63,8 @@ public class App {
 	    .setStatus(OnlineStatus.ONLINE)
 	    .addEventListeners(
 		    new ReadyListener(),
-		    new VoiceEventListener(),
+		    new VoiceEventListener(waiter, skipSec),
+			waiter,
 		    new CommandPing(),
 		    new CommandHelp(),
 		    new CommandReport(),

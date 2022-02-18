@@ -2,6 +2,8 @@ package MochiMochiTalk.voice;
 
 
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ public class VoiceEventListener extends ListenerAdapter {
     private boolean flag = false;
     private String replaced = "";
     private boolean isReplaced = false;
+    private ScheduledExecutorService service;
 
 
     @Override
@@ -114,10 +117,13 @@ public class VoiceEventListener extends ListenerAdapter {
         channel = event.getChannel();
         flag = true;
         channel.sendMessage("準備ができました！いつでもお喋りできます…！").queue();
+        service = Executors.newScheduledThreadPool(1);
+        service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 2, TimeUnit.SECONDS);
         logger.info("Connected to voice channel.");
     }
 
     private void onDisconnectCommand(MessageReceivedEvent event) {
+        service.shutdownNow();
         audioManager.closeAudioConnection();
         channel = null;
         flag = false;
@@ -125,15 +131,6 @@ public class VoiceEventListener extends ListenerAdapter {
         logger.info("Disconnected from voice channel.");
     }
 
-    private static String convertToUnicode(String original)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < original.length(); i++) {
-            sb.append(String.format("\\u%04X", Character.codePointAt(original, i)));
-            }
-        String unicode = sb.toString();
-        return unicode;
-        }
 
     private boolean escapeProgression(String content) {
         if(content.matches(".*<:[A-Za-z].+\\d*>*")) {
@@ -156,5 +153,18 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
         return false;
+    }
+
+    private void checkVoiceChannel() {
+        if(audioManager.isConnected()) {
+            logger.info("Checking voice channel.");
+            if(audioManager.getConnectedChannel() == null) {
+                audioManager.closeAudioConnection();
+                channel.sendMessage("誰もいないので私も戻りますね。お疲れ様でした。").queue();
+                channel = null;
+                flag = false;
+                logger.info("Disconnected from voice channel caused by AFK.");
+            }
+        }
     }
 }

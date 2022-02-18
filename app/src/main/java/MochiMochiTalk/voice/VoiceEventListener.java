@@ -157,8 +157,7 @@ public class VoiceEventListener extends ListenerAdapter {
 
     private void checkVoiceChannel() {
         if(audioManager.isConnected()) {
-            logger.info("Checking voice channel.");
-            if(audioManager.getConnectedChannel() == null) {
+            if(audioManager.getConnectedChannel().getMembers().size() == 1) {
                 audioManager.closeAudioConnection();
                 channel.sendMessage("誰もいないので私も戻りますね。お疲れ様でした。").queue();
                 channel = null;

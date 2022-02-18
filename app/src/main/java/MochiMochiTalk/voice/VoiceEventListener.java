@@ -71,10 +71,11 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        String unicoded = convertToUnicode(content);
-        logger.info("Unicoded: {}", unicoded);
-
         if(flag && !content.startsWith(App.prefix)) {
+            if(!event.getChannel().equals(channel)) {
+                logger.info("Message is not in the same channel as the voice channel.");
+                return;
+            }
             logger.info("Analyzing message: {}", content);
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());

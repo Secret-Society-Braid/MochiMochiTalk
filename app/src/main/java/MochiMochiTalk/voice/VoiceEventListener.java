@@ -18,10 +18,13 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class VoiceEventListener extends ListenerAdapter {
     
     private Logger logger = LoggerFactory.getLogger(VoiceEventListener.class);
+
+    private static final CountingThreadFactory THREAD_FACTORY = new CountingThreadFactory(() -> "MochiMochiTalk", "AFK-Checker");
 
     private MessageChannel channel = null;
     private AudioManager audioManager;
@@ -117,8 +120,8 @@ public class VoiceEventListener extends ListenerAdapter {
         channel = event.getChannel();
         flag = true;
         channel.sendMessage("準備ができました！いつでもお喋りできます…！").queue();
-        service = Executors.newScheduledThreadPool(1);
-        service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 2, TimeUnit.SECONDS);
+        service = Executors.newScheduledThreadPool(1, THREAD_FACTORY);
+        service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
         logger.info("Connected to voice channel.");
     }
 

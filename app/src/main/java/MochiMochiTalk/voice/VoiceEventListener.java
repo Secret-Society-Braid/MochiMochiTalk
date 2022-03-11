@@ -1,6 +1,8 @@
 package MochiMochiTalk.voice;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,10 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
+import MochiMochiTalk.lib.AllowedVCRead;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -33,6 +37,12 @@ public class VoiceEventListener extends ListenerAdapter {
     private String replaced = "";
     private boolean isReplaced = false;
     private ScheduledExecutorService service;
+    private List<String> allowed = new ArrayList<>();
+
+    public VoiceEventListener() {
+        AllowedVCRead read = new AllowedVCRead();
+        allowed = read.read();
+    }
 
 
     @Override
@@ -49,6 +59,11 @@ public class VoiceEventListener extends ListenerAdapter {
         }
 
         if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
+            if(!CheckVCAllowed(event)) {
+                logger.warn("VC is not allowed this server. : {}", event.getGuild().getName());
+                event.getChannel().sendMessage("使用しているAPIの関係上、むつコード様以外のサーバーでは読み上げ機能は使用できません。ごめんなさい。").queue();
+                return;
+            }
             logger.info("Connecting to voice channel.");
             onConnectCommand(event);
         }
@@ -168,5 +183,17 @@ public class VoiceEventListener extends ListenerAdapter {
                 logger.info("Disconnected from voice channel caused by AFK.");
             }
         }
+    }
+
+    private boolean CheckVCAllowed(MessageReceivedEvent event) {
+        if(allowed.isEmpty()) {
+            return true;
+        }
+        for(String str : allowed) {
+            if(str.equals(event.getGuild().getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

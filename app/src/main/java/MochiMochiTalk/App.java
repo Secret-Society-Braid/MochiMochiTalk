@@ -15,6 +15,7 @@ import MochiMochiTalk.commands.CommandPing;
 import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
+import MochiMochiTalk.commands.GlobalChannelAddCommand;
 import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
 import MochiMochiTalk.listeners.ReadyListener;
@@ -65,7 +66,8 @@ public class App {
 		    new CommandDictionary(), // dictionary command
 		    new CommandWhatsNew(), // whats new command
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
-            new CommandSong() //  song information command
+            new CommandSong(), //  song information command
+			new GlobalChannelAddCommand() // global channel commands
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");

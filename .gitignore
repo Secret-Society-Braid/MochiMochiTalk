@@ -11,3 +11,4 @@ dictionary.json
 .vocalcord/vocalcord_phrases.cache
 .vscode/launch.json
 description.json
+allowed_list

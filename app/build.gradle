@@ -50,6 +50,9 @@ dependencies {
 
     // HajimeAPI wrapper
     implementation(fileTree(dir: '..\\native', include: ['HajimeAPI4J-v2.0.1-Experimental.jar']))
+
+    // webhook library
+    implementation("club.minnced:discord-webhooks:0.2.0")
 }
 
 application {

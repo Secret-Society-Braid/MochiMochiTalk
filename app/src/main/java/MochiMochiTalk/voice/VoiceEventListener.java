@@ -187,7 +187,7 @@ public class VoiceEventListener extends ListenerAdapter {
 
     private boolean CheckVCAllowed(MessageReceivedEvent event) {
         if(allowed.isEmpty()) {
-            return true;
+            return false;
         }
         for(String str : allowed) {
             if(str.equals(event.getGuild().getId())) {

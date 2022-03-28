@@ -6,12 +6,16 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
+import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.texttospeech.v1.AudioConfig;
 import com.google.cloud.texttospeech.v1.AudioEncoding;
 import com.google.cloud.texttospeech.v1.SsmlVoiceGender;
 import com.google.cloud.texttospeech.v1.SynthesisInput;
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.cloud.texttospeech.v1.TextToSpeechClient;
+import com.google.cloud.texttospeech.v1.TextToSpeechSettings;
 import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
 
@@ -44,7 +48,9 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
     }
 
     byte[] tts(String text) throws IOException {
-        try(TextToSpeechClient client = TextToSpeechClient.create()) {
+        CredentialsProvider provider = FixedCredentialsProvider.create(ServiceAccountCredentials.fromStream(this.getClass().getResourceAsStream("/GOOGLE_APP_CREDENTIALS.json")));
+        TextToSpeechSettings settings = TextToSpeechSettings.newBuilder().setCredentialsProvider(provider).build();
+        try(TextToSpeechClient client = TextToSpeechClient.create(settings)) {
             SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
 
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("ja_JP").setSsmlGender(SsmlVoiceGender.NEUTRAL).build();

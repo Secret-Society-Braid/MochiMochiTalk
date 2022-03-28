@@ -77,6 +77,16 @@ public class VoiceEventListener extends ListenerAdapter {
 
         boolean isEscaped = false;
 
+        if(content.length() > 40) {
+            logger.info("Received long message.");
+            logger.info("Escaped: {}", content);
+            logger.info("target messageID: {}", message.getId());
+            channel.sendMessage("メッセージが長いため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
+                response.delete().queueAfter(10, TimeUnit.SECONDS);
+            });
+            return;
+        }
+
         for( String str : split ) {
             isEscaped = escapeProgression(str);
             if(isEscaped)

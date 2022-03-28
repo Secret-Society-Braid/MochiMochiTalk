@@ -13,6 +13,7 @@ import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandPing;
 import MochiMochiTalk.commands.CommandReport;
+import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.FileReadThreadImpl;
@@ -65,7 +66,8 @@ public class App {
 		    new CommandDictionary(), // dictionary command
 		    new CommandWhatsNew(), // whats new command
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
-            new CommandSong() //  song information command
+            new CommandSong(), //  song information command
+			new CommandShutdown() // shutdown command
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");

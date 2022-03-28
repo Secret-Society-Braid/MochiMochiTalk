@@ -12,3 +12,5 @@ dictionary.json
 .vscode/launch.json
 description.json
 allowed_list
+app/bin/main/GOOGLE_APP_CREDENTIALS.json
+app/src/main/resources/GOOGLE_APP_CREDENTIALS.json

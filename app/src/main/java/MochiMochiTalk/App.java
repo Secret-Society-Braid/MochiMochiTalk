@@ -54,7 +54,7 @@ public class App {
 	try {
 	    builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
 	    .setBulkDeleteSplittingEnabled(false)
-	    .setActivity(Activity.competing("ドリームホープスプリング"))
+	    .setActivity(Activity.competing("ぷかぷかぶるーむ"))
 	    .setStatus(OnlineStatus.ONLINE)
 	    .addEventListeners(
 		    new ReadyListener(), // recognizes when the bot is ready

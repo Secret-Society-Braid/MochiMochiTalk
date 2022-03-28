@@ -55,7 +55,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
 
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("ja_JP").setSsmlGender(SsmlVoiceGender.NEUTRAL).build();
 
-            AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.LINEAR16).setSampleRateHertz(48_000).build();
+            AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.LINEAR16).setSampleRateHertz(48_000).setVolumeGainDb(-2.0).build();
 
             SynthesizeSpeechResponse response = client.synthesizeSpeech(input, voice, audioConfig);
 

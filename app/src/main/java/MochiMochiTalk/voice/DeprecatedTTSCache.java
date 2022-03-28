@@ -131,6 +131,7 @@ public class DeprecatedTTSCache {
             fis.close();
             return map;
         } catch(Exception e) {
+            logger.error("Error loading cache file", e);
             System.out.println("No cached phrases loaded. This probably isn't an error.");
         }
 

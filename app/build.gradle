@@ -49,7 +49,7 @@ implementation group: 'com.google.api-client', name: 'google-api-client', versio
 implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.1.5'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
-implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.5.3'
+implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.6.0'
 
 
 

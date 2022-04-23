@@ -25,7 +25,7 @@ public class CommandShutdown extends ListenerAdapter {
             if(IDs.contains(event.getAuthor().getId())) {
                 LOG.info("Shutdown command received");
                 event.getChannel().sendMessage("終了しています…おやすみなさい。プロデューサーさん").queue();
-                event.getJDA().shutdownNow();
+                event.getJDA().shutdown();
             }
             event.getChannel().sendMessage("このコマンドは管理者のみ使用できます。").queue();
         }

@@ -41,7 +41,7 @@ public class CommandHelp extends ListenerAdapter {
             builder.addField(App.prefix + "dic 【読み方を変えたい単語】 【読み方】", "その単語の読み方を変更します", false);
             builder.addField(App.prefix + "whatsnew", "一個前のバージョン(Github Release基準)からの変更点を表示します", false);
             builder.addField(App.prefix + "song 【検索キーワードもしくは ふじわらはじめ楽曲DB内部管理ID】", "ふじわらはじめ楽曲DB様のAPIから曲情報を検索、取得します。(試験実装中)", false);
-            builder.addField(App.prefix + "shutdown", "（開発者向け）Botを安全に終了します。", false);
+            builder.addField(App.prefix + "shutdown", "(むつコード 秘密結社幹部ロール付与者のみ使用可能) Botをシャットダウンし、オフライン状態へ移行します。", false);
             //send message
             channel.sendMessageEmbeds(builder.build()).queue();
         }

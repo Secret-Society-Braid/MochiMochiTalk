@@ -12,6 +12,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.io.Files;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +61,8 @@ public class DeprecatedTTSCache {
          cacheFile = new File(".vocalcord" + File.separator + "vocalcord_phrases.cache");
 
          if(!cacheFile.exists()) {
-             if(cacheFile.getParentFile().mkdir() && cacheFile.createNewFile()) {
+            Files.createParentDirs(cacheFile);
+             if(cacheFile.createNewFile()) {
                 logger.info("Created cache file");
                 cachedPhrases = new HashMap<>();
              } else {

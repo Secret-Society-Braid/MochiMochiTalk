@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,17 +20,11 @@ import org.slf4j.LoggerFactory;
 public class DerepoUpdatesDetector {
     
     private static final Logger log = LoggerFactory.getLogger(DerepoUpdatesDetector.class);
-
     public static final String DEREPO_UPDATE_API_URI = "https://api.matsurihi.me/cgss/v1/derepo/statuses?idolId=216";
-
     private static final String LATEST_UPDATE_CACHE_FILE_NAME = "derepoLatest.json";
-
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+'Z");
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     private static DerepoUpdatesDetector singleton;
-
     private JsonNode latestUpdateNode;
 
     public DerepoUpdatesDetector() {
@@ -49,11 +42,10 @@ public class DerepoUpdatesDetector {
         return singleton;
     }
 
-    @Nonnull
-    public JsonNode updateCache() throws IOException {
+    public void updateCache() throws IOException {
         if(Files.notExists(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME)))
             createCache();
-        return OBJECT_MAPPER.readTree(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile());
+        writeLocal();
     }
 
     public void createCache() {
@@ -75,5 +67,14 @@ public class DerepoUpdatesDetector {
     private JsonNode fetchAPI(String builtUri) throws IOException {
         URL apiUrl = new URL(builtUri);
         return null;
+    }
+
+    @Nonnull
+    private JsonNode readLocal() throws IOException {
+        return OBJECT_MAPPER.readTree(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile());
+    }
+
+    private void writeLocal() throws IOException {
+        OBJECT_MAPPER.writeValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), latestUpdateNode);
     }
 }

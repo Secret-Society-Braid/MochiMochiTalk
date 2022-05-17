@@ -1,11 +1,13 @@
 package MochiMochiTalk.lib;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,11 +27,10 @@ public class DerepoUpdatesDetector {
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+'Z");
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static DerepoUpdatesDetector singleton;
-    private JsonNode latestUpdateNode;
 
     public DerepoUpdatesDetector() {
         try {
-            this.latestUpdateNode = updateCache();
+            updateCache();
         } catch (IOException e) {
             log.error("Cannot load latest derepo update cache.", e);
         }
@@ -66,15 +67,28 @@ public class DerepoUpdatesDetector {
     @Nullable
     private JsonNode fetchAPI(String builtUri) throws IOException {
         URL apiUrl = new URL(builtUri);
-        return null;
+        HttpURLConnection conn = (HttpURLConnection) apiUrl.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36");
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if(responseCode != 200) {
+            log.error("Failed to fetch API. Response code: {}", responseCode);
+            return null;
+        }
+        return OBJECT_MAPPER.readTree(conn.getInputStream());
     }
 
     @Nonnull
-    private JsonNode readLocal() throws IOException {
-        return OBJECT_MAPPER.readTree(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile());
+    private CacheData readLocal() throws IOException {
+        return OBJECT_MAPPER.readValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), CacheData.class);
     }
 
     private void writeLocal() throws IOException {
-        OBJECT_MAPPER.writeValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), latestUpdateNode);
+        String lastUpdatedDateString = df.format(new Date());
+        CacheData cacheData = readLocal();
+        final JsonNode latestUpdate = fetchAPI(buildUri(cacheData.getLatestUpdateDateString(), 0));
+        OBJECT_MAPPER.writeValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), null);
     }
 }

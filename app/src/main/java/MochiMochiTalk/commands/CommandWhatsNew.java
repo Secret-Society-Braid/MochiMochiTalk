@@ -55,20 +55,6 @@ public class CommandWhatsNew extends ListenerAdapter {
 
     // コンストラクタ
     public CommandWhatsNew() {
-        if(Files.notExists(Paths.get(DESCRIPTION_FILE_NAME))) {
-            logger.info("description.json does not exist.");
-            ObjectWriter writer = new ObjectMapper().writer(new DefaultPrettyPrinter());
-            description.put("version", "1.0.1");
-            description.put("major", "破壊的な変更はありません。ちゃんとコードが書けててえらい！");
-            description.put("minor", "機能追加はありません。ちゃんとコードが書けててえらい！");
-            description.put("patch", "修正はありません。ちゃんとコードが書けててえらい！");
-            description.put("Developer", "Ranfa/hizumiaoba/Indigo_leaF P#4144");
-            try {
-                writer.writeValue(Paths.get(DESCRIPTION_FILE_NAME).toFile(), description);
-            } catch (IOException e) {
-                logger.error("Failed to create description.json", e);
-            }
-        }
         readDescription();
         description.forEach((k, v) -> logger.info("{} : {}", k, v));
         logger.info("Completed initialization for command : \"whatsnew\"");
@@ -110,9 +96,10 @@ public class CommandWhatsNew extends ListenerAdapter {
             builder.setTitle(TITLE_MEME[index]);
             builder.setColor(Color.YELLOW);
             builder.setDescription("それぞれの番号がインクリメントしたときに追加、修正された内容です。");
-            builder.addField("メジャー", description.get("major"), false);
-            builder.addField("機能追加", description.get("minor"), false);
-            builder.addField("修正", description.get("patch"), false);
+            builder.addField("不具合対応", description.get("hotfix"), false);
+            builder.addField("機能追加", description.get("feature"), false);
+            builder.addField("機能修正", description.get("bugfix"), false);
+            builder.addField("既知の不具合", description.get("bugs"), false);
             builder.setFooter(description.get("version") + " by " + description.get("Developer"));
             channel.sendMessageEmbeds(builder.build()).queue();
         }

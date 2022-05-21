@@ -39,7 +39,6 @@ public class CommandHelp extends ListenerAdapter {
             channel.sendMessageEmbeds(buildNormal()).queue();
         } else {
             logger.warn("there is no option for {}", content);
-            channel.sendMessage("無効な引数です。").queue();
         }
     }
 

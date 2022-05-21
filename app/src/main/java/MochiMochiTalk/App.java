@@ -64,7 +64,7 @@ public class App {
 		    new CommandReport(), // report command
 		    new CommandChangePrefix(), // change prefix command
 		    new CommandDictionary(), // dictionary command
-		    new CommandWhatsNew(), // whats new command
+		    CommandWhatsNew.getInstance(), // whats new command
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
             new CommandSong(), //  song information command
 			new CommandShutdown() // shutdown command

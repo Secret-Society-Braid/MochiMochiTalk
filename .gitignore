@@ -4,13 +4,13 @@
 
 # Ignore Gradle build output directory
 build
+app/bin
 
 logs/
 property.json
 dictionary.json
 .vocalcord/vocalcord_phrases.cache
 .vscode/launch.json
-description.json
 allowed_list
 app/bin/main/GOOGLE_APP_CREDENTIALS.json
 app/src/main/resources/GOOGLE_APP_CREDENTIALS.json

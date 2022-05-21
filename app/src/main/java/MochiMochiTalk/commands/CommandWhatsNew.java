@@ -30,6 +30,7 @@ public class CommandWhatsNew extends ListenerAdapter {
 
     private static final String DESCRIPTION_FILE_NAME = "description.json";
     private static Random random = new Random();
+    private static CommandWhatsNew singleton = null;
 
     protected static final String[] TITLE_MEME = {
         "What's up, world?",
@@ -49,8 +50,14 @@ public class CommandWhatsNew extends ListenerAdapter {
         "このタイトルは全部で15個あるよ！でも探すためだけにサーバーを荒らすのはやめてね！"
     };
 
+    public static CommandWhatsNew getInstance() {
+        if (singleton == null)
+            singleton = new CommandWhatsNew();
+        return singleton;
+    }
+
     // コンストラクタ
-    public CommandWhatsNew() {
+    private CommandWhatsNew() {
         readDescription();
         description.forEach((k, v) -> logger.info("{} : {}", k, v));
         logger.info("Completed initialization for command : \"whatsnew\"");

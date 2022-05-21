@@ -8,17 +8,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
+import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -50,7 +56,7 @@ public class VoiceEventListener extends ListenerAdapter {
         logger.info("Message received: {}", event.getMessage().getContentRaw());
         User author = event.getAuthor();
         Message message = event.getMessage();
-        String content = message.getContentRaw();
+        String content = replaceMentions(event);
         audioManager = event.getGuild().getAudioManager();
 
         // ignore messages from bots
@@ -81,9 +87,6 @@ public class VoiceEventListener extends ListenerAdapter {
             logger.info("Received long message.");
             logger.info("Escaped: {}", content);
             logger.info("target messageID: {}", message.getId());
-            channel.sendMessage("メッセージが長いため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
-                response.delete().queueAfter(10, TimeUnit.SECONDS);
-            });
             return;
         }
 
@@ -96,9 +99,6 @@ public class VoiceEventListener extends ListenerAdapter {
         if(isEscaped) {
             logger.info("Escaped: {}", content);
             logger.info("target messageID: {}", message.getId());
-            channel.sendMessage("メッセージに絵文字、URL、コードブロックその他が含まれていたため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
-                response.delete().queueAfter(10, TimeUnit.SECONDS);
-            });
             return;
         }
 
@@ -145,6 +145,13 @@ public class VoiceEventListener extends ListenerAdapter {
         channel = event.getChannel();
         flag = true;
         channel.sendMessage("準備ができました！いつでもお喋りできます…！").queue();
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("テキスト読み上げBot「聖ちゃんの聖歌隊」");
+        builder.setDescription("現在以下の条件に当てはまらない文章は読まれません。注意してください。");
+        builder.addField("読まれないものの一覧", "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
+        channel.sendMessageEmbeds(builder.build()).queue();
+        CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
+        channel.sendMessageEmbeds(whatsNew.buildMessage()).queue();
         service = Executors.newScheduledThreadPool(1, THREAD_FACTORY);
         service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
         logger.info("Connected to voice channel.");
@@ -205,5 +212,42 @@ public class VoiceEventListener extends ListenerAdapter {
             }
         }
         return false;
+    }
+
+    private String replaceMentions(MessageReceivedEvent event) {
+        String content = event.getMessage().getContentRaw();
+        Pattern plainUserPattern = Pattern.compile("<@[0-9].*>");
+        Pattern nicknamedUserPattern = Pattern.compile("<@![0-9].*>");
+        Pattern rolePattern = Pattern.compile("<&[0-9].*>");
+        Pattern channelPattern = Pattern.compile("<#[0-9].*>");
+        Matcher plainUserMatcher = plainUserPattern.matcher(content);
+        Matcher nicknamedUserMatcher = nicknamedUserPattern.matcher(content);
+        Matcher roleMatcher = rolePattern.matcher(content);
+        Matcher channelMatcher = channelPattern.matcher(content);
+        while(plainUserMatcher.find()) {
+            String mention = plainUserMatcher.group();
+            String id = mention.substring(2, mention.length() - 1);
+            User user = event.getGuild().getMemberById(id).getUser();
+            content = content.replace(mention, user.getName() + "さん");
+        }
+        while(nicknamedUserMatcher.find()) {
+            String mention = nicknamedUserMatcher.group();
+            String id = mention.substring(3, mention.length() - 1);
+            User user = event.getGuild().getMemberById(id).getUser();
+            content = content.replace(mention, user.getName() + "さん");
+        }
+        while(roleMatcher.find()) {
+            String mention = roleMatcher.group();
+            String id = mention.substring(2, mention.length() - 1);
+            Role role = event.getGuild().getRoleById(id);
+            content = content.replace(mention, "役職、" + role.getName() + " のみなさん");
+        }
+        while(channelMatcher.find()) {
+            String mention = channelMatcher.group();
+            String id = mention.substring(2, mention.length() - 1);
+            TextChannel tmpChannel = event.getGuild().getTextChannelById(id);
+            content = content.replace(mention, "チャンネル、" + tmpChannel.getName());
+        }
+        return content;
     }
 }

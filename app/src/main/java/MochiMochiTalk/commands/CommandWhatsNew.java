@@ -1,12 +1,13 @@
 package MochiMochiTalk.commands;
 
+import java.awt.Color;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.awt.Color;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -77,8 +78,10 @@ public class CommandWhatsNew extends ListenerAdapter {
         logger.info("reading whats new from the description file...");
         logger.info("description file name is " + DESCRIPTION_FILE_NAME);
 
+        final InputStream is = getClass().getResourceAsStream("/" + DESCRIPTION_FILE_NAME);
+
         try {
-            description = new ObjectMapper().readValue(Paths.get(DESCRIPTION_FILE_NAME).toFile(), new TypeReference<Map<String, String>>() {});
+            description = new ObjectMapper().readValue(is, new TypeReference<Map<String, String>>() {});
         } catch (IOException e) {
             logger.warn("failed to read description file", e);
             description = new HashMap<>();
@@ -88,6 +91,8 @@ public class CommandWhatsNew extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        readDescription();
+        description.forEach((k, v) -> logger.info("{} : {}", k, v));
         Guild guild = event.getGuild();
         TextChannel channel = event.getTextChannel();
         Message message = event.getMessage();

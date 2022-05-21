@@ -55,7 +55,7 @@ public class CommandWhatsNew extends ListenerAdapter {
     // コンストラクタ
     public CommandWhatsNew() {
         if(Files.notExists(Paths.get(DESCRIPTION_FILE_NAME))) {
-            logger.info("description.jsonが存在しません。");
+            logger.info("description.json does not exist.");
             ObjectWriter writer = new ObjectMapper().writer(new DefaultPrettyPrinter());
             description.put("version", "1.0.1");
             description.put("major", "破壊的な変更はありません。ちゃんとコードが書けててえらい！");
@@ -65,7 +65,7 @@ public class CommandWhatsNew extends ListenerAdapter {
             try {
                 writer.writeValue(Paths.get(DESCRIPTION_FILE_NAME).toFile(), description);
             } catch (IOException e) {
-                logger.error("description.jsonの作成に失敗しました。", e);
+                logger.error("Failed to create description.json", e);
             }
         }
         readDescription();

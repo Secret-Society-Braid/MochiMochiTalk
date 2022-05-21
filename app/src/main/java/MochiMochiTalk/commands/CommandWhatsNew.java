@@ -17,6 +17,7 @@ import MochiMochiTalk.App;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -80,7 +81,6 @@ public class CommandWhatsNew extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        readDescription();
         description.forEach((k, v) -> logger.info("{} : {}", k, v));
         Guild guild = event.getGuild();
         TextChannel channel = event.getTextChannel();
@@ -90,22 +90,27 @@ public class CommandWhatsNew extends ListenerAdapter {
         if(user.isBot())
             return;
         if(content.equalsIgnoreCase(App.prefix + "whatsnew")) {
-            int index = random.nextInt(TITLE_MEME.length);
             logger.info("Guild : {}", guild);
             logger.info("Channel : {}", channel);
             logger.info("Message : {}", message);
             logger.info("User : {}", user.getName());
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setTitle(TITLE_MEME[index]);
-            builder.setColor(Color.YELLOW);
-            builder.setDescription("それぞれの番号がインクリメントしたときに追加、修正された内容です。");
-            builder.addField("不具合対応", description.get("hotfix"), false);
-            builder.addField("機能追加", description.get("feature"), false);
-            builder.addField("機能修正", description.get("bugfix"), false);
-            builder.addField("既知の不具合", description.get("bugs"), false);
-            builder.setFooter(description.get("version") + " by " + description.get("Developer"));
-            channel.sendMessageEmbeds(builder.build()).queue();
+            channel.sendMessageEmbeds(buildMessage()).queue();
         }
+    }
+
+    public MessageEmbed buildMessage() {
+        readDescription();
+        int index = random.nextInt(TITLE_MEME.length);
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle(TITLE_MEME[index]);
+        builder.setColor(Color.YELLOW);
+        builder.setDescription("それぞれの番号がインクリメントしたときに追加、修正された内容です。");
+        builder.addField("不具合対応", description.get("hotfix"), false);
+        builder.addField("機能追加", description.get("feature"), false);
+        builder.addField("機能修正", description.get("bugfix"), false);
+        builder.addField("既知の不具合", description.get("bugs"), false);
+        builder.setFooter(description.get("version") + " by " + description.get("Developer"));
+        return builder.build();
     }
     
 }

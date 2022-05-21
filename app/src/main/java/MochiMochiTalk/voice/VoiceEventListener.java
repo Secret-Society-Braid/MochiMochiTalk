@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
+import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -149,6 +150,8 @@ public class VoiceEventListener extends ListenerAdapter {
         builder.setDescription("現在以下の条件に当てはまらない文章は読まれません。注意してください。");
         builder.addField("読まれないものの一覧", "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
         channel.sendMessageEmbeds(builder.build()).queue();
+        CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
+        channel.sendMessageEmbeds(whatsNew.buildMessage()).queue();
         service = Executors.newScheduledThreadPool(1, THREAD_FACTORY);
         service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
         logger.info("Connected to voice channel.");

@@ -81,7 +81,6 @@ public class CommandWhatsNew extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        description.forEach((k, v) -> logger.info("{} : {}", k, v));
         Guild guild = event.getGuild();
         TextChannel channel = event.getTextChannel();
         Message message = event.getMessage();
@@ -90,6 +89,7 @@ public class CommandWhatsNew extends ListenerAdapter {
         if(user.isBot())
             return;
         if(content.equalsIgnoreCase(App.prefix + "whatsnew")) {
+            description.forEach((k, v) -> logger.info("{} : {}", k, v));
             logger.info("Guild : {}", guild);
             logger.info("Channel : {}", channel);
             logger.info("Message : {}", message);

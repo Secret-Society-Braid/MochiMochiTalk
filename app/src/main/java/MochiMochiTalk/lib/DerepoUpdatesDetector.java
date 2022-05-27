@@ -37,7 +37,7 @@ public class DerepoUpdatesDetector {
     }
 
     @Nonnull
-    public static DerepoUpdatesDetector getInstance() {
+    public static synchronized DerepoUpdatesDetector getInstance() {
         if(singleton == null)
             singleton = new DerepoUpdatesDetector();
         return singleton;

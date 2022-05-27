@@ -53,7 +53,6 @@ public class VoiceEventListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        logger.info("Message received: {}", event.getMessage().getContentRaw());
         User author = event.getAuthor();
         Message message = event.getMessage();
         String content = replaceMentions(event);

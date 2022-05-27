@@ -19,9 +19,9 @@ public class CommandShutdown extends ListenerAdapter {
     // Shutdown command
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        LOG.info("Message received: {}", event.getMessage().getContentRaw());
         String content = event.getMessage().getContentRaw();
         if (content.equalsIgnoreCase(App.prefix + "shutdown")) {
+            LOG.info("Message received: {}", event.getMessage().getContentRaw());
             if(IDs.contains(event.getAuthor().getId())) {
                 LOG.info("Shutdown command received");
                 event.getChannel().sendMessage("終了しています…おやすみなさい。プロデューサーさん").queue();

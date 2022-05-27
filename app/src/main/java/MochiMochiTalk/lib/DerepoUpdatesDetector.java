@@ -6,12 +6,16 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
@@ -30,9 +34,11 @@ public class DerepoUpdatesDetector {
 
     public DerepoUpdatesDetector() {
         try {
-            updateCache();
+            writeLocal();
         } catch (IOException e) {
             log.error("Cannot load latest derepo update cache.", e);
+        } catch (ParseException e) {
+            log.warn("Date Parse Failed. local cache file won't be updated.", e);
         }
     }
 
@@ -43,15 +49,9 @@ public class DerepoUpdatesDetector {
         return singleton;
     }
 
-    public void updateCache() throws IOException {
-        if(Files.notExists(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME)))
-            createCache();
-        writeLocal();
-    }
-
-    public void createCache() {
+    public void createCache(CacheData data) throws IOException {
         log.info("Creating cache file...");
-        // TODO: output the json file to cache.
+        OBJECT_MAPPER.writeValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), data);
         log.info("Cache file created.");
     }
 
@@ -85,10 +85,27 @@ public class DerepoUpdatesDetector {
         return OBJECT_MAPPER.readValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), CacheData.class);
     }
 
-    private void writeLocal() throws IOException {
+    private void writeLocal() throws IOException, ParseException {
         String lastUpdatedDateString = df.format(new Date());
         CacheData cacheData = readLocal();
-        final JsonNode latestUpdate = fetchAPI(buildUri(cacheData.getLatestUpdateDateString(), 0));
-        OBJECT_MAPPER.writeValue(Paths.get(LATEST_UPDATE_CACHE_FILE_NAME).toFile(), null);
+        final JsonNode latestUpdateNode = fetchAPI(buildUri(lastUpdatedDateString, 0));
+        final CacheData latestUpdate = OBJECT_MAPPER.readTree(Objects.requireNonNull(latestUpdateNode).traverse());
+        Date lastCacheDate = df.parse(cacheData.getLatestUpdateDateString());
+        Date latestUpdateDate = df.parse(latestUpdate.getLatestUpdateDateString());
+        int compared = lastCacheDate.compareTo(latestUpdateDate);
+        switch (compared) {
+            case 0:
+                log.info("There is no new updates. Cache will not be updated.");
+                break;
+            case -1:
+                log.info("There are some updates. creating new cache...");
+                createCache(latestUpdate);
+                log.info("Complete to create new cache.");
+                break;
+            default:
+                log.warn("There are some updates. but the cache is newer than the latest update. Cache will not be updated.");
+                log.warn("And System clock might be set to the wrong time. please check the machine time.");
+                break;
+        }
     }
 }

@@ -63,6 +63,13 @@ implementation group: 'com.google.re2j', name: 're2j', version: '1.6'
 
     // HajimeAPI wrapper
     implementation(fileTree(dir: '..\\native', include: ['HajimeAPI4J-v2.0.6-Experimental.jar']))
+
+    // Lombok
+    implementation 'org.projectlombok:lombok:1.18.24'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	
+	testImplementation 'org.projectlombok:lombok:1.18.24'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 application {

@@ -3,6 +3,10 @@
  */
 package MochiMochiTalk;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
@@ -16,10 +20,12 @@ import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
+import MochiMochiTalk.lib.DerepoUpdatesDetector;
 import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
 import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -52,10 +58,10 @@ public class App {
 	JDABuilder builder = JDABuilder.createDefault(token);
 	logger.info("TOKEN was successfully set.");
 	try {
-	    builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
+	    JDA jda = builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
 	    .setBulkDeleteSplittingEnabled(false)
-	    .setActivity(Activity.competing("ぷかぷかぶるーむ"))
-	    .setStatus(OnlineStatus.ONLINE)
+	    .setActivity(Activity.competing("新機能実地試験中…"))
+	    .setStatus(OnlineStatus.DO_NOT_DISTURB)
 	    .addEventListeners(
 		    new ReadyListener(), // recognizes when the bot is ready
 		    new VoiceEventListener(), // Event for text-to-speech
@@ -71,6 +77,8 @@ public class App {
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");
+		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		scheduledExecutorService.scheduleWithFixedDelay(() -> DerepoUpdatesDetector.postDataCycle(jda), TimeUnit.SECONDS.toMillis(5), TimeUnit.MINUTES.toMillis(1), TimeUnit.MILLISECONDS);
 	} catch (LoginException e) {
 	    logger.error("Failed to login.", e);
 	}

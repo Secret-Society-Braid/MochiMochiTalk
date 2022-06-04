@@ -1,8 +1,8 @@
 {
-	"hotfix" : "緊急の不具合対応はありません。",
+	"hotfix" : "`CVE-2021-22573` への対応",
 	"feature" : "新しい機能追加はありません。",
-	"bugfix" : "`shutdown`, `whatsnew`コマンドを使用時に不必要なログ出力を行っていた不具合を修正",
+	"bugfix" : "余計なログ出力を削除",
 	"bugs" : "既知の不具合はありません。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v3.1.2"
+	"version" : "MochiMochiTalk-v3.1.3"
 }

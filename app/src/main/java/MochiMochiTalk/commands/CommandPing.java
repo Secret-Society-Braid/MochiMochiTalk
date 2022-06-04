@@ -21,7 +21,6 @@ public class CommandPing extends ListenerAdapter {
     // make ping command
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        logger.info("Message received: {}", event.getMessage().getContentRaw());
         User author = event.getAuthor();
         Message message = event.getMessage();
         String content = message.getContentRaw();

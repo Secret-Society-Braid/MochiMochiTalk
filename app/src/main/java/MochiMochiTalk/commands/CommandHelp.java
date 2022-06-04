@@ -38,7 +38,7 @@ public class CommandHelp extends ListenerAdapter {
             logger.info("sending help for general users");
             channel.sendMessageEmbeds(buildNormal()).queue();
         } else {
-            logger.warn("there is no option for {}", content);
+            /* do nothing */
         }
     }
 

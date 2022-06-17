@@ -182,7 +182,7 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
 
-        if(content.matches("\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+        if(content.matches("\\b.*(http?|https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
             logger.info("Received URL.");
             return true;
         }

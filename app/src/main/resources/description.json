@@ -1,8 +1,8 @@
 {
-	"hotfix" : "`CVE-2021-22573` への対応",
+	"hotfix" : "`google-api-client`を`1.35.1`へバージョンアップ",
 	"feature" : "新しい機能追加はありません。",
-	"bugfix" : "余計なログ出力を削除",
+	"bugfix" : "特定の位置からURLテキストが始まる場合にURLを読み上げてしまう不具合を修正",
 	"bugs" : "既知の不具合はありません。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v3.1.3"
+	"version" : "MochiMochiTalk-v3.1.4"
 }

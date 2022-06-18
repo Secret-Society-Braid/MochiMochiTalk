@@ -166,7 +166,7 @@ public class DerepoUpdatesDetector {
             sBuilder.deleteCharAt(sBuilder.length() - 1);
             builder.addField("ハッシュタグ", sBuilder.toString(), false);
         }
-        builder.setFooter(node.get("postTime").asText());
+        builder.setFooter(node.get("postTime").asText() + " powered by matsurihi.me");
         return builder.build();
     }
 

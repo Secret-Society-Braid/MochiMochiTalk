@@ -78,7 +78,7 @@ public class App {
 	    .build();
 	    logger.info("JDA was successfully built.");
 		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-		scheduledExecutorService.scheduleWithFixedDelay(() -> DerepoUpdatesDetector.postDataCycle(jda), TimeUnit.SECONDS.toMillis(5), TimeUnit.MINUTES.toMillis(1), TimeUnit.MILLISECONDS);
+		scheduledExecutorService.scheduleWithFixedDelay(() -> DerepoUpdatesDetector.postDataCycle(jda), 5, 60, TimeUnit.SECONDS);
 	} catch (LoginException e) {
 	    logger.error("Failed to login.", e);
 	}

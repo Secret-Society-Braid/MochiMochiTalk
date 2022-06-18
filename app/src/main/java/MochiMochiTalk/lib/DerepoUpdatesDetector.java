@@ -33,8 +33,8 @@ public class DerepoUpdatesDetector {
     
     private static final Logger log = LoggerFactory.getLogger(DerepoUpdatesDetector.class);
     public static final String DEREPO_UPDATE_API_URI = "https://api.matsurihi.me/cgss/v1/derepo/statuses";
-    private static CacheData prevCache = null;
-    private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+'Z");
+    private static JsonNode prevCache = null;
+    private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final List<String> UPDATE_POST_CHANNELS = List.of("650565684924776448");
 
@@ -43,10 +43,8 @@ public class DerepoUpdatesDetector {
     }
 
     @Nullable
-    private static CacheData getDerepoUpdate() throws IOException {
-        Date date = new Date();
-        final String dateNow = df.format(date);
-        final String uri = DEREPO_UPDATE_API_URI + "?idolId=216&maxResults=1" + "&timeMin=" + dateNow;
+    private static JsonNode getDerepoUpdate() throws IOException {
+        final String uri = DEREPO_UPDATE_API_URI + "?idolId=216&maxResults=1";
         URL url = new URL(uri);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -60,12 +58,13 @@ public class DerepoUpdatesDetector {
         JsonNode response = OBJECT_MAPPER.readTree(conn.getInputStream());
 
         if(prevCache == null) {
-            prevCache = new CacheData(dateNow, response);
+            log.debug("There is no previous cache.");
+            prevCache = response.get(1);
             return null;
         }
         try {
-            final Date latestDate = df.parse(response.get("postTime").toString());
-            final Date cacheDate = df.parse(prevCache.getLatestUpdateDateString());
+            final Date latestDate = df.parse(response.get(0).get("postTime").asText());
+            final Date cacheDate = df.parse(prevCache.get("postTime").asText());
             int compared = latestDate.compareTo(cacheDate);
             switch (compared) {
                 case 0:
@@ -73,7 +72,7 @@ public class DerepoUpdatesDetector {
                     return null;
                 case 1:
                     log.info("There are some updates.");
-                    prevCache = new CacheData(dateNow, response);
+                    prevCache = response.get(0);
                     return prevCache;
                 default:
                     log.warn("something went wrong. The system clock might be incorrect.");
@@ -87,15 +86,18 @@ public class DerepoUpdatesDetector {
 
     public static void postDataCycle(JDA jda) {
         try {
-            final CacheData latest = getDerepoUpdate();
+            final JsonNode latest = getDerepoUpdate();
             if(latest != null) {
-                final MessageEmbed embed = embedData(latest);
+                log.info("There is an update available.");
+                log.info("update data: {}", latest);
+                MessageEmbed embed = embedData(latest);
+                log.debug("post data: {}", embed);
                 UPDATE_POST_CHANNELS
                     .stream()
                     .map(jda::getTextChannelById)
                     .filter(Objects::nonNull)
                     .forEach(textChannel -> {
-                        textChannel.sendMessageEmbeds(embed).submit();
+                        textChannel.sendMessageEmbeds(embed).queue();
                     }
                 );
             }
@@ -104,15 +106,15 @@ public class DerepoUpdatesDetector {
         }
     }
 
-    private static MessageEmbed embedData(CacheData data) {
-        JsonNode node = data.getInternalData().get(0);
+    private static MessageEmbed embedData(JsonNode data) {
+        JsonNode node = data;
         final int groupOrder = node.get("groupOrder").asInt();
         CompletableFuture<JsonNode> groupNodeFuture = null;
         if (groupOrder != 1) {
             groupNodeFuture = CompletableFuture.supplyAsync(() -> {
                 try {
                     final int groupId = node.get("groupId").asInt();
-                    final String uri = DEREPO_UPDATE_API_URI + "?idolId=216&groupId=" + groupId;
+                    final String uri = DEREPO_UPDATE_API_URI + "?groupId=" + groupId;
                     URL url = new URL(uri);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
@@ -123,7 +125,8 @@ public class DerepoUpdatesDetector {
                         log.error("Failed to get Derepo update. Response code: {}", responseCode);
                         return null;
                     }
-                    return OBJECT_MAPPER.readTree(conn.getInputStream());
+                    final JsonNode ret = OBJECT_MAPPER.readTree(conn.getInputStream());
+                    return ret;
                 } catch (IOException e) {
                     log.error("Failed to get related posts.", e);
                 }
@@ -135,8 +138,16 @@ public class DerepoUpdatesDetector {
         builder.setDescription("むつみちゃんの新しいでれぽ投稿を確認しました！");
         builder.setColor(0x00ff00);
         if(groupNodeFuture != null) {
+            groupNodeFuture.whenComplete((ret, ex) -> {
+                if(ex != null) {
+                    log.error("Failed to get related posts.", ex);
+                    return;
+                }
+            });
             JsonNode groupNode = Objects.requireNonNull(groupNodeFuture.join());
-            builder.addField("返信先", groupNode.get("name").asText(), false);
+            log.debug("The root post is a part of a group.");
+            log.debug("parsing group data. {}", groupNode);
+            builder.addField("返信先", groupNode.get(groupOrder).get("name").asText(), false);
         }
         String detail = node.get("message").asText();
         detail = detail.replace("<br>", "\n");
@@ -144,7 +155,7 @@ public class DerepoUpdatesDetector {
             detail = "[スタンプのみ投稿]";
         builder.addField("内容", detail, false);
         JsonNode hashTagNode = node.get("hashtags");
-        if(!hashTagNode.isEmpty()) {
+        if(hashTagNode.isEmpty()) {
             builder.addField("ハッシュタグ", "なし", false);
         } else {
             StringBuilder sBuilder = new StringBuilder();

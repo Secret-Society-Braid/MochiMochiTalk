@@ -60,8 +60,8 @@ public class App {
 	try {
 	    JDA jda = builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
 	    .setBulkDeleteSplittingEnabled(false)
-	    .setActivity(Activity.competing("新機能実地試験中…"))
-	    .setStatus(OnlineStatus.DO_NOT_DISTURB)
+	    .setActivity(Activity.competing("ぷかぷかぶるーむ"))
+	    .setStatus(OnlineStatus.ONLINE)
 	    .addEventListeners(
 		    new ReadyListener(), // recognizes when the bot is ready
 		    new VoiceEventListener(), // Event for text-to-speech

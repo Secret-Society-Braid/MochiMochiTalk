@@ -1,14 +1,14 @@
 package MochiMochiTalk.lib;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @RequiredArgsConstructor
-@JsonSerialize(using = DerepoUpdateCacheJsonSerializer.class)
+@ToString
 public class CacheData {
     
     final String latestUpdateDateString;

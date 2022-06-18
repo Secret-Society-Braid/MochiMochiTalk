@@ -36,7 +36,7 @@ public class DerepoUpdatesDetector {
     private static JsonNode prevCache = null;
     private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final List<String> UPDATE_POST_CHANNELS = List.of("650565684924776448");
+    private static final List<String> UPDATE_POST_CHANNELS = List.of("650565684924776448", "987723595692257330");
 
     private DerepoUpdatesDetector() {
         /* do nothing */

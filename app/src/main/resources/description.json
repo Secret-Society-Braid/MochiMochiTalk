@@ -1,8 +1,8 @@
 {
-	"hotfix" : "不具合対応はありません",
-	"feature" : "むつみちゃんのでれぽ投稿を確認できるようになりました！",
+	"hotfix" : "`google-cloud-texttospeech`を`2.3.0`から`2.3.1`にアップデート",
+	"feature" : "新しい機能追加はありません",
 	"bugfix" : "修正はありません。",
 	"bugs" : "既知の不具合はありません。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v3.2.0"
+	"version" : "MochiMochiTalk-v3.2.1"
 }

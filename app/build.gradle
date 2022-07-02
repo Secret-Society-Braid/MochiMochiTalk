@@ -49,10 +49,10 @@ implementation group: 'com.google.api-client', name: 'google-api-client', versio
 implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.3.1'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
-implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.7.0'
+implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.8.0'
 
 // libraries for regex matching
-implementation group: 'com.google.re2j', name: 're2j', version: '1.6'
+implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
 
 
 
@@ -62,7 +62,7 @@ implementation group: 'com.google.re2j', name: 're2j', version: '1.6'
     implementation('com.fasterxml.jackson.core:jackson-annotations:2.13.3')
 
     // HajimeAPI wrapper
-    implementation(fileTree(dir: '..\\native', include: ['HajimeAPI4J-v2.0.6-Experimental.jar']))
+    implementation(fileTree(dir: '..\\native', include: ['hajimeapi4j.jar']))
 
     // Lombok
     implementation 'org.projectlombok:lombok:1.18.24'

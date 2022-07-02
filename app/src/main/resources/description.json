@@ -1,7 +1,6 @@
 {
-	"hotfix" : "`google-cloud-texttospeech`を`2.3.0`から`2.3.1`にアップデート",
+	"hotfix" : "`google-auth-library-oauth2-http`を`1.7.0`から`1.8.0`に、`re2j`を`1.6`から`1.7`に、`HajimeAPI4J`を`2.0.6-Experimental`から`3.1.0`にアップデート",
 	"feature" : "新しい機能追加はありません",
-	"bugfix" : "修正はありません。",
 	"bugs" : "既知の不具合はありません。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
 	"version" : "MochiMochiTalk-v3.2.1"

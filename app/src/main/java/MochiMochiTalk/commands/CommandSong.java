@@ -57,7 +57,7 @@ public class CommandSong extends ListenerAdapter {
             logger.info("message: {}", message);
             String[] split = content.split(" ");
             if(split.length >= 2) {
-                HajimeAPIBuilder builder = HajimeAPIBuilder.create();
+                HajimeAPIBuilder builder = null;
                 StringBuilder sb = new StringBuilder();
                 if(split.length == 2)
                     data = split[1];
@@ -77,10 +77,10 @@ public class CommandSong extends ListenerAdapter {
                     }
                 }
                 if(isDigit) {
-                    builder.setToken(Token.MUSIC)
+                    builder = HajimeAPIBuilder.createDefault(Token.MUSIC)
                         .addParameter(Music_Params.ID, data);
                 } else {
-                    builder.setToken(Token.LIST)
+                    builder = HajimeAPIBuilder.createDefault(Token.LIST)
                         .addParameter(List_Params.TYPE, List_Type.MUSIC.toString())
                         .addParameter(List_Params.SEARCH, data);
                 }
@@ -88,7 +88,9 @@ public class CommandSong extends ListenerAdapter {
                 CompletableFuture<Message> sendMessageFuture = channel.sendMessage("楽曲情報APIのレスポンスを待っています……(Powered by ふじわらはじめAPI)").submit();
                 sendMessageFuture.thenAcceptBothAsync(hajimeApiFuture, (response, node) -> {
                     EmbedBuilder embedBuilder = new EmbedBuilder();
-                    String name, link, api = "";
+                    String name = "";
+                    String link = "";
+                    String api = "";
                     int id = 0;
                     if(isDigit) {
                         name = node.get("name").asText();
@@ -161,6 +163,8 @@ public class CommandSong extends ListenerAdapter {
             }
         } else if(content.equalsIgnoreCase(App.prefix + "song")) {
             channel.sendMessage("使用方法：" + App.prefix + "song (検索ワードもしくはふじわらはじめ楽曲DB内部管理ID)").queue();
+        } else {
+            /* do nothing */
         }
     }
 }

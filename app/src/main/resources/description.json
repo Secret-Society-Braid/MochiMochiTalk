@@ -1,7 +1,7 @@
 {
-	"hotfix" : "`google-auth-library-oauth2-http`を`1.7.0`から`1.8.0`に、`re2j`を`1.6`から`1.7`に、`HajimeAPI4J`を`2.0.6-Experimental`から`3.1.0`にアップデート",
+	"hotfix" : "`google-cloud-texttospeech`を`2.3.1`から`2.4.0`に、`google-api-client`を`1.35.1`から`1.35.2`にアップデート",
 	"feature" : "新しい機能追加はありません",
-	"bugs" : "既知の不具合はありません。",
+	"bugs" : "サーバーマシンの不調により、縮退運転となっております。皆さんからの要望があったときのみBotを起動させますので、遠慮なくお申し付けください。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v3.2.1"
+	"version" : "MochiMochiTalk-v3.2.3"
 }

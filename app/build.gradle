@@ -36,7 +36,9 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 
     // Java Discord API
-    implementation('net.dv8tion:JDA:4.4.0_352')
+    // https://mvnrepository.com/artifact/net.dv8tion/JDA
+implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-alpha.13'
+
 
     // logback
     implementation('ch.qos.logback:logback-classic:1.2.11')

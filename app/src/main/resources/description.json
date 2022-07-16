@@ -1,7 +1,7 @@
 {
-	"hotfix" : "`google-cloud-texttospeech`を`2.3.1`から`2.4.0`に、`google-api-client`を`1.35.1`から`1.35.2`にアップデート",
-	"feature" : "新しい機能追加はありません",
+	"hotfix" : "Discordの新しい機能に対応するため、`JDA`を最新バージョンへアップデートしました。しかしながら、意図しない挙動をする恐れがありますのでご注意ください。",
+	"feature" : "感嘆符（！）と草（ｗ）が繰り返し用いられたとき、それらは読み上げには反映されないような処理を追加しました。これは読み上げに使っているライブラリの負荷軽減が目的です。",
 	"bugs" : "サーバーマシンの不調により、縮退運転となっております。皆さんからの要望があったときのみBotを起動させますので、遠慮なくお申し付けください。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v3.2.3"
+	"version" : "MochiMochiTalk-v3.3.0"
 }

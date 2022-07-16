@@ -220,10 +220,12 @@ public class VoiceEventListener extends ListenerAdapter {
         Pattern nicknamedUserPattern = Pattern.compile("<@![0-9].*>");
         Pattern rolePattern = Pattern.compile("<&[0-9].*>");
         Pattern channelPattern = Pattern.compile("<#[0-9].*>");
+        Pattern repeatedPattern = Pattern.compile("(!|w|！|ｗ)");
         Matcher plainUserMatcher = plainUserPattern.matcher(content);
         Matcher nicknamedUserMatcher = nicknamedUserPattern.matcher(content);
         Matcher roleMatcher = rolePattern.matcher(content);
         Matcher channelMatcher = channelPattern.matcher(content);
+        Matcher repeatedMatcher = repeatedPattern.matcher(content);
         while(plainUserMatcher.find()) {
             String mention = plainUserMatcher.group();
             String id = mention.substring(2, mention.length() - 1);
@@ -247,6 +249,10 @@ public class VoiceEventListener extends ListenerAdapter {
             String id = mention.substring(2, mention.length() - 1);
             TextChannel tmpChannel = event.getGuild().getTextChannelById(id);
             content = content.replace(mention, "チャンネル、" + tmpChannel.getName());
+        }
+        while(repeatedMatcher.find()) {
+            String repString = repeatedMatcher.group();
+            content = content.replace(repString, "");
         }
         return content;
     }

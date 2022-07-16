@@ -19,6 +19,7 @@ import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -133,7 +134,7 @@ public class VoiceEventListener extends ListenerAdapter {
     }
 
     private void onConnectCommand(MessageReceivedEvent event) {
-        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        AudioChannel voiceChannel = event.getMember().getVoiceState().getChannel();
         if(voiceChannel == null) {
             event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
             logger.info("User is not in a voice channel.");

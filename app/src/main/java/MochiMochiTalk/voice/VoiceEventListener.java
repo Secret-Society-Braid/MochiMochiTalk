@@ -19,6 +19,7 @@ import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -133,7 +134,7 @@ public class VoiceEventListener extends ListenerAdapter {
     }
 
     private void onConnectCommand(MessageReceivedEvent event) {
-        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        AudioChannel voiceChannel = event.getMember().getVoiceState().getChannel();
         if(voiceChannel == null) {
             event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
             logger.info("User is not in a voice channel.");
@@ -219,10 +220,12 @@ public class VoiceEventListener extends ListenerAdapter {
         Pattern nicknamedUserPattern = Pattern.compile("<@![0-9].*>");
         Pattern rolePattern = Pattern.compile("<&[0-9].*>");
         Pattern channelPattern = Pattern.compile("<#[0-9].*>");
+        Pattern repeatedPattern = Pattern.compile("(!|w|！|ｗ)");
         Matcher plainUserMatcher = plainUserPattern.matcher(content);
         Matcher nicknamedUserMatcher = nicknamedUserPattern.matcher(content);
         Matcher roleMatcher = rolePattern.matcher(content);
         Matcher channelMatcher = channelPattern.matcher(content);
+        Matcher repeatedMatcher = repeatedPattern.matcher(content);
         while(plainUserMatcher.find()) {
             String mention = plainUserMatcher.group();
             String id = mention.substring(2, mention.length() - 1);
@@ -246,6 +249,10 @@ public class VoiceEventListener extends ListenerAdapter {
             String id = mention.substring(2, mention.length() - 1);
             TextChannel tmpChannel = event.getGuild().getTextChannelById(id);
             content = content.replace(mention, "チャンネル、" + tmpChannel.getName());
+        }
+        while(repeatedMatcher.find()) {
+            String repString = repeatedMatcher.group();
+            content = content.replace(repString, "");
         }
         return content;
     }

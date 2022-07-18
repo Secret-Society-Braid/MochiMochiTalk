@@ -30,7 +30,7 @@ public class CacheSeparatelyMock {
             chars[i] = ALPHABETS.charAt(index);
         }
         String res = new String(chars);
-        byte[] resByte = res.getBytes(Charset.forName("UTF-8"));
+        byte[] resByte = res.getBytes(StandardCharsets.UTF_8);
         return Map.of(res, resByte);
     }
 

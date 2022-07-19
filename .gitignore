@@ -1,6 +1,8 @@
 # Ignore Gradle project-specific cache directory
 .gradle
 .vocalcord
+.settings
+app/.settings
 
 # Ignore Gradle build output directory
 build

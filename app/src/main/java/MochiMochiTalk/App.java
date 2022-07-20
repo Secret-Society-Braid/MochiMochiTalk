@@ -3,6 +3,10 @@
  */
 package MochiMochiTalk;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
@@ -16,10 +20,13 @@ import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
+import MochiMochiTalk.lib.DerepoUpdatesDetector;
 import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
+import MochiMochiTalk.listeners.EventLogger;
 import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -52,7 +59,7 @@ public class App {
 	JDABuilder builder = JDABuilder.createDefault(token);
 	logger.info("TOKEN was successfully set.");
 	try {
-	    builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
+	    JDA jda = builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
 	    .setBulkDeleteSplittingEnabled(false)
 	    .setActivity(Activity.competing("ぷかぷかぶるーむ"))
 	    .setStatus(OnlineStatus.ONLINE)
@@ -67,10 +74,13 @@ public class App {
 		    CommandWhatsNew.getInstance(), // whats new command
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
             new CommandSong(), //  song information command
-			new CommandShutdown() // shutdown command
+			new CommandShutdown(), // shutdown command
+			new EventLogger() // logger
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");
+		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		scheduledExecutorService.scheduleWithFixedDelay(() -> DerepoUpdatesDetector.postDataCycle(jda), 5, 60, TimeUnit.SECONDS);
 	} catch (LoginException e) {
 	    logger.error("Failed to login.", e);
 	}

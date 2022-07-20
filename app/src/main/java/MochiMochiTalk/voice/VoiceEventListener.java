@@ -8,11 +8,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
@@ -56,16 +56,19 @@ public class VoiceEventListener extends ListenerAdapter {
         User author = event.getAuthor();
         Message message = event.getMessage();
         String content = replaceMentions(event);
+        String rawContent = message.getContentRaw();
         audioManager = event.getGuild().getAudioManager();
+        logger.debug("connect command fired");
 
         // ignore messages from bots
         if (author.isBot()) {
             return;
         }
-
-        if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
+        logger.debug("connect command fired");
+        if(rawContent.equalsIgnoreCase(App.prefix + "connect") || rawContent.equalsIgnoreCase(App.prefix + "c")) {
+            logger.debug("connect command fired");
             if(!CheckVCAllowed(event)) {
-                logger.warn("VC is not allowed this server. : {}", event.getGuild().getName());
+                logger.warn("VC is not allowed this server. : {}", message.getGuild().getName());
                 event.getChannel().sendMessage("使用しているAPIの関係上、むつコード様以外のサーバーでは読み上げ機能は使用できません。ごめんなさい。").queue();
                 return;
             }
@@ -73,7 +76,7 @@ public class VoiceEventListener extends ListenerAdapter {
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
+        if(rawContent.equalsIgnoreCase(App.prefix + "disconnect") || rawContent.equalsIgnoreCase(App.prefix + "dc")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
@@ -101,7 +104,7 @@ public class VoiceEventListener extends ListenerAdapter {
             return;
         }
 
-        if(flag && !content.startsWith(App.prefix)) {
+        if(flag && !rawContent.startsWith(App.prefix)) {
             if(!event.getChannel().equals(channel)) {
                 logger.info("Message is not in the same channel as the voice channel.");
                 return;
@@ -133,7 +136,7 @@ public class VoiceEventListener extends ListenerAdapter {
     }
 
     private void onConnectCommand(MessageReceivedEvent event) {
-        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        VoiceChannel voiceChannel = (VoiceChannel) event.getMember().getVoiceState().getChannel();
         if(voiceChannel == null) {
             event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
             logger.info("User is not in a voice channel.");
@@ -182,7 +185,7 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
 
-        if(content.matches("\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+        if(content.matches("\\b.*(http?|https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
             logger.info("Received URL.");
             return true;
         }
@@ -219,10 +222,12 @@ public class VoiceEventListener extends ListenerAdapter {
         Pattern nicknamedUserPattern = Pattern.compile("<@![0-9].*>");
         Pattern rolePattern = Pattern.compile("<&[0-9].*>");
         Pattern channelPattern = Pattern.compile("<#[0-9].*>");
+        Pattern repeatedPattern = Pattern.compile("(!|w|！|ｗ)");
         Matcher plainUserMatcher = plainUserPattern.matcher(content);
         Matcher nicknamedUserMatcher = nicknamedUserPattern.matcher(content);
         Matcher roleMatcher = rolePattern.matcher(content);
         Matcher channelMatcher = channelPattern.matcher(content);
+        Matcher repeatedMatcher = repeatedPattern.matcher(content);
         while(plainUserMatcher.find()) {
             String mention = plainUserMatcher.group();
             String id = mention.substring(2, mention.length() - 1);
@@ -246,6 +251,10 @@ public class VoiceEventListener extends ListenerAdapter {
             String id = mention.substring(2, mention.length() - 1);
             TextChannel tmpChannel = event.getGuild().getTextChannelById(id);
             content = content.replace(mention, "チャンネル、" + tmpChannel.getName());
+        }
+        while(repeatedMatcher.find()) {
+            String repString = repeatedMatcher.group();
+            content = content.replace(repString, "");
         }
         return content;
     }

@@ -11,14 +11,20 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
+
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
+import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -47,20 +53,22 @@ public class VoiceEventListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        logger.info("Message received: {}", event.getMessage().getContentRaw());
         User author = event.getAuthor();
         Message message = event.getMessage();
-        String content = message.getContentRaw();
+        String content = replaceMentions(event);
+        String rawContent = message.getContentRaw();
         audioManager = event.getGuild().getAudioManager();
+        logger.debug("connect command fired");
 
         // ignore messages from bots
         if (author.isBot()) {
             return;
         }
-
-        if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
+        logger.debug("connect command fired");
+        if(rawContent.equalsIgnoreCase(App.prefix + "connect") || rawContent.equalsIgnoreCase(App.prefix + "c")) {
+            logger.debug("connect command fired");
             if(!CheckVCAllowed(event)) {
-                logger.warn("VC is not allowed this server. : {}", event.getGuild().getName());
+                logger.warn("VC is not allowed this server. : {}", message.getGuild().getName());
                 event.getChannel().sendMessage("使用しているAPIの関係上、むつコード様以外のサーバーでは読み上げ機能は使用できません。ごめんなさい。").queue();
                 return;
             }
@@ -68,7 +76,7 @@ public class VoiceEventListener extends ListenerAdapter {
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
+        if(rawContent.equalsIgnoreCase(App.prefix + "disconnect") || rawContent.equalsIgnoreCase(App.prefix + "dc")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
@@ -81,9 +89,6 @@ public class VoiceEventListener extends ListenerAdapter {
             logger.info("Received long message.");
             logger.info("Escaped: {}", content);
             logger.info("target messageID: {}", message.getId());
-            channel.sendMessage("メッセージが長いため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
-                response.delete().queueAfter(10, TimeUnit.SECONDS);
-            });
             return;
         }
 
@@ -96,13 +101,10 @@ public class VoiceEventListener extends ListenerAdapter {
         if(isEscaped) {
             logger.info("Escaped: {}", content);
             logger.info("target messageID: {}", message.getId());
-            channel.sendMessage("メッセージに絵文字、URL、コードブロックその他が含まれていたため、読み上げを中断しました。（このメッセージは10秒後に自動削除されます。）").queue(response -> {
-                response.delete().queueAfter(10, TimeUnit.SECONDS);
-            });
             return;
         }
 
-        if(flag && !content.startsWith(App.prefix)) {
+        if(flag && !rawContent.startsWith(App.prefix)) {
             if(!event.getChannel().equals(channel)) {
                 logger.info("Message is not in the same channel as the voice channel.");
                 return;
@@ -134,7 +136,7 @@ public class VoiceEventListener extends ListenerAdapter {
     }
 
     private void onConnectCommand(MessageReceivedEvent event) {
-        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        VoiceChannel voiceChannel = (VoiceChannel) event.getMember().getVoiceState().getChannel();
         if(voiceChannel == null) {
             event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
             logger.info("User is not in a voice channel.");
@@ -145,6 +147,13 @@ public class VoiceEventListener extends ListenerAdapter {
         channel = event.getChannel();
         flag = true;
         channel.sendMessage("準備ができました！いつでもお喋りできます…！").queue();
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("テキスト読み上げBot「聖ちゃんの聖歌隊」");
+        builder.setDescription("現在以下の条件に当てはまらない文章は読まれません。注意してください。");
+        builder.addField("読まれないものの一覧", "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
+        channel.sendMessageEmbeds(builder.build()).queue();
+        CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
+        channel.sendMessageEmbeds(whatsNew.buildMessage()).queue();
         service = Executors.newScheduledThreadPool(1, THREAD_FACTORY);
         service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
         logger.info("Connected to voice channel.");
@@ -176,7 +185,7 @@ public class VoiceEventListener extends ListenerAdapter {
             return true;
         }
 
-        if(content.matches("\\b.*(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+        if(content.matches("\\b.*(http?|https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
             logger.info("Received URL.");
             return true;
         }
@@ -205,5 +214,48 @@ public class VoiceEventListener extends ListenerAdapter {
             }
         }
         return false;
+    }
+
+    private String replaceMentions(MessageReceivedEvent event) {
+        String content = event.getMessage().getContentRaw();
+        Pattern plainUserPattern = Pattern.compile("<@[0-9].*>");
+        Pattern nicknamedUserPattern = Pattern.compile("<@![0-9].*>");
+        Pattern rolePattern = Pattern.compile("<&[0-9].*>");
+        Pattern channelPattern = Pattern.compile("<#[0-9].*>");
+        Pattern repeatedPattern = Pattern.compile("(!|w|！|ｗ)");
+        Matcher plainUserMatcher = plainUserPattern.matcher(content);
+        Matcher nicknamedUserMatcher = nicknamedUserPattern.matcher(content);
+        Matcher roleMatcher = rolePattern.matcher(content);
+        Matcher channelMatcher = channelPattern.matcher(content);
+        Matcher repeatedMatcher = repeatedPattern.matcher(content);
+        while(plainUserMatcher.find()) {
+            String mention = plainUserMatcher.group();
+            String id = mention.substring(2, mention.length() - 1);
+            User user = event.getGuild().getMemberById(id).getUser();
+            content = content.replace(mention, user.getName() + "さん");
+        }
+        while(nicknamedUserMatcher.find()) {
+            String mention = nicknamedUserMatcher.group();
+            String id = mention.substring(3, mention.length() - 1);
+            User user = event.getGuild().getMemberById(id).getUser();
+            content = content.replace(mention, user.getName() + "さん");
+        }
+        while(roleMatcher.find()) {
+            String mention = roleMatcher.group();
+            String id = mention.substring(2, mention.length() - 1);
+            Role role = event.getGuild().getRoleById(id);
+            content = content.replace(mention, "役職、" + role.getName() + " のみなさん");
+        }
+        while(channelMatcher.find()) {
+            String mention = channelMatcher.group();
+            String id = mention.substring(2, mention.length() - 1);
+            TextChannel tmpChannel = event.getGuild().getTextChannelById(id);
+            content = content.replace(mention, "チャンネル、" + tmpChannel.getName());
+        }
+        while(repeatedMatcher.find()) {
+            String repString = repeatedMatcher.group();
+            content = content.replace(repString, "");
+        }
+        return content;
     }
 }

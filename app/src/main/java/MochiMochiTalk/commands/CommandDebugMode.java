@@ -1,19 +1,28 @@
 package MochiMochiTalk.commands;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import MochiMochiTalk.App;
-import net.dv8tion.jda.api.JDA;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+@Slf4j
 public class CommandDebugMode extends ListenerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(CommandDebugMode.class);
+    private static CommandDebugMode singleton;
+    private static volatile boolean debugState = false;
+
+    public static CommandDebugMode getInstance() {
+        if(singleton == null)
+            singleton = new CommandDebugMode();
+        return singleton;
+    }
+
+    public synchronized boolean getDebugState() {
+        return debugState;
+    }
 
     
     @Override
@@ -30,13 +39,21 @@ public class CommandDebugMode extends ListenerAdapter {
         if(content.startsWith(App.prefix + "debug ")) {
             String[] split = content.split(" ");
             if(split.length == 2) {
-                if(split[1].equals("true")) {
+                if(split[1].equals("on")) {
                     channel.sendMessage("デバッグモードをONにしました。").queue();
+                    setDebugState(true);
+                    log.debug("debug is enabled by {} , in {} channel, in the {} guild. now we will output things necessary.", author, channel, event.getGuild());
                 } else {
                     channel.sendMessage("デバッグモードをOFFにしました。").queue();
+                    setDebugState(false);
+                    log.debug("debug is disabled. now we stop debugging...");
                 }
             }
         }
+    }
+
+    private static synchronized void setDebugState(boolean bool) {
+        debugState = bool;
     }
 
     

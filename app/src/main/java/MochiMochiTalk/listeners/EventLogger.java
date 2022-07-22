@@ -35,10 +35,10 @@ public class EventLogger extends ListenerAdapter {
             if(split.length == 1) {
                 log.warn("None parameter has been requested. do nothing.");
                 return;
-            } else if(split[1] == "on") {
+            } else if("on".equals(split[1])) {
                 isEnabled = true;
                 log.info("event logger is now enabled by {}", author);
-            } else if(split[1] == "off") {
+            } else if("off".equals(split[1])) {
                 isEnabled = false;
                 log.info("event logger is now disabled by {}", author);
             }

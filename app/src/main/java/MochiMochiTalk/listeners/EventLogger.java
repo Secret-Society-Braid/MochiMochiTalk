@@ -1,9 +1,10 @@
 package MochiMochiTalk.listeners;
 
+import MochiMochiTalk.App;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -11,18 +12,48 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 @Slf4j
 public class EventLogger extends ListenerAdapter {
 
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        Guild guild = event.getGuild();
-        Channel channel = event.getChannel();
-        Message message = event.getMessage();
-        User user = event.getAuthor();
+    private static EventLogger INSTANCE;
+    private static boolean isEnabled = false;
 
-        log.debug("guild that event fired: {}", guild);
-        log.debug("channel: {}", channel);
-        log.debug("message content: {}", message);
-        log.debug("user data: {}", user);
-
+    public static EventLogger getInstance() {
+        if(INSTANCE == null)
+            INSTANCE = new EventLogger();
+        return INSTANCE;
     }
-    
+
+    @Override
+    public void onMessageReceived(final MessageReceivedEvent event) {
+        Message message = event.getMessage();
+        Guild guild = event.getGuild();
+        User author = event.getAuthor();
+        MessageChannel channel = event.getChannel();
+
+        String contentRaw = message.getContentRaw();
+
+        if(!author.isBot() && contentRaw.startsWith(App.prefix + "eventlog ")) {
+            String[] split = contentRaw.split(" ");
+            if(split.length == 1) {
+                log.warn("None parameter has been requested. do nothing.");
+                return;
+            } else if(split[1] == "on") {
+                isEnabled = true;
+                log.info("event logger is now enabled by {}", author);
+            } else if(split[1] == "off") {
+                isEnabled = false;
+                log.info("event logger is now disabled by {}", author);
+            }
+        }
+
+        if(isEnabled) {
+            log.debug("Discord event log");
+            log.debug("--------------------------------");
+            log.debug("Guild : {}", guild);
+            log.debug("Channel : {}", channel);
+            log.debug("author: {}", author);
+            log.debug("message: {}", message);
+            log.debug("--------------------------------");
+            log.debug("End of Discord event log");
+        }
+    }
+
 }

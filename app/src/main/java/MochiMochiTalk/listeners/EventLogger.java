@@ -38,9 +38,11 @@ public class EventLogger extends ListenerAdapter {
             } else if("on".equals(split[1])) {
                 isEnabled = true;
                 log.info("event logger is now enabled by {}", author);
+		channel.sendMessage("イベントの記録を開始します。").queue();
             } else if("off".equals(split[1])) {
                 isEnabled = false;
                 log.info("event logger is now disabled by {}", author);
+		channel.sendMessage("イベントの記録を中断します。").queue();
             }
         }
 

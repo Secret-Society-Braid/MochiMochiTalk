@@ -222,7 +222,7 @@ public class VoiceEventListener extends ListenerAdapter {
         Pattern nicknamedUserPattern = Pattern.compile("<@![0-9].*>");
         Pattern rolePattern = Pattern.compile("<&[0-9].*>");
         Pattern channelPattern = Pattern.compile("<#[0-9].*>");
-        Pattern repeatedPattern = Pattern.compile("(!|w|！|ｗ)");
+        Pattern repeatedPattern = Pattern.compile("(!|w|！|ｗ|?|？)");
         Matcher plainUserMatcher = plainUserPattern.matcher(content);
         Matcher nicknamedUserMatcher = nicknamedUserPattern.matcher(content);
         Matcher roleMatcher = rolePattern.matcher(content);

@@ -4,15 +4,17 @@ package MochiMochiTalk.voice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
@@ -25,7 +27,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -41,8 +42,6 @@ public class VoiceEventListener extends ListenerAdapter {
     private AudioManager audioManager;
     private DeprecatedTTSEngine ttsEngine = new DeprecatedTTSEngine();
     private boolean flag = false;
-    private String replaced = "";
-    private boolean isReplaced = false;
     private ScheduledExecutorService service;
     private List<String> allowed = new ArrayList<>();
 
@@ -103,6 +102,11 @@ public class VoiceEventListener extends ListenerAdapter {
         }
 
         if(flag && !content.startsWith(App.prefix)) {
+            String immutableContent = content;
+            CompletableFuture<Optional<String>> dictFetchFuture = CompletableFuture.supplyAsync(() -> {
+                CommandDictionary instance = CommandDictionary.getInstance();
+                return instance.getDict(immutableContent);
+            });
             if(!event.getChannel().equals(channel)) {
                 logger.info("Message is not in the same channel as the voice channel.");
                 return;
@@ -111,25 +115,16 @@ public class VoiceEventListener extends ListenerAdapter {
             logger.info("Channel: {}", channel.getName());
             logger.info("Author: {}", author.getName());
             logger.info("Guild: {}", event.getGuild().getName());
-            Map<String, String> dic = CommandDictionary.getDictionary();
-            dic.forEach((key, value) -> {
-                if(content.contains(key)) {
-                    logger.info("Found Dic: {}", key);
-                    replaced = content.replace(key, value);
-                    logger.info("Dic: {}", value);
-                    isReplaced = true;
-                }
-            });
+
+            Optional<String> dictNullable = dictFetchFuture.join();
+            content = dictNullable.orElse(content);
+            logger.debug("current content: {}", content);
+
             try {
-                if(isReplaced) {
-                    ttsEngine.say(replaced);
-                } else {
                     ttsEngine.say(content);
-                }
             } catch (Exception e) {
                 logger.error("Cannot handle tts:", e);
             }
-            isReplaced = false;
         }
     }
 

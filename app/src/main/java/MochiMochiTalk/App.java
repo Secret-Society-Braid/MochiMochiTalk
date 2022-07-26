@@ -69,7 +69,7 @@ public class App {
 		    new CommandHelp(), // help command
 		    new CommandReport(), // report command
 		    new CommandChangePrefix(), // change prefix command
-		    new CommandDictionary(), // dictionary command
+		    CommandDictionary.getInstance(), // dictionary command
 		    CommandWhatsNew.getInstance(), // whats new command
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
             new CommandSong(), //  song information command

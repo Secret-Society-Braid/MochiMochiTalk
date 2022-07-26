@@ -23,6 +23,7 @@ import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.DerepoUpdatesDetector;
 import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
+import MochiMochiTalk.listeners.EventLogger;
 import MochiMochiTalk.listeners.ReadyListener;
 import MochiMochiTalk.voice.VoiceEventListener;
 import net.dv8tion.jda.api.JDA;
@@ -73,7 +74,8 @@ public class App {
 		    CommandWhatsNew.getInstance(), // whats new command
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
             new CommandSong(), //  song information command
-			new CommandShutdown() // shutdown command
+			new CommandShutdown(), // shutdown command
+			EventLogger.getInstance() // logger
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");

@@ -21,7 +21,6 @@ import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -56,16 +55,19 @@ public class VoiceEventListener extends ListenerAdapter {
         User author = event.getAuthor();
         Message message = event.getMessage();
         String content = replaceMentions(event);
+        String rawContent = message.getContentRaw();
         audioManager = event.getGuild().getAudioManager();
+        logger.debug("connect command fired");
 
         // ignore messages from bots
         if (author.isBot()) {
             return;
         }
-
-        if(content.equalsIgnoreCase(App.prefix + "connect") || content.equalsIgnoreCase(App.prefix + "c")) {
+        logger.debug("connect command fired");
+        if(rawContent.equalsIgnoreCase(App.prefix + "connect") || rawContent.equalsIgnoreCase(App.prefix + "c")) {
+            logger.debug("connect command fired");
             if(!CheckVCAllowed(event)) {
-                logger.warn("VC is not allowed this server. : {}", event.getGuild().getName());
+                logger.warn("VC is not allowed this server. : {}", message.getGuild().getName());
                 event.getChannel().sendMessage("使用しているAPIの関係上、むつコード様以外のサーバーでは読み上げ機能は使用できません。ごめんなさい。").queue();
                 return;
             }
@@ -73,7 +75,7 @@ public class VoiceEventListener extends ListenerAdapter {
             onConnectCommand(event);
         }
 
-        if(content.equalsIgnoreCase(App.prefix + "disconnect") || content.equalsIgnoreCase(App.prefix + "dc")) {
+        if(rawContent.equalsIgnoreCase(App.prefix + "disconnect") || rawContent.equalsIgnoreCase(App.prefix + "dc")) {
             logger.info("Disconnecting from voice channel.");
             onDisconnectCommand(event);
         }
@@ -129,7 +131,7 @@ public class VoiceEventListener extends ListenerAdapter {
     }
 
     private void onConnectCommand(MessageReceivedEvent event) {
-        AudioChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        VoiceChannel voiceChannel = (VoiceChannel) event.getMember().getVoiceState().getChannel();
         if(voiceChannel == null) {
             event.getChannel().sendMessage("まだボイスチャンネルに入っていないみたいです…プロデューサーさん").queue();
             logger.info("User is not in a voice channel.");

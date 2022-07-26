@@ -69,17 +69,18 @@ public class CommandDictionary extends ListenerAdapter {
             if (split.length == 3) {
                 String word = split[1];
                 String meaning = split[2];
-                Map<String, String> dic = readDic();
                 if (split[1].equals("del")) {
-                    dic.remove(split[2]);
-                    writeDic(dic);
-                    channel.sendMessageFormat("読み方を削除しました: %s", split[2]).queue();
-                    logger.info("Deleted word: {}", split[2]);
+                    channel.sendMessage("24時間稼働状態へ移行中のため、辞書の削除は`!!report`コマンドで直接管理者にお伝えください。お手数をおかけします。");
                 } else {
-                    dic.put(word, meaning);
-                    writeDic(dic);
-                    channel.sendMessageFormat("読み方を更新しました： %s -> %s", word, meaning).queue();
-                    logger.info("dic updated: {} -> {}", word, meaning);
+                    try {
+                        logger.debug("Attempt to update dictionary.");
+                        logger.debug("word: {}, value: {}", word, meaning);
+                        updateDic(word, meaning);
+                        channel.sendMessageFormat("読み方を更新しました： %s -> %s", word, meaning).queue();
+                    } catch (IOException e) {
+                        logger.error("Exception while updating dictionary.", e);
+                        channel.sendMessageFormat("辞書の更新中にエラーが発生しました:%s", e.getMessage()).queue();
+                    }
                 }
             } else if (split.length == 2) {
                 String word = split[1];
@@ -98,6 +99,12 @@ public class CommandDictionary extends ListenerAdapter {
         }
     }
 
+    /**
+     * @deprecated オリジナルAPIでの辞書管理に変更するため、非推奨
+     * 
+     * @param dictionary
+     */
+    @Deprecated(forRemoval = true)
     public void writeDic(Map<String, String> dictionary) {
         ObjectWriter writer = new ObjectMapper().writer(new DefaultPrettyPrinter());
         try {
@@ -107,6 +114,12 @@ public class CommandDictionary extends ListenerAdapter {
         }
     }
 
+    /**
+     * @deprecated オリジナルAPIでの辞書管理に変更するため
+     * 
+     * @return
+     */
+    @Deprecated(forRemoval = true)
     public Map<String, String> readDic() {
         ObjectMapper mapper = new ObjectMapper();
         TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {

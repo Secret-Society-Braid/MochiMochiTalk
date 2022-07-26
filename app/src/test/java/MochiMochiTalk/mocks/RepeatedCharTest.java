@@ -17,11 +17,14 @@ public class RepeatedCharTest {
     public void matchTest() {
         Pattern pattern = Pattern.compile(REGEX_STRING);
         Matcher trueMatcher = pattern.matcher("おはようございます！！！！！");
+        Matcher questionMatcher = pattern.matcher("！？？？？？？？？？？");
         Matcher falseMatcher = pattern.matcher("おやすみなさい");
         
         assertTrue(trueMatcher::find);
 
         assertFalse(falseMatcher::find);
+
+        assertTrue(questionMatcher::find);
 
     }
 }

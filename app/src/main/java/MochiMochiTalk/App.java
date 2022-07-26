@@ -75,7 +75,7 @@ public class App {
 		    new CheckContainsDiscordURL(), // check if the message contains a discord url
             new CommandSong(), //  song information command
 			new CommandShutdown(), // shutdown command
-			new EventLogger() // logger
+			EventLogger.getInstance() // logger
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");

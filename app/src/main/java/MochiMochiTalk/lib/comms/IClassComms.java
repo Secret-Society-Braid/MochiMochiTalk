@@ -1,7 +1,7 @@
 package MochiMochiTalk.lib.comms;
 
 import java.io.Serializable;
-import java.util.concurrent.CompletableFuture;
+import java.util.Collection;
 
 /**
  * クラス間通信に用いるインターフェースクラス
@@ -29,6 +29,14 @@ public interface IClassComms extends Serializable {
      * @throws IllegalStateException 送信元でこのメソッドを呼び出した場合
      */
     Class<?> getSender() throws IllegalStateException;
+
+    void setSendTo(Class<?> sender) throws IllegalStateException;
+
+    Class<?> getSendTo() throws IllegalStateException, UnsupportedOperationException;
+
+    void setRecipients(Collection<? super Class<?>> recipients) throws IllegalStateException;
+
+    Collection<Class<?>> getRecipients() throws IllegalStateException, UnsupportedOperationException;
 
     /**
      * 送信するメッセージを設定します。

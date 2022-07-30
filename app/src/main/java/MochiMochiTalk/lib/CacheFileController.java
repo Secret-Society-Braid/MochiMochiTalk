@@ -1,10 +1,18 @@
 package MochiMochiTalk.lib;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CacheFileController {
     
     private static CacheFileController singleton;
@@ -20,11 +28,17 @@ public class CacheFileController {
     }
 
     private CacheFileController() {
-        // TODO: implement initial path filling logic
+        this.paths = getListOfPaths();
     }
 
     private static List<Path> getListOfPaths() {
-        // TODO: implement directory traversing logic
+        List<Path> res = new ArrayList<>();
+        try (Stream<Path> paths = Files.walk(Paths.get(DIRECTORY_NAME))) {
+            res = paths.filter(file -> file.getFileName().endsWith(".cache")).toList();
+        } catch (IOException e) {
+            log.error("Encountered I/O error while traversing cache file directory", e);
+        }
+        return res;
     }
 
 }

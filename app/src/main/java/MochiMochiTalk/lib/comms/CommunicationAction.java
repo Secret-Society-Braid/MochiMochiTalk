@@ -24,4 +24,14 @@ public interface CommunicationAction {
     CompletableFuture<Void> submit(Runnable success, Consumer<? super Throwable> failure);
 
     CompletableFuture<Void> submit(Runnable success, Consumer<? super Throwable> failure, boolean acceptInterruptIfNeeded);
+
+    void complete();
+
+    void complete(boolean acceptInterruptIfNeeded);
+
+    void complete(Runnable success);
+
+    void complete(Runnable success, Consumer<? super Throwable> failure);
+
+    void complete(Runnable success, Consumer<? super Throwable> failure, boolean acceptInterruptIfNeeded);
 }

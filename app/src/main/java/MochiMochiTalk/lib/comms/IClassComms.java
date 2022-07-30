@@ -17,7 +17,7 @@ public interface IClassComms extends Serializable {
      * <p>
      * クラス間通信では送信先によるインスタンスの使いまわしをしないよう設計するため、すでに送信元が設定されている場合は {@link UnsupportedOperationException} をスローします。
      * @param sender 送信元。すでに設定されている場合は {@link UnsupportedOperationException}がスローされる。
-     * @throws IllegalStateException 送信元がすでに設定されている場合
+     * @throws UnsupportedOperationException 送信元がすでに設定されている場合
      */
     void setSender(Class<?> sender) throws UnsupportedOperationException;
 
@@ -43,7 +43,7 @@ public interface IClassComms extends Serializable {
      * <p>
      * 送信先でこのメソッドを呼び出した場合、{@link IllegalStateException} がスローされます。
      * @param message 送信するメッセージ
-     * @throws IllegalStateException すでに送信されており、送信先で
+     * @throws IllegalStateException すでに送信されており、送信先でapp/src/main/java/MochiMochiTalk/lib/comms/IClassComms.java
      */
     void setMessage(String message) throws IllegalStateException;
 

@@ -17,10 +17,41 @@ public interface IClassComms extends Serializable {
      * <p>
      * クラス間通信では送信先によるインスタンスの使いまわしをしないよう設計するため、すでに送信元が設定されている場合は {@link UnsupportedOperationException} をスローします。
      * @param sender 送信元。すでに設定されている場合は {@link UnsupportedOperationException}がスローされる。
+     * @throws IllegalStateException 送信元がすでに設定されている場合
      */
-    void setSender(Class<?> sender);
+    void setSender(Class<?> sender) throws UnsupportedOperationException;
 
+    /**
+     * クラス間通信における送信元を取得します。
+     * <p>
+     * 通信元でこのメソッドを呼び出した場合、{@link IllegalStateException} がスローされます。
+     * @return 送信元クラス
+     * @throws IllegalStateException 送信元でこのメソッドを呼び出した場合
+     */
     Class<?> getSender() throws IllegalStateException;
 
+    /**
+     * 送信するメッセージを設定します。
+     * <p>
+     * 送信先でこのメソッドを呼び出した場合、{@link IllegalStateException} がスローされます。
+     * @param message 送信するメッセージ
+     * @throws IllegalStateException すでに送信されており、送信先で
+     */
+    void setMessage(String message) throws IllegalStateException;
 
+    /**
+     * 送信元で設定されたメッセージを取得します。
+     * <p>
+     * メッセージが設定されていない場合は {@link UnsupportedOperationException}が、送信前にこのメソッドを呼び出した場合は {@link IllegalStateException} がスローされます。
+     * @return 送信されたメッセージ
+     * @throws IllegalStateException 送信前にこのメソッドを呼び出した場合
+     * @throws UnsupportedOperationException メッセージが設定されていない場合
+     */
+    String getMessage() throws IllegalStateException, UnsupportedOperationException;
+
+    CommunicationAction sendMessage() throws IllegalStateException, UnsupportedOperationException;
+
+    CommunicationAction sendMessage(String message) throws IllegalStateException, UnsupportedOperationException;
+
+    boolean isclosed();
 }

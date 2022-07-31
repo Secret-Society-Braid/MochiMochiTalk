@@ -1,37 +1,26 @@
 package MochiMochiTalk.lib.comms;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public interface CommunicationAction {
 
     void queue();
 
-    void queue(boolean acceptInterruptIfneeded);
-
     void queue(Runnable success);
 
-    void queue(Runnable success, Consumer<? super Throwable> failure);
+    void queue(Runnable success, BiConsumer<Void, ? super Throwable> failure);
 
-    void queue(Runnable success, Consumer<? super Throwable> failure, boolean acceptInterruptIfNeeded);
-    
     CompletableFuture<Void> submit();
-
-    CompletableFuture<Void> submit(boolean acceptInterruptIfNeeded);
 
     CompletableFuture<Void> submit(Runnable success);
 
-    CompletableFuture<Void> submit(Runnable success, Consumer<? super Throwable> failure);
-
-    CompletableFuture<Void> submit(Runnable success, Consumer<? super Throwable> failure, boolean acceptInterruptIfNeeded);
+    CompletableFuture<Void> submit(Runnable success, BiConsumer<Void, ? super Throwable> failure);
 
     void complete();
 
-    void complete(boolean acceptInterruptIfNeeded);
-
     void complete(Runnable success);
 
-    void complete(Runnable success, Consumer<? super Throwable> failure);
+    void complete(Runnable success, BiConsumer<Void, ? super Throwable> failure);
 
-    void complete(Runnable success, Consumer<? super Throwable> failure, boolean acceptInterruptIfNeeded);
 }

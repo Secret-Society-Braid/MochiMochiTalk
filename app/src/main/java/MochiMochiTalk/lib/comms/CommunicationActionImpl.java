@@ -42,6 +42,16 @@ public class CommunicationActionImpl implements CommunicationAction {
 
     @Override
     public synchronized void queue() {
+        checkInterCommsInstance();
+        CompletableFuture.runAsync(() -> MESSAGE_QUEUE.add(this.comms), DEFAULT_INTERNAL_EXECUTOR);
+    }
+
+    @Override
+    public synchronized void queue(boolean acceptInterruptIfNeeded) {
+        
+    }
+
+    private synchronized void checkInterCommsInstance() {
         if(comms == null) {
             List<Class<?>> tmp = this.recipients.stream().collect(Collectors.toList());
             this.comms = new InterClassComms();
@@ -49,7 +59,5 @@ public class CommunicationActionImpl implements CommunicationAction {
             this.comms.setSender(sender);
             this.comms.setRecipients(tmp);
         }
-        CompletableFuture.runAsync(() -> MESSAGE_QUEUE.add(this.comms), DEFAULT_INTERNAL_EXECUTOR);
     }
-
 }

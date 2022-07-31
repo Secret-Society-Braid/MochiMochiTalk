@@ -34,7 +34,7 @@ public class CacheFileController {
     private static List<Path> getListOfPaths() {
         List<Path> res = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get(DIRECTORY_NAME))) {
-            res = paths.filter(file -> file.getFileName().endsWith(".cache")).toList();
+            res = paths.filter(file -> file.getFileName().endsWith(".cache")).collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Encountered I/O error while traversing cache file directory", e);
         }

@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import ch.qos.logback.core.joran.conditional.ElseAction;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -106,6 +105,7 @@ public class InterClassComms implements IClassComms {
             throw new IllegalStateException("cannot invoke this method before sending");
     }
 
+    @Override
     public synchronized CommunicationAction sendMessage() throws IllegalStateException, UnsupportedOperationException {
         if(closed)
             throw new IllegalStateException("cannot invoke this method after sending");
@@ -113,5 +113,22 @@ public class InterClassComms implements IClassComms {
             throw new UnsupportedOperationException("cannot invoke this method because this has no data");
         else
             return new CommunicationActionImpl(this);
+    }
+
+    @Override
+    public synchronized CommunicationAction sendMessage(String message) throws IllegalStateException, UnsupportedOperationException {
+        if(closed)
+            throw new IllegalStateException("cannot invoke this method after sending");
+        else if(!Strings.isNullOrEmpty(this.message))
+            throw new UnsupportedOperationException("cannot invoke this method because the message is already set.");
+        else
+            this.message = message;
+        return sendMessage();
+    }
+
+    @Nonnull
+    @Override
+    public synchronized boolean isClosed() {
+        return this.closed;
     }
 }

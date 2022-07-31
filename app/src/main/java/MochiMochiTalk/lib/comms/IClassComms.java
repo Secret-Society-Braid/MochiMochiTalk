@@ -61,5 +61,5 @@ public interface IClassComms extends Serializable {
 
     CommunicationAction sendMessage(String message) throws IllegalStateException, UnsupportedOperationException;
 
-    boolean isclosed();
+    boolean isClosed();
 }

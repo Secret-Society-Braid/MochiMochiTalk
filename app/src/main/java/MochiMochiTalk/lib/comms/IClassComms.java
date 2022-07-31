@@ -34,7 +34,7 @@ public interface IClassComms extends Serializable {
 
     Class<?> getSendTo() throws IllegalStateException, UnsupportedOperationException;
 
-    void setRecipients(Collection<? super Class<?>> recipients) throws IllegalStateException;
+    void setRecipients(Collection<Class<?>> recipients) throws IllegalStateException;
 
     Collection<Class<?>> getRecipients() throws IllegalStateException, UnsupportedOperationException;
 

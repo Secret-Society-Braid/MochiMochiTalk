@@ -1,5 +1,6 @@
 package MochiMochiTalk.libs;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,9 +43,19 @@ public class CacheControllTest {
     }
 
     @Test
-    public void storeCacheTest() {
-        
+    public void cacheControllTest() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Optional<Path> path = writeTmpBytes();
+        assertTrue(path::isPresent);
+        assertTrue (Files.exists(path.orElseThrow()));
+        byte[] fromFile = Files.readAllBytes(path.orElseThrow());
+        byte[] fromTTS = invokeTts("テストメッセージ", ttsEngine);
+        assertNotNull(fromFile);
+        assertNotNull(fromTTS);
+        assertArrayEquals(fromTTS, fromFile);
+
     }
+
+    
 
     private static Optional<Path> writeTmpBytes() {
         final String testMessage = "テストメッセージ";
@@ -61,7 +72,7 @@ public class CacheControllTest {
     }
 
     private static byte[] invokeTts(String phrase, DeprecatedTTSEngine ttsEngine) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Class<?> clazz = Class.forName("MochiMochiTalk.lib.voice.DeprecatedTTSEngine");
+        Class<?> clazz = Class.forName("MochiMochiTalk.voice.DeprecatedTTSEngine");
         Method ttsInvokeMethod = clazz.getMethod("tts", String.class);
         ttsInvokeMethod.setAccessible(true);
         byte[] res = (byte[]) ttsInvokeMethod.invoke(instance, phrase);

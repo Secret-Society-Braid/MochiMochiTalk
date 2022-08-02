@@ -32,7 +32,7 @@ public class CacheFileController {
 
     private List<Path> paths;
 
-    public static CacheFileController getInstance() {
+    public static synchronized CacheFileController getInstance() {
         if (singleton == null)
             singleton = new CacheFileController();
         return singleton;

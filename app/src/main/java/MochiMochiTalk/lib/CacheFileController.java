@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CacheFileController {
 
     private static CacheFileController singleton;
+
+    private static final ScheduledExecutorService updateScheduler = Executors.newScheduledThreadPool(1, new WorkerThreadFactory(() -> "MochiMochiTalk", "Voice byte data Cache Controller Thread"));
 
     public static final String DIRECTORY_NAME = ".tmp" + File.separator + ".vocalcord";
 
@@ -36,6 +41,7 @@ public class CacheFileController {
     private CacheFileController() {
         createParentDirectoriesIfNeed();
         this.paths = getListOfPaths();
+        updateScheduler.scheduleAtFixedRate(this::update, 3, 1, TimeUnit.SECONDS);
     }
 
     private static List<Path> getListOfPaths() {
@@ -74,7 +80,7 @@ public class CacheFileController {
         return this.paths;
     }
 
-    public boolean update() {
+    public synchronized boolean update() {
         List<Path> updated = getListOfPaths();
         if(this.paths.equals(updated))
             return false;

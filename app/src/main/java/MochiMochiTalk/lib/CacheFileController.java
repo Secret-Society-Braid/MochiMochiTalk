@@ -3,6 +3,7 @@ package MochiMochiTalk.lib;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +34,7 @@ public class CacheFileController {
     }
 
     private CacheFileController() {
+        createParentDirectoriesIfNeed();
         this.paths = getListOfPaths();
     }
 
@@ -75,6 +77,14 @@ public class CacheFileController {
             return false;
         this.paths = updated;
         return true;
+    }
+
+    private static void createParentDirectoriesIfNeed() {
+        try {
+            Files.createDirectories(Paths.get(DIRECTORY_NAME));
+        } catch (IOException e) {
+            log.error("Encountered I/O Error while handling directory creation");
+        }
     }
 
 }

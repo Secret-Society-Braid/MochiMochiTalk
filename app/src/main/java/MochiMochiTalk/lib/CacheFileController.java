@@ -52,7 +52,7 @@ public class CacheFileController {
         if (Strings.isNullOrEmpty(phrase))
             return Paths.get(DIRECTORY_NAME);
         String fileName = Base64.getEncoder().encodeToString(phrase.getBytes(StandardCharsets.UTF_8));
-        Path storePath = Paths.get(DIRECTORY_NAME + File.separator + fileName);
+        Path storePath = Paths.get(DIRECTORY_NAME + File.separator + fileName + ".cache");
         return Files.write(storePath, bytes);
     }
 
@@ -60,7 +60,7 @@ public class CacheFileController {
         if(Strings.isNullOrEmpty(phrase))
             return Optional.empty();
         String fileName = Base64.getEncoder().encodeToString(phrase.getBytes(StandardCharsets.UTF_8));
-        Path indexPath = Paths.get(DIRECTORY_NAME + File.separator + fileName);
+        Path indexPath = Paths.get(DIRECTORY_NAME + File.separator + fileName + ".cache");
         if(Files.exists(indexPath))
             return Optional.ofNullable(Files.readAllBytes(indexPath));
         else

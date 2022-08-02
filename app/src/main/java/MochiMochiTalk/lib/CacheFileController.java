@@ -41,7 +41,10 @@ public class CacheFileController {
     private static List<Path> getListOfPaths() {
         List<Path> res = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get(DIRECTORY_NAME))) {
-            res = paths.filter(file -> file.getFileName().endsWith(".cache")).collect(Collectors.toList());
+            res = paths
+                .filter(file -> file.getFileName().endsWith(".cache"))
+                .map(CacheFileController::getFileNameWithPath)
+                .collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Encountered I/O error while traversing cache file directory", e);
         }
@@ -85,6 +88,10 @@ public class CacheFileController {
         } catch (IOException e) {
             log.error("Encountered I/O Error while handling directory creation");
         }
+    }
+
+    private static Path getFileNameWithPath(Path path) {
+        return path.getFileName();
     }
 
 }

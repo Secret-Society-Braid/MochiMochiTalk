@@ -73,9 +73,9 @@ public class CacheControllTest {
 
     private static byte[] invokeTts(String phrase, DeprecatedTTSEngine ttsEngine) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> clazz = Class.forName("MochiMochiTalk.voice.DeprecatedTTSEngine");
-        Method ttsInvokeMethod = clazz.getMethod("tts", String.class);
+        Method ttsInvokeMethod = clazz.getDeclaredMethod("tts", String.class);
         ttsInvokeMethod.setAccessible(true);
-        byte[] res = (byte[]) ttsInvokeMethod.invoke(instance, phrase);
+        byte[] res = (byte[]) ttsInvokeMethod.invoke(ttsEngine, phrase);
         return res;
     }
     

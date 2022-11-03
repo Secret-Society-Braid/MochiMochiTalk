@@ -1,0 +1,26 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+.vocalcord
+.settings
+app/.settings
+.project
+app/.project
+app/.classpath
+
+# Ignore Gradle build output directory
+build
+app/bin
+
+# Ignore the vscode specific files
+.vscode
+
+logs/
+dictionary.json
+.vocalcord/vocalcord_phrases.cache
+.vscode/launch.json
+allowed_list
+app/bin/main/GOOGLE_APP_CREDENTIALS.json
+app/src/main/resources/GOOGLE_APP_CREDENTIALS.json
+app/src/main/resources/property.json
+app/src/test/resources/property.json
+

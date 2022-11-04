@@ -114,7 +114,7 @@ public class SlashCommandRegisteration implements EventListener {
             log.debug("complete.");
         log.debug(LOG_FORMAT, "showLicense command");
 
-        showLicenseCommand = Commands.slash("showLicense", "Botが使用しているライブラリのライセンス情報を出力します。");
+        showLicenseCommand = Commands.slash("license", "Botが使用しているライブラリのライセンス情報を出力します。");
 
         log.debug("complete.");
 

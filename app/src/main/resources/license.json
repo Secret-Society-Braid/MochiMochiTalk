@@ -1,0 +1,92 @@
+[
+    {
+        "deps": "shadow",
+        "description": "fat jar construction",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/palantir/gradle-shadow-jar/blob/develop/LICENSE"
+    },
+    {
+        "deps": "jacoco",
+        "description": "test coverage tool",
+        "license": "Eclipse Public License (EPL) v2.0",
+        "url": "https://www.jacoco.org/jacoco/trunk/doc/license.html"
+    },
+    {
+        "deps": "junit jupiter (junit 5)",
+        "description": "unit test library",
+        "license": "Eclipse Public License (EPL) v2.0",
+        "url": "https://github.com/junit-team/junit5/blob/main/LICENSE.md"
+    },
+    {
+        "deps": "gooogle java library (guava)",
+        "description": "useful utility library",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/google/guava/blob/master/COPYING"
+    },
+    {
+        "deps": "JDA (Java Discord API)",
+        "description": "Discord REST API wrapper",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/DV8FromTheWorld/JDA/blob/master/LICENSE"
+    },
+    {
+        "deps": "logback",
+        "description": "log output library",
+        "license": "Dual license of EPL v1.0 and LGPL 2.1",
+        "url": "https://logback.qos.ch/license.html"
+    },
+    {
+        "deps": "google api client",
+        "description": "google api client library",
+        "license":"Apache-2.0 License",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    },
+    {
+        "deps": "google cloud texttospeech",
+        "description": "google cloud text to speech api library",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/googleapis/java-texttospeech/blob/main/LICENSE"
+    },
+    {
+        "deps": "google auth library oauth2 http",
+        "description": "google api authorizing library",
+        "license": "BSD-3 Clause \"New\" or \"Revised\" License",
+        "url": "https://github.com/googleapis/google-auth-library-java/blob/main/LICENSE"
+    },
+    {
+        "deps": "google api services drive",
+        "description": "google drive api client library",
+        "license": "Apache-2.0 License",
+        "url": "not provided"
+    },
+    {
+        "deps": "Jackson Streaming (core)",
+        "description": "JSON parsing core library",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/FasterXML/jackson-core/blob/2.14/LICENSE"
+    },
+    {
+        "deps": "Jackson databind",
+        "description": "JSON parsing databinding library",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/FasterXML/jackson-databind/blob/2.14/LICENSE"
+    },
+    {
+        "deps": "Jackson annotation",
+        "description": "JSON parsing annotations library",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/FasterXML/jackson-annotations/blob/2.14/LICENSE"
+    },
+    {
+        "deps": "HajimeAPI4J",
+        "description": "Fujiwara Hajime Song DB API wrapper library",
+        "license": "Apache-2.0 License",
+        "url": "https://github.com/Secret-Society-Braid/HajimeAPI4J/develop/LICENSE"
+    },
+    {
+        "deps": "lombok",
+        "description": "useful trailing annotation library",
+        "license": "MIT License",
+        "url": "not provided"
+    }
+]

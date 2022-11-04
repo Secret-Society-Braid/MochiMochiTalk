@@ -34,7 +34,7 @@ public class CommandShowLicense extends ListenerAdapter {
             CompletableFuture<List<LicenseData>> licenseFuture = fetchLicenseData();
         licenseFuture
             .thenApplyAsync(CommandShowLicense::constructLicenseEmbed, serv)
-            .thenAcceptAsync(event::replyEmbeds, serv)
+            .thenApply(embed -> event.replyEmbeds(embed).submit())
             // TODO: make this implementation global so that we can use this anywhere.
             .whenCompleteAsync((ret, ex) -> {
                 if(ex == null) {

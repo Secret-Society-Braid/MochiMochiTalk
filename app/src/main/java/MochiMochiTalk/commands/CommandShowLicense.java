@@ -66,13 +66,12 @@ public class CommandShowLicense extends ListenerAdapter {
         return Objects.requireNonNull(licenses);
     }
     
+    @Nonnull
     private static synchronized MessageEmbed constructReplyEmbedMessage() {
         EmbedBuilder builder = new EmbedBuilder();
         builder
             .setTitle("使用ライブラリのライセンス情報", LICENSE_URL)
             .setDescription("Botが使用しているライブラリの情報は、上のタイトルリンクをクリックの上ご確認ください。")
-            .addField("リンクがクリックできない場合", "タイトルのリンクがクリックできない場合は以下のリンクをコピーなどしてご参照ください", false)
-            .addField("リンク", LICENSE_URL, false)
             .addField("このBotのライセンス情報", "このBotは <@399143446939697162> によって開発、保守されています。", false)
             .addField("ソースコード、コントリビューション", "MochiMochiTalkはOSS（オープンソースプロジェクト）です。\nソースは以下のリポジトリで公開しています。", false)
             .addField("OSSリポジトリ", "https://github.com/Secret-Society-Braid/MochiMochiTalk", false);

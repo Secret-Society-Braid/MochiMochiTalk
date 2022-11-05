@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 @Slf4j
 public class SlashCommandRegisteration implements EventListener {
 
+
     private static final String LOG_FORMAT = "registering {}...";
     
     private static final CommandData changePrefixCommand;
@@ -30,6 +31,7 @@ public class SlashCommandRegisteration implements EventListener {
     private static final CommandData songCommand;
     private static final CommandData whatsnewCommand;
     private static final CommandData vcCommand;
+    private static final CommandData showLicenseCommand;
     
     static  {
         log.debug("Registering commands...");
@@ -109,6 +111,13 @@ public class SlashCommandRegisteration implements EventListener {
         vcCommand = Commands.slash("vc", "Botが現在VCに入室しているかどうか自動で判断し、入っていない場合は入室して読み上げを開始、入っている場合は退出して読み上げの終了処理を行います。")
             .setGuildOnly(true);
 
+            log.debug("complete.");
+        log.debug(LOG_FORMAT, "showLicense command");
+
+        showLicenseCommand = Commands.slash("license", "Botが使用しているライブラリのライセンス情報を出力します。");
+
+        log.debug("complete.");
+
         log.debug("-----------------------------------");
         log.debug("Slash command registeration complete.");
     }
@@ -133,7 +142,8 @@ public class SlashCommandRegisteration implements EventListener {
 //                songKeywordCommand,
 //                songIdCommand,
                 whatsnewCommand,
-                vcCommand);
+                vcCommand,
+                showLicenseCommand);
             
             log.info("Submitting command data to Discord...");
             commands.queue(suc -> log.info("complete submitting command data."),

@@ -25,17 +25,13 @@ public class CommandShowLicense extends ListenerAdapter {
     private static ExecutorService serv = Executors.newCachedThreadPool(
         new CountingThreadFactory(() -> "MochiMochiTalk", "license file fetch thread")
     );
+    private static final String LICENSE_URL = "https://github.com/Secret-Society-Braid/MochiMochiTalk/tree/main/app/src/main/resources/licenses.json";
 
     @Override
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         if(!event.getName().equals("license"))
             return;
-        log.info("showing license data...");
-            CompletableFuture<List<LicenseData>> licenseFuture = fetchLicenseData();
-        licenseFuture
-            .thenApplyAsync(CommandShowLicense::constructLicenseEmbed, serv)
-            .thenApply(embed -> event.replyEmbeds(embed).submit())
-            // TODO: make this implementation global so that we can use this anywhere.
+        event.replyEmbeds(constructReplyEmbedMessage()).submit()
             .whenCompleteAsync((ret, ex) -> {
                 if(ex == null) {
                     log.info("the command interaction [showLicense] has been finished successfully");
@@ -59,7 +55,7 @@ public class CommandShowLicense extends ListenerAdapter {
                     .openPrivateChannel()
                     .submit()
                     .thenComposeAsync(channel -> channel.sendMessageEmbeds(builder.build()).submit(), serv);
-            }, serv);
+            });
     }
 
     @Nonnull
@@ -70,14 +66,16 @@ public class CommandShowLicense extends ListenerAdapter {
         return Objects.requireNonNull(licenses);
     }
     
-    private static synchronized MessageEmbed constructLicenseEmbed(List<LicenseData> data) {
+    private static synchronized MessageEmbed constructReplyEmbedMessage() {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("ライセンス一覧");
-        data.parallelStream().forEach(each -> builder
-            .addField(each.getDeps(), each.getUrl(), false)
-            .addField("説明", each.getDescription() , false)
-            .addField("ライセンス名", each.getLicense(), false)
-        );
+        builder
+            .setTitle("使用ライブラリのライセンス情報", LICENSE_URL)
+            .setDescription("Botが使用しているライブラリの情報は、上のタイトルリンクをクリックの上ご確認ください。")
+            .addField("リンクがクリックできない場合", "タイトルのリンクがクリックできない場合は以下のリンクをコピーなどしてご参照ください", false)
+            .addField("リンク", LICENSE_URL, false)
+            .addField("このBotのライセンス情報", "このBotは <@399143446939697162> によって開発、保守されています。", false)
+            .addField("ソースコード、コントリビューション", "MochiMochiTalkはOSS（オープンソースプロジェクト）です。\nソースは以下のリポジトリで公開しています。", false)
+            .addField("OSSリポジトリ", "https://github.com/Secret-Society-Braid/MochiMochiTalk", false);
         return builder.build();
     }
 }

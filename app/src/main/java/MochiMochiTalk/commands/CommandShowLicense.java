@@ -1,16 +1,11 @@
 package MochiMochiTalk.commands;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Nonnull;
 
-import MochiMochiTalk.lib.JsonFileReadUtil;
-import MochiMochiTalk.lib.datatype.LicenseData;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -21,17 +16,17 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 @Slf4j
 public class CommandShowLicense extends ListenerAdapter {
     
-    private static CompletableFuture<List<LicenseData>> licenses;
     private static ExecutorService serv = Executors.newCachedThreadPool(
         new CountingThreadFactory(() -> "MochiMochiTalk", "license file fetch thread")
     );
     private static final String LICENSE_URL = "https://github.com/Secret-Society-Braid/MochiMochiTalk/tree/main/app/src/main/resources/licenses.json";
 
     @Override
+    @SuppressWarnings("null")
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         if(!event.getName().equals("license"))
             return;
-        event.replyEmbeds(constructReplyEmbedMessage()).submit()
+        event.replyEmbeds(constructReplyEmbedMessage()).setEphemeral(true).submit()
             .whenCompleteAsync((ret, ex) -> {
                 if(ex == null) {
                     log.info("the command interaction [showLicense] has been finished successfully");
@@ -57,15 +52,7 @@ public class CommandShowLicense extends ListenerAdapter {
                     .thenComposeAsync(channel -> channel.sendMessageEmbeds(builder.build()).submit(), serv);
             });
     }
-
-    @Nonnull
-    private static synchronized CompletableFuture<List<LicenseData>> fetchLicenseData() {
-        if(licenses == null) {
-            licenses = CompletableFuture.supplyAsync(JsonFileReadUtil::getLicenseData, serv);
-        }
-        return Objects.requireNonNull(licenses);
-    }
-    
+   
     @Nonnull
     private static synchronized MessageEmbed constructReplyEmbedMessage() {
         EmbedBuilder builder = new EmbedBuilder();

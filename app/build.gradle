@@ -65,7 +65,7 @@ implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
 
 
     // jackson core, databind, annotation
-    implementation('com.fasterxml.jackson.core:jackson-core:2.14.0')
+    implementation('com.fasterxml.jackson.core:jackson-core:2.14.1')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.14.1')
     implementation('com.fasterxml.jackson.core:jackson-annotations:2.14.1')
 

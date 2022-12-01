@@ -48,7 +48,7 @@ implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-alpha.22'
     // implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
-implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.0.1'
+implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.1.0'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
 implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.7.0'

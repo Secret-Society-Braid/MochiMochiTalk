@@ -37,18 +37,18 @@ dependencies {
 
     // Java Discord API
     // https://mvnrepository.com/artifact/net.dv8tion/JDA
-implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-alpha.22'
+implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.2'
 
 
     // logback
-    implementation('ch.qos.logback:logback-classic:1.4.4')
+    implementation('ch.qos.logback:logback-classic:1.4.5')
 
     // implementation 'com.google.cloud:google-cloud-speech:2.2.2'
     // implementation 'com.google.cloud:google-cloud-texttospeech:2.1.1'
     // implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
-implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.0.1'
+implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.1.1'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
 implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.7.0'
@@ -65,9 +65,9 @@ implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
 
 
     // jackson core, databind, annotation
-    implementation('com.fasterxml.jackson.core:jackson-core:2.14.0')
-    implementation('com.fasterxml.jackson.core:jackson-databind:2.14.0')
-    implementation('com.fasterxml.jackson.core:jackson-annotations:2.14.0')
+    implementation('com.fasterxml.jackson.core:jackson-core:2.14.1')
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.14.1')
+    implementation('com.fasterxml.jackson.core:jackson-annotations:2.14.1')
 
     // HajimeAPI wrapper
     implementation(fileTree(dir: '..\\native', include: ['hajimeapi4j.jar']))

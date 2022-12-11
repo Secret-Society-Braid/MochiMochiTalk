@@ -1,0 +1,40 @@
+name: バグレポート🐛
+description: 不具合報告の場合もこちらからお願いします！
+title: "[bug]: "
+labels: ["bug", "need-triage"]
+assignees:
+  - hizumiaoba
+body:
+  - type: markdown
+    attributes:
+      value: |
+        この度はバグ報告をしていただき、ありがとうございます。
+  - type: input
+    id: contact
+    attributes:
+      label: 追加連絡先
+      description: 追加の連絡（バグの解消、修正の進捗など）が必要な場合の連絡先をご記入ください！（不要な場合は空欄でOKです）
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 発生した不具合
+      description: あなたが遭遇したバグ、不具合をお書きください！
+    validations:
+      required: true
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: 期待した挙動
+      description: あなたがその操作を実行した際、期待していた挙動を（出来る範囲で具体的に）お書きください！
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: 推定される発生時刻
+      description: あなたがその不具合に遭遇した、おおよその時刻をお伝えください！（この情報はこちらで記録しているログにフィードバックされ、早期解決につながります）
+    validations:
+      required: true

@@ -16,6 +16,7 @@ import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandPing;
 import MochiMochiTalk.commands.CommandReport;
+import MochiMochiTalk.commands.CommandShowLicense;
 import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
@@ -87,7 +88,8 @@ public class App {
 			EventLogger.getInstance(), // logger
 			new EventListenerForTTS(), // refreshed voice event handler
 			new SlashCommandRegisteration(), // registering slash commands
-			new CommandDebugMode() // handle debug mode
+			new CommandDebugMode(), // handle debug mode
+			new CommandShowLicense() // show license information
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");

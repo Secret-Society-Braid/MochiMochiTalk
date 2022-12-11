@@ -80,7 +80,7 @@ public class CommandSong extends ListenerAdapter {
         return builder.build();
     }
 
-    private static void setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> information, String fieldTitle) {
+    private static void setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> information, @Nonnull String fieldTitle) {
         if(information.isEmpty())
             return;
         if(Strings.isNullOrEmpty(fieldTitle))
@@ -88,6 +88,7 @@ public class CommandSong extends ListenerAdapter {
         information
             .parallelStream()
             .map(EndPoint::getName)
-            .forEach(name -> target.addField(fieldTitle, name, false));
+            .filter(Objects::nonNull)
+            .forEach(name -> target.addField(fieldTitle, Objects.requireNonNull(name), false));
     }
 }

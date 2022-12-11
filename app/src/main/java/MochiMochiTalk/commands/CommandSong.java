@@ -1,5 +1,6 @@
 package MochiMochiTalk.commands;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -8,12 +9,15 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Nonnull;
 
+import com.google.api.client.util.Strings;
+
 import hajimeapi4j.api.endpoint.EndPoint;
 import hajimeapi4j.api.endpoint.MusicEndPoint;
 import hajimeapi4j.internal.builder.MusicEndPointBuilder;
 import hajimeapi4j.util.enums.MusicParameter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -50,10 +54,13 @@ public class CommandSong extends ListenerAdapter {
                 MusicParameter.Hide.CD_MEMBER,
                 MusicParameter.Hide.LIVE_MEMBER
             );
-            earlyReplyFuture.thenAcceptBothAsync(
+            CompletableFuture<Message> sendEmbedFuture = earlyReplyFuture.thenCombineAsync(
                 builder.build().submit(),
-                (earlyReplyInteraction, response) -> {
-                    earlyReplyInteraction.editOriginalEmbeds();
+                (earlyReplyInteraction, response) -> earlyReplyInteraction.editOriginalEmbeds(createSongDetailMessage(response)).complete(),
+                concurrentExecutor);
+            sendEmbedFuture.whenCompleteAsync(
+                (ret, ex) -> {
+                    // TODO: write handling code
                 }
             );
         }
@@ -64,12 +71,23 @@ public class CommandSong extends ListenerAdapter {
         builder
             .setTitle(String.format("ID:%d の楽曲情報", response.getSongId()), response.getLink())
             .setDescription("ブラウザでこの情報を見るにはこのメッセージのタイトルをクリック")
-            .addField("楽曲名", response.getName(), false);
-        
+            .addField("楽曲名", response.getName(), false)
+            .setFooter("MochiMochiTalk Song detail integration powered by ふじわらはじめAPI");
+        setInheritListedInformation(builder, response.getComposer().orElse(Collections.emptyList()), "作曲者名");
+        setInheritListedInformation(builder, response.getLyrics().orElse(Collections.emptyList()), "作詞者名");
+        setInheritListedInformation(builder, response.getArrange().orElse(Collections.emptyList()), "編曲者名");
+        setInheritListedInformation(builder, response.getMember(), "歌唱メンバー");
         return builder.build();
     }
 
-    private static EmbedBuilder setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> informations) {
-        return target;
+    private static void setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> information, String fieldTitle) {
+        if(information.isEmpty())
+            return;
+        if(Strings.isNullOrEmpty(fieldTitle))
+            return;
+        information
+            .parallelStream()
+            .map(EndPoint::getName)
+            .forEach(name -> target.addField(fieldTitle, name, false));
     }
 }

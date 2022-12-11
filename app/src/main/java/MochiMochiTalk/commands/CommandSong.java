@@ -98,17 +98,15 @@ public class CommandSong extends ListenerAdapter {
                     message.getJDA().openPrivateChannelById(DEV_USER)
                         .submit()
                         .thenAcceptAsync(
-                            privateChannel -> privateChannel.sendMessageEmbeds(reportBuilder.build()).submit(),
+                            privateChannel -> privateChannel.sendMessageEmbeds(reportBuilder.build()).queue(),
                             concurrentExecutor);
 
                     return exitCode;
                 },
             concurrentExecutor).whenCompleteAsync(
                 (result, t) -> {
-                    if(t == null) {
-                        log.debug("successfully sent error report to developer");
+                    if(t == null || result == 0)
                         return;
-                    }
                     switch (result) {
                         case 1:
                             log.warn("failed to send error report to developer", t);
@@ -147,6 +145,6 @@ public class CommandSong extends ListenerAdapter {
             .parallelStream()
             .map(EndPoint::getName)
             .filter(Objects::nonNull)
-            .forEach(name -> target.addField(fieldTitle, Objects.requireNonNull(name), false));
+            .forEach(name -> target.addField(fieldTitle, Objects.requireNonNull(name), true));
     }
 }

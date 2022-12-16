@@ -45,14 +45,15 @@ public class CommandSong extends ListenerAdapter {
             int id = event.getOption(subCommandName, () -> -1 ,OptionMapping::getAsInt);
 
             if(id == -1) {
-                InteractionHook hook = event.getHook();
-                earlyReplyFuture.thenAcceptBothAsync(
-                    hook.sendMessage("IDが指定されていない可能性があります。処理を中止しました。").submit(),
-                    (earlyReplyInteractionIgnore, errorMessageIgnore) -> log.warn("it seems user {} specified no id. this log is for unintended behavior recording purpose.", event.getUser()),
-                    concurrentExecutor);
-                return;
+                earlyReplyFuture.thenApplyAsync(
+                    hook -> hook.sendMessage("IDが指定されていない可能性があります。処理を中止しました。").complete(),
+                    concurrentExecutor
+                ).thenAcceptAsync(
+                    messageIgnore -> log.warn("it seems user {} specified no id. this log is for unintended behavior recording purpose.", event.getUser()),
+                    concurrentExecutor
+                );
             }
-
+            
             MusicEndPointBuilder builder = MusicEndPointBuilder.createWith(id);
             builder.setHide(
                 MusicParameter.Hide.CD_MEMBER,

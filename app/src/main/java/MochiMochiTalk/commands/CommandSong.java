@@ -46,12 +46,13 @@ public class CommandSong extends ListenerAdapter {
 
             if(id == -1) {
                 earlyReplyFuture.thenApplyAsync(
-                    hook -> hook.sendMessage("IDが指定されていない可能性があります。処理を中止しました。").complete(),
+                    hook -> hook.editOriginal("IDが指定されていない可能性があります。処理を中止しました。").complete(),
                     concurrentExecutor
                 ).thenAcceptAsync(
                     messageIgnore -> log.warn("it seems user {} specified no id. this log is for unintended behavior recording purpose.", event.getUser()),
                     concurrentExecutor
                 );
+                return; // early return for rejecting task
             }
             
             MusicEndPointBuilder builder = MusicEndPointBuilder.createWith(id);

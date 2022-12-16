@@ -137,7 +137,7 @@ public class CommandSong extends ListenerAdapter {
     }
 
     private static void setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> information, @Nonnull String fieldTitle) {
-        if(information.isEmpty())
+        if(information == null || information.isEmpty())
             return;
         if(Strings.isNullOrEmpty(fieldTitle))
             return;

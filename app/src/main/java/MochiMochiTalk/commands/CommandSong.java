@@ -128,7 +128,10 @@ public class CommandSong extends ListenerAdapter {
                 ),
                 concurrentExecutor
             );
+            return; // early return for rejecting task
         }
+
+        ListEndPointBuilder builder = ListEndPointBuilder.createFor(ListParameter.Type.MUSIC);
     }
     
     private static MessageEmbed createSongDetailMessage(MusicEndPoint response) {

@@ -1,5 +1,6 @@
 package MochiMochiTalk.commands;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +43,8 @@ public class CommandSong extends ListenerAdapter {
 
         if(subCommandName.equals("id")) {
             invokeId(event);
-        } else if(subCommandName.equals("name")) {
-            invokeName(event);
+        } else if(subCommandName.equals("keyword")) {
+            invokeKeyword(event);
         } else {
             log.error("unexpected subcommand name: {}", subCommandName);
             throw new UnsupportedOperationException("unexpected subcommand name: " + subCommandName);
@@ -59,8 +60,11 @@ public class CommandSong extends ListenerAdapter {
             earlyReplyFuture.thenApplyAsync(
                 hook -> hook.editOriginal("IDが指定されていない可能性があります。処理を中止しました。").complete(),
                 concurrentExecutor
-            ).thenAcceptAsync(
-                messageIgnore -> log.warn("it seems user {} specified no id. this log is for unintended behavior recording purpose.", event.getUser()),
+            ).thenRunAsync(
+                () -> log.warn(
+                    "it seems user {} specified no id. this log is for unintended behavior recording purpose.",
+                    event.getUser()
+                ),
                 concurrentExecutor
             );
             return; // early return for rejecting task
@@ -71,19 +75,57 @@ public class CommandSong extends ListenerAdapter {
             MusicParameter.Hide.CD_MEMBER,
             MusicParameter.Hide.LIVE_MEMBER
         );
+
+        CompletableFuture<Message> sendDetailMessage = earlyReplyFuture.thenCombineAsync(
+            builder.build().submit(), // invoke API request
+            (hook, response) -> {
+                MessageEmbed detailEmbed = createSongDetailMessage(response);
+                hook.editOriginal("取得完了。表示します……").complete();
+                return hook.editOriginalEmbeds(detailEmbed).complete();
+            },
+            concurrentExecutor
+        );
+
+        // post process
+        sendDetailMessage.whenCompleteAsync(
+            (message, t) -> {
+
+                if(t == null) {
+                    log.debug("successfully sent song detail message");
+                    return;
+                }
+                
+                log.warn("failed to send song detail message: {}", message, t);
+
+                // create auto report message
+                CompletableFuture<MessageEmbed> createReportMessageFuture = CompletableFuture.supplyAsync(
+                    () -> createErrorReportMessage(t),
+                    concurrentExecutor
+                );
+                message.getJDA().openPrivateChannelById(DEV_USER).submit().thenCombineAsync(
+                    createReportMessageFuture,
+                    (channel, reportEmbed) -> channel.sendMessageEmbeds(Objects.requireNonNull(reportEmbed)).complete(),
+                    concurrentExecutor 
+                );
+            },
+            concurrentExecutor
+        );
     }
 
-    private static void invokeName(SlashCommandInteractionEvent event) {
+    private static void invokeKeyword(SlashCommandInteractionEvent event) {
         CompletableFuture<InteractionHook> earlyReplyFuture = event.reply("検索を開始します…お待ちください。（Powered by ふじわらはじめAPI）").submit();
         final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
-        String searchQuery = event.getOption(subCommandName, () -> "", OptionMapping::getAsString);
+        String searchQuery = event.getOption(subCommandName, OptionMapping::getAsString);
 
         if(Strings.isNullOrEmpty(searchQuery)) {
             earlyReplyFuture.thenApplyAsync(
                 hook -> hook.editOriginal("検索キーワードが指定されていない可能性があります。処理を中止しました。").complete(),
                 concurrentExecutor
-            ).thenAcceptAsync(
-                messageIgnore -> log.warn("it seems user {} specified no search query. this log is for unintended behavior recording purpose.", event.getUser()),
+            ).thenRunAsync(
+                () -> log.warn(
+                    "it seems user {} specified no search query. this log is for unintended behavior recording purpose.",
+                    event.getUser()
+                ),
                 concurrentExecutor
             );
         }
@@ -113,5 +155,18 @@ public class CommandSong extends ListenerAdapter {
             .map(EndPoint::getName)
             .filter(Objects::nonNull)
             .forEach(name -> target.addField(fieldTitle, Objects.requireNonNull(name), true));
+    }
+
+    @Nonnull
+    private static MessageEmbed createErrorReportMessage(Throwable t) {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder
+            .setTitle("楽曲情報の取得中にエラーが発生した模様です。")
+            .setDescription("発生個所：CommandSong#onSlashCommandInteractionEvent")
+            .addField("例外", Objects.requireNonNull(t.getClass().getName()), false)
+            .addField("エラーメッセージ", t.getMessage() == null ? "null" : Objects.requireNonNull(t.getMessage()), false)
+            .addField("エラーのスタックトレース", Objects.requireNonNull(Arrays.toString(t.getStackTrace())), false)
+            .setFooter("MochiMochiTalk Automatic Error Reporter");
+        return builder.build();
     }
 }

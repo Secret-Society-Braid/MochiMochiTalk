@@ -13,8 +13,11 @@ import javax.annotation.Nonnull;
 import com.google.api.client.util.Strings;
 
 import hajimeapi4j.api.endpoint.EndPoint;
+import hajimeapi4j.api.endpoint.ListEndPoint;
 import hajimeapi4j.api.endpoint.MusicEndPoint;
+import hajimeapi4j.internal.builder.ListEndPointBuilder;
 import hajimeapi4j.internal.builder.MusicEndPointBuilder;
+import hajimeapi4j.util.enums.ListParameter;
 import hajimeapi4j.util.enums.MusicParameter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -132,6 +135,22 @@ public class CommandSong extends ListenerAdapter {
         }
 
         ListEndPointBuilder builder = ListEndPointBuilder.createFor(ListParameter.Type.MUSIC);
+        builder
+            .setMusicType(ListParameter.MusicType.CINDERELLA_GIRLS)
+            .setSearch(searchQuery)
+            .setLimit(1);
+        
+        CompletableFuture<Message> sendResultMessage = earlyReplyFuture.thenCombineAsync(
+            builder.build().submit(),
+            (hook, response) -> {
+                MessageEmbed resultEmbed = createSearchResultMessage(response);
+                hook.editOriginal("検索完了。表示します……").complete();
+                return hook.editOriginalEmbeds(resultEmbed).complete();
+            },
+            concurrentExecutor
+        );
+
+        sendResultMessage.thenRun(null);
     }
     
     private static MessageEmbed createSongDetailMessage(MusicEndPoint response) {
@@ -146,6 +165,11 @@ public class CommandSong extends ListenerAdapter {
         setInheritListedInformation(builder, response.getArrange().orElse(Collections.emptyList()), "編曲者名");
         setInheritListedInformation(builder, response.getMember(), "歌唱メンバー");
         return builder.build();
+    }
+
+    private static MessageEmbed createSearchResultMessage(List<ListEndPoint> response) {
+        // TODO: implement more
+        return null;
     }
 
     private static void setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> information, @Nonnull String fieldTitle) {

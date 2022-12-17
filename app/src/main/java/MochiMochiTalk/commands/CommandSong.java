@@ -1,302 +1,213 @@
 package MochiMochiTalk.commands;
 
-import java.awt.Color;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.annotation.Nonnull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.api.client.util.Strings;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import HajimeAPI4J.api.HajimeAPI4J;
-import HajimeAPI4J.api.HajimeAPI4J.List_Params;
-import HajimeAPI4J.api.HajimeAPI4J.List_Type;
-import HajimeAPI4J.api.HajimeAPI4J.Music_Params;
-import HajimeAPI4J.api.HajimeAPI4J.Production;
-import HajimeAPI4J.api.HajimeAPI4J.Token;
-import HajimeAPI4J.api.HajimeAPIBuilder;
-import MochiMochiTalk.App;
+import hajimeapi4j.api.endpoint.EndPoint;
+import hajimeapi4j.api.endpoint.ListEndPoint;
+import hajimeapi4j.api.endpoint.MusicEndPoint;
+import hajimeapi4j.internal.builder.ListEndPointBuilder;
+import hajimeapi4j.internal.builder.MusicEndPointBuilder;
+import hajimeapi4j.util.enums.ListParameter;
+import hajimeapi4j.util.enums.MusicParameter;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 // no fixes need for potentially null access
+@Slf4j
 public class CommandSong extends ListenerAdapter {
 
-    // logger
-    private Logger logger = LoggerFactory.getLogger(CommandSong.class);
-
-
-    @Override
-    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
-        Guild guild = event.getGuild();
-        MessageChannel channel = event.getChannel();
-        Message message = event.getMessage();
-        String content = message.getContentRaw();
-        User author = message.getAuthor();
-        AtomicBoolean isDigit = new AtomicBoolean(false);
-
-        if (author.isBot()) {
-            return;
-        }
-
-        if (content.startsWith(App.getStaticPrefix() + "song ")) {
-            logger.info("Guild: {}", guild);
-            logger.info("channel: {}", channel);
-            logger.info("message: {}", message);
-            String[] split = content.split(" ");
-            String data;
-            if (split.length >= 2) {
-                HajimeAPIBuilder builder = null;
-                StringBuilder sb = new StringBuilder();
-                if (split.length == 2)
-                    data = split[1];
-                else {
-                    for (String tmp : Arrays.copyOfRange(split, 1, split.length))
-                        sb.append(tmp).append(" ");
-                    sb.deleteCharAt(sb.length() - 1);
-                    data = sb.toString();
-                }
-                if (!data.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    for (int i = 0; i < data.length(); i++) {
-                        if (Character.isDigit(data.charAt(i))) {
-                            isDigit.set(true);
-                            break;
-                        }
-                    }
-                }
-                if (isDigit.get()) {
-                    builder = HajimeAPIBuilder.createDefault(Token.MUSIC)
-                            .addParameter(Music_Params.ID, data);
-                } else {
-                    builder = HajimeAPIBuilder.createDefault(Token.LIST)
-                            .addParameter(List_Params.TYPE, List_Type.MUSIC.toString())
-                            .addParameter(List_Params.SEARCH, data);
-                }
-                CompletableFuture<JsonNode> hajimeApiFuture = builder.build().getAsync();
-                CompletableFuture<Message> sendMessageFuture = channel
-                        .sendMessage("楽曲情報APIのレスポンスを待っています……(Powered by ふじわらはじめAPI)").submit();
-                sendMessageFuture.thenAcceptBothAsync(hajimeApiFuture, (response, node) -> {
-                    EmbedBuilder embedBuilder = new EmbedBuilder();
-                    String name = "";
-                    String link = "";
-                    String api = "";
-                    int id = 0;
-                    if (isDigit.get()) {
-                        name = Objects.requireNonNull(node.get("name").asText());
-                        link = Objects.requireNonNull(node.get("link").asText());
-                        id = Integer.parseInt(data);
-                        api = node.get("api").asText();
-                        logger.info("name: {}", name);
-                        logger.info("link: {}", link);
-                        logger.info("id: {}", id);
-                        logger.info("api: {}", api);
-                        embedBuilder.setAuthor("HajimeAPI4J fetched from ふじわらはじめAPI", "https://fujiwarahaji.me/")
-                                .addField("楽曲情報", name, false)
-                                .addField("詳細情報", link, false)
-                                .setColor(Color.CYAN);
-                        response.editMessage("取得完了。表示します……").queue();
-                        response.editMessageEmbeds(embedBuilder.build()).queue();
-                    } else {
-                        List<Map<String, Object>> list;
-                        try {
-                            list = new ObjectMapper().readValue(node.traverse(),
-                                    new TypeReference<List<Map<String, Object>>>() {
-                                    });
-                        } catch (IOException e) {
-                            logger.error("Error while traversing json", e);
-                            response.delete().queue();
-                            return;
-                        }
-                        int size = list.size();
-                        Map<String, Object> mostRelated = new HashMap<>(list.get(0));
-                        for (Map<String, Object> map : list) {
-                            logger.info("map: {}", map);
-                            if (map.get("name").toString().contains(data)) {
-                                mostRelated = new LinkedHashMap<>(map);
-                                break;
-                            }
-                        }
-                        name = Objects.requireNonNull(mostRelated.get("name").toString());
-                        link = Objects.requireNonNull(mostRelated.get("link").toString());
-                        id = Integer.parseInt(mostRelated.get("song_id").toString());
-                        api = mostRelated.get("api").toString();
-                        logger.info("name: {}", name);
-                        logger.info("link: {}", link);
-                        logger.info("id: {}", id);
-                        logger.info("api: {}", api);
-                        embedBuilder.setAuthor("HajimeAPI4J fetched from ふじわらはじめAPI", "https://fujiwarahaji.me/")
-                                .addField("楽曲情報", name, false)
-                                .addField("詳細情報", link, false)
-                                .addField("API内部管理ID", id + "", false)
-                                .setColor(Color.CYAN);
-                        response.editMessageFormat("指定されたワードを含む情報が %d 件見つかりました。最も関連性が高いものを表示します...", size)
-                                .queue(success -> {
-                                    success.editMessageEmbeds(embedBuilder.build()).queue();
-                                });
-                    }
-                }).whenCompleteAsync((ret, ex) -> {
-                    if (ex == null) {
-                        logger.info("Successfully completed.");
-                        return;
-                    }
-                    logger.error("Exception while interacting with fujiwara hajime API", ex);
-                    channel.sendMessageFormat("楽曲情報APIからの情報取得中にエラーが発生しました。\nこのエラーを報告する場合は以下のメッセージを一緒に伝えてください\n%s", ex.getMessage());
-                });
-            }
-        } else if (content.equalsIgnoreCase(App.getStaticPrefix() + "song")) {
-            channel.sendMessage("使用方法：" + App.getStaticPrefix() + "song (検索ワードもしくはふじわらはじめ楽曲DB内部管理ID)").queue();
-        } else {
-            /* do nothing */
-        }
-    }
+    private static final Executor concurrentExecutor = Executors.newCachedThreadPool(
+            new CountingThreadFactory(() -> "MochiMochiTalk", "Song detail integration thread", true));
+    private static final String DEV_USER = "399143446939697162";
 
     @Override
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-        if (event.getName().equals("song")) {
-            CompletableFuture<InteractionHook> replyFuture =  event.reply("検索を開始します。少々お待ちください...( Powered by FujiwaraHajime Song Database)").submit();
-            final String varId = "id";
-            final String varKeyword = "keyword";
-            CompletableFuture<JsonNode> nodeFuture;
-            String subCommandName = Objects.requireNonNull(event.getSubcommandName());
-            if (subCommandName.equals(varId))
-                nodeFuture = getSongDetailWithInternalId(event.getOption(varId, OptionMapping::getAsString));
-            else if (subCommandName.equals(varKeyword))
-                nodeFuture = getSongDetailWithKeyword(event.getOption(varKeyword, OptionMapping::getAsString));
-            else
-                return;
+        // early return if not the right command
+        if (!event.getName().equals("song"))
+            return;
+        final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
+        log.info("got interaction with following command: {} in {}", subCommandName, event.getName());
 
-            MessageEmbed result;
-            if (subCommandName.equals(varId))
-                result = generateSongDetailMessage(nodeFuture.join());
-            else
-                result = generateFetchSongListMessage(event.getOption(varKeyword, OptionMapping::getAsString), nodeFuture.join());
-            
-            replyFuture.thenAcceptAsync(hook -> hook.editOriginal("取得完了。表示します…").queue(suc -> suc.getChannel().sendMessageEmbeds(Objects.requireNonNull(result)).queue()));
+        if (subCommandName.equals("id")) {
+            invokeId(event);
+        } else if (subCommandName.equals("keyword")) {
+            invokeKeyword(event);
+        } else {
+            log.error("unexpected subcommand name: {}", subCommandName);
+            throw new UnsupportedOperationException("unexpected subcommand name: " + subCommandName);
         }
     }
 
-    private static MessageEmbed generateSongDetailMessage(JsonNode detail) {
-        // declare detail vars
-        String songName = detail.get("name").asText();
-        String songId = detail.get("song_id").asText();
-        String link = detail.get("link").asText();
-        JsonNode remixNode = detail.get("remix");
-        JsonNode originalNode = detail.get("original");
-        JsonNode lyricsNode = detail.get("lyrics");
-        JsonNode composerNode = detail.get("composer");
-        JsonNode arrangeNode = detail.get("arrange");
-        JsonNode memberNode = detail.get("member");
+    private static void invokeId(SlashCommandInteractionEvent event) {
+        CompletableFuture<InteractionHook> earlyReplyFuture = event.reply("楽曲データベースから情報を取得しています……（From ふじわらはじめAPI）")
+                .submit();
+        final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
+        int id = event.getOption(subCommandName, () -> -1, OptionMapping::getAsInt);
 
-        // future vars if needed
-        CompletableFuture<JsonNode> remixFuture = null;
-        CompletableFuture<JsonNode> originalFuture = null;
-
-        if (remixNode != null) {
-            HajimeAPIBuilder builder = HajimeAPIBuilder.createDefault(Token.MUSIC)
-                    .addParameter(Music_Params.ID, remixNode.get("song_id").asText());
-            HajimeAPI4J api = builder.build();
-            api.setURI(Objects.requireNonNull(remixNode.get("api").asText()));
-            api.setURI(remixNode.get("api").asText());
-            remixFuture = api.getAsync();
-        }
-        if (originalNode != null) {
-            HajimeAPIBuilder builder = HajimeAPIBuilder.createDefault(Token.MUSIC)
-                    .addParameter(Music_Params.ID, originalNode.get("song_id").asText());
-            HajimeAPI4J api = builder.build();
-            api.setURI(originalNode.get("api").asText());
-            originalFuture = api.getAsync();
+        if (id == -1) {
+            earlyReplyFuture.thenApplyAsync(
+                    hook -> hook.editOriginal("IDが指定されていない可能性があります。処理を中止しました。").complete(),
+                    concurrentExecutor).thenRunAsync(
+                            () -> log.warn(
+                                    "it seems user {} specified no id. this log is for unintended behavior recording purpose.",
+                                    event.getUser()),
+                            concurrentExecutor);
+            return; // early return for rejecting task
         }
 
-        // construct embed
+        MusicEndPointBuilder builder = MusicEndPointBuilder.createWith(id);
+        builder.setHide(
+                MusicParameter.Hide.CD_MEMBER,
+                MusicParameter.Hide.LIVE_MEMBER);
+
+        CompletableFuture<Message> sendDetailMessage = earlyReplyFuture.thenCombineAsync(
+                builder.build().submit(), // invoke API request
+                (hook, response) -> {
+                    MessageEmbed detailEmbed = createSongDetailMessage(response);
+                    hook.editOriginal("取得完了。表示します……").complete();
+                    return hook.editOriginalEmbeds(detailEmbed).complete();
+                },
+                concurrentExecutor);
+
+        // post process
+        sendDetailMessage.whenCompleteAsync(
+                CommandSong::postInteraction,
+                concurrentExecutor);
+    }
+
+    private static void invokeKeyword(SlashCommandInteractionEvent event) {
+        CompletableFuture<InteractionHook> earlyReplyFuture = event.reply("検索を開始します…お待ちください。（Powered by ふじわらはじめAPI）")
+                .submit();
+        final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
+        String searchQuery = event.getOption(subCommandName, OptionMapping::getAsString);
+
+        if (Strings.isNullOrEmpty(searchQuery)) {
+            earlyReplyFuture.thenApplyAsync(
+                    hook -> hook.editOriginal("検索キーワードが指定されていない可能性があります。処理を中止しました。").complete(),
+                    concurrentExecutor).thenRunAsync(
+                            () -> log.warn(
+                                    "it seems user {} specified no search query. this log is for unintended behavior recording purpose.",
+                                    event.getUser()),
+                            concurrentExecutor);
+            return; // early return for rejecting task
+        }
+
+        ListEndPointBuilder builder = ListEndPointBuilder.createFor(ListParameter.Type.MUSIC);
+        builder
+                .setMusicType(ListParameter.MusicType.CINDERELLA_GIRLS)
+                .setSearch(searchQuery)
+                .setLimit(1);
+
+        CompletableFuture<Message> sendResultMessage = earlyReplyFuture.thenCombineAsync(
+                builder.build().submit(),
+                (hook, response) -> {
+                    MessageEmbed resultEmbed = createSearchResultMessage(response);
+                    hook.editOriginal("検索完了。表示します……").complete();
+                    return hook.editOriginalEmbeds(resultEmbed).complete();
+                },
+                concurrentExecutor);
+
+        // post process
+        sendResultMessage.whenCompleteAsync(
+                CommandSong::postInteraction,
+                concurrentExecutor);
+    }
+
+    private static MessageEmbed createSongDetailMessage(MusicEndPoint response) {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("内部ID ( " + songId + " ) の楽曲情報", link);
-        builder.setDescription("このメッセージのタイトル部分をクリックすることで楽曲DB内のページへ飛びます");
-        builder.addField("楽曲名", songName, false);
-        builder.addField("楽曲DB内部管理ID", songId, false);
-
-        StringBuilder composerBuilder = new StringBuilder();
-        composerNode.forEach(each -> composerBuilder.append(each.get("name").asText()).append(","));
-        StringBuilder lyricsBuilder = new StringBuilder();
-        lyricsNode.forEach(each -> lyricsBuilder.append(each.get("name").asText()).append(","));
-        StringBuilder arrangeBuilder = new StringBuilder();
-        arrangeNode.forEach(each -> arrangeBuilder.append(each.get("name").asText()).append(","));
-        composerBuilder.deleteCharAt(composerBuilder.length() - 1);
-        lyricsBuilder.deleteCharAt(lyricsBuilder.length() - 1);
-        arrangeBuilder.deleteCharAt(arrangeBuilder.length() - 1);
-
-        builder.addField("作曲者", composerBuilder.toString(), false);
-        builder.addField("作詞者", lyricsBuilder.toString(), false);
-        builder.addField("編曲", arrangeBuilder.toString(), false);
-        memberNode.forEach(member -> {
-            builder.addField("歌唱メンバー", member.get("name").asText(), true);
-        });
-        if (remixNode != null) {
-            builder.addField("リミックス楽曲", "あり", false);
-            JsonNode remixSongNode = remixFuture.join();
-            builder.addField("リミックスタイトル", remixSongNode.get("name").asText(), false);
-            builder.addField("リミックス曲DBページ", remixSongNode.get("link").asText(), false);
-        }
-        if (originalNode != null) {
-            JsonNode originalSongNode = originalFuture.join();
-            builder.addField("リミックス元", originalSongNode.get("name").asText(), false);
-            builder.addField("リミックス元曲DBページ", originalSongNode.get("link").asText(), false);
-        }
-        builder.setFooter(
-                "ProDiary -swiss army knife for Producers- These information are powered by FujiwaraHajime Song DataBase");
+        builder
+                .setTitle(String.format("ID:%d の楽曲情報", response.getSongId()), response.getLink())
+                .setDescription("ブラウザでこの情報を見るにはこのメッセージのタイトルをクリック")
+                .addField("楽曲名", response.getName(), false)
+                .setFooter("MochiMochiTalk Song detail integration powered by ふじわらはじめAPI");
+        setInheritListedInformation(builder, response.getComposer().orElse(Collections.emptyList()), "作曲者名");
+        setInheritListedInformation(builder, response.getLyrics().orElse(Collections.emptyList()), "作詞者名");
+        setInheritListedInformation(builder, response.getArrange().orElse(Collections.emptyList()), "編曲者名");
+        setInheritListedInformation(builder, response.getMember(), "歌唱メンバー");
         return builder.build();
     }
 
-    private static MessageEmbed generateFetchSongListMessage(String keyword, JsonNode listNode) {
+    private static MessageEmbed createSearchResultMessage(List<ListEndPoint> response) {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(keyword + " の検索結果");
-        builder.setDescription("詳細が見たい場合はリンクをクリックするか、かっこ内のIDにて「/song id」コマンドを使用してください。\n検索結果が6曲以上ある場合は5曲まで表示されています。");
-        for (int i = 0; i < 5; i++) {
-            JsonNode tmpNode = listNode.get(i);
-            if(tmpNode == null)
-                break;
-            builder.addField((i + 1) + " 曲目", tmpNode.get("name").asText() + " ( 管理ID:" + tmpNode.get("song_id").asInt() + ") ",
-                    false);
-            builder.addField("リンク先", tmpNode.get("link").asText(), false);
-        }
-        builder.setFooter(
-                "ProDiary -swiss army knife for Producers- These information are powered by FujiwaraHajime song Database");
+        builder
+                .setTitle("検索結果")
+                .setDescription("最も関連性のある1曲が表示されます。")
+                .setFooter("MochiMochiTalk Song detail integration powered by ふじわらはじめAPI");
+
+        if (response.size() != 1)
+            throw new IllegalStateException("unexpected response size: " + response.size());
+
+        setSearchedInformation(builder, response.get(0));
         return builder.build();
     }
 
-    private static CompletableFuture<JsonNode> getSongDetailWithInternalId(String id) {
-        HajimeAPIBuilder builder = HajimeAPIBuilder.createDefault(Token.MUSIC)
-                .addParameter(Music_Params.ID, id);
-        HajimeAPI4J api = builder.build();
-        return api.getAsync();
+    private static void setInheritListedInformation(EmbedBuilder target, List<? extends EndPoint> information,
+            @Nonnull String fieldTitle) {
+        if (information == null || information.isEmpty())
+            return;
+        if (Strings.isNullOrEmpty(fieldTitle))
+            return;
+        information
+                .parallelStream()
+                .map(EndPoint::getName)
+                .filter(Objects::nonNull)
+                .forEach(name -> target.addField(fieldTitle, Objects.requireNonNull(name), true));
     }
 
-    private static CompletableFuture<JsonNode> getSongDetailWithKeyword(String keyword) {
-        HajimeAPIBuilder builder = HajimeAPIBuilder.createDefault(Token.LIST)
-                .addParameter(List_Params.TYPE, List_Type.MUSIC.toString())
-                .addParameter(List_Params.MUSIC_TYPE, Production.CG.toString())
-                .addParameter(List_Params.SEARCH, keyword);
-        HajimeAPI4J api = builder.build();
-        return api.getAsync();
+    @Nonnull
+    private static MessageEmbed createErrorReportMessage(Throwable t) {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder
+                .setTitle("楽曲情報の取得中にエラーが発生した模様です。")
+                .setDescription("発生個所：CommandSong#onSlashCommandInteractionEvent")
+                .addField("例外", Objects.requireNonNull(t.getClass().getName()), false)
+                .addField("エラーメッセージ", t.getMessage() == null ? "null" : Objects.requireNonNull(t.getMessage()), false)
+                .addField("エラーのスタックトレース", Objects.requireNonNull(Arrays.toString(t.getStackTrace())), false)
+                .setFooter("MochiMochiTalk Automatic Error Reporter");
+        return builder.build();
+    }
+
+    private static void setSearchedInformation(EmbedBuilder target, ListEndPoint information) {
+        if (information == null)
+            return;
+        target.addField(
+                information.getName() + "(内部管理ID" + information.getSongId() + ")",
+                information.getLink(),
+                false);
+    }
+
+    private static void postInteraction(Message result, Throwable t) {
+        if (t == null) {
+            log.debug("successfully sent song detail message");
+            return;
+        }
+
+        log.warn("failed to send song detail message: {}", result, t);
+
+        // create auto report message
+        CompletableFuture<MessageEmbed> createReportMessageFuture = CompletableFuture.supplyAsync(
+                () -> createErrorReportMessage(t),
+                concurrentExecutor);
+        result.getJDA().openPrivateChannelById(DEV_USER).submit().thenCombineAsync(
+                createReportMessageFuture,
+                (channel, reportEmbed) -> channel.sendMessageEmbeds(Objects.requireNonNull(reportEmbed)).complete(),
+                concurrentExecutor);
     }
 }

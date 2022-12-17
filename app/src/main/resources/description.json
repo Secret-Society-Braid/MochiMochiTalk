@@ -1,8 +1,8 @@
 {
 	"hotfix" : "緊急のバグ修正はありません",
 	"feature" : "新しい機能追加はありません。",
-	"bugfix": "Botの正常稼働に必要なセキュリティアップデートを行いました。",
+	"bugfix": "`/song`コマンドの処理を改良し、表示する内容を変更しました！",
 	"bugs" : "現在、連続稼働に向けて調整中です。その間は要望に応じてBotを起動いたします。",
 	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v5.1.2"
+	"version" : "MochiMochiTalk-v5.1.3"
 }

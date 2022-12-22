@@ -93,8 +93,6 @@ public class App {
 		    )
 	    .build();
 	    logger.info("JDA was successfully built.");
-		// ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-		// scheduledExecutorService.scheduleWithFixedDelay(() -> DerepoUpdatesDetector.postDataCycle(jda), 5, 60, TimeUnit.SECONDS);
 	} catch (InvalidTokenException e) {
 	    logger.error("Failed to login.", e);
 	}

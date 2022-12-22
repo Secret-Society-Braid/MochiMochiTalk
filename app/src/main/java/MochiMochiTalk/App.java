@@ -33,11 +33,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class App {
 
-	static {
-		// set locale to Japanese
-		Locale.setDefault(Locale.JAPANESE);
-	}
-	
     private static String token = "";
     private static Logger logger = LoggerFactory.getLogger(App.class);
 

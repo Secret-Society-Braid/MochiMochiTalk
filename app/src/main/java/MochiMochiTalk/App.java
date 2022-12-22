@@ -3,6 +3,8 @@
  */
 package MochiMochiTalk;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ public class App {
 
 	static {
 		// set locale to Japanese
-		System.setProperty("user.language", "ja");
+		Locale.setDefault(Locale.JAPANESE);
 	}
 	
     private static String token = "";

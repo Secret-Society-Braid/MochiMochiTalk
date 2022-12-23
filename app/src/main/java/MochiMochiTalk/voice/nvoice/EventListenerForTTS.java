@@ -98,6 +98,11 @@ public class EventListenerForTTS extends ListenerAdapter {
         }
 
         if(flag && !rawContent.startsWith(App.getStaticPrefix())) {
+            // early return for not speaking media content
+            if(!message.getAttachments().isEmpty()) {
+                log.info("Message contains media content. : {}", content);
+                return;
+            }
             String immutableContent = content;
             CompletableFuture<Optional<String>> dictFetchFuture = CompletableFuture.supplyAsync(() -> {
                 CommandDictionary instance = CommandDictionary.getInstance();

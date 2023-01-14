@@ -37,7 +37,7 @@ dependencies {
 
     // Java Discord API
     // https://mvnrepository.com/artifact/net.dv8tion/JDA
-implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.2'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.2'
 
 
     // logback
@@ -48,20 +48,19 @@ implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.2'
     // implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
-implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.1.2'
+    implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.1.2'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
-implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.9.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.9.0'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
-implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.14.0'
+    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.14.0'
 
 // google drive api
-implementation group:'com.google.apis', name:'google-api-services-drive', version:'v3-rev20221219-2.0.0'
+    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20221219-2.0.0'
 
 // libraries for regex matching
-implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
-
+    implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
 
 
     // jackson core, databind, annotation
@@ -74,10 +73,10 @@ implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
 
     // Lombok
     implementation 'org.projectlombok:lombok:1.18.24'
-	annotationProcessor 'org.projectlombok:lombok:1.18.24'
-	
-	testImplementation 'org.projectlombok:lombok:1.18.24'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testImplementation 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 application {

@@ -1,7 +1,7 @@
 name: 新機能、新クラス要望
 description: Wrapperに追加してほしい機能などはこちらから
 title: "[Feature]: "
-labels: ["enhancement", "need-triage"]
+labels: [ "enhancement", "need-triage" ]
 assignees:
   - hizumiaoba
 body:

@@ -1,7 +1,7 @@
 <configuration>
 
   <!-- 標準出力用設定 -->
-  <appender name="BAR-STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="BAR-STDOUT">
     <encoder>
       <pattern>
         %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
@@ -10,16 +10,16 @@
   </appender>
 
   <!-- ファイル出力用設定 -->
-  <appender name="FOO-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FOO-FILE">
+    <encoder>
+      <pattern>%date %level [%thread] %logger{10} [%file : %line] %msg%n</pattern>
+    </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <!-- 起動毎にログファイルを切り替える -->
       <fileNamePattern>logs/log-%d{yyyy-MM-dd}.log</fileNamePattern>
       <!-- 保持しておくログアーカイブファイルの最大数 -->
       <maxHistory>90</maxHistory>
     </rollingPolicy>
-    <encoder>
-      <pattern>%date %level [%thread] %logger{10} [%file : %line] %msg%n</pattern>
-    </encoder>
   </appender>
 
   <!-- ルートロガー -->

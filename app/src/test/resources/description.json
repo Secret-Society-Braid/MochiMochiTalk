@@ -1,8 +1,8 @@
 {
-	"hotfix" : "メンション文字の読み上げ処理を改善しました",
-	"feature" : "新しい機能追加はありません。",
-	"bugfix" : "・whatsnewコマンドにて表示される内容を変更\n・CommandWhatsnewインスタンスをシングルトン化\n・ボイスチャンネルに入室時変更点を自動投稿\n・ファイル読込ライブラリjacksonを2.13.2から2.13.3にアップデート\n・読み上げライブラリgoogle-text-to-speechを2.2.1から2.3.0にアップデート",
-	"bugs" : "既知の不具合はありません。しかし人間はバグを生み出してしまう愚かな生物…",
-	"Developer" : "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-	"version" : "MochiMochiTalk-v3.1.0"
+  "hotfix": "メンション文字の読み上げ処理を改善しました",
+  "feature": "新しい機能追加はありません。",
+  "bugfix": "・whatsnewコマンドにて表示される内容を変更\n・CommandWhatsnewインスタンスをシングルトン化\n・ボイスチャンネルに入室時変更点を自動投稿\n・ファイル読込ライブラリjacksonを2.13.2から2.13.3にアップデート\n・読み上げライブラリgoogle-text-to-speechを2.2.1から2.3.0にアップデート",
+  "bugs": "既知の不具合はありません。しかし人間はバグを生み出してしまう愚かな生物…",
+  "Developer": "Ranfa/hizumiaoba/Indigo_leaF P#4144",
+  "version": "MochiMochiTalk-v3.1.0"
 }

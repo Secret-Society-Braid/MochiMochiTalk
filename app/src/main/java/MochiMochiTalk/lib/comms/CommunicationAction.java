@@ -5,22 +5,22 @@ import java.util.function.BiConsumer;
 
 public interface CommunicationAction {
 
-    void queue();
+  void queue();
 
-    void queue(Runnable success);
+  void queue(Runnable success);
 
-    void queue(Runnable success, BiConsumer<Void, ? super Throwable> failure);
+  void queue(Runnable success, BiConsumer<Void, ? super Throwable> failure);
 
-    CompletableFuture<Void> submit();
+  CompletableFuture<Void> submit();
 
-    CompletableFuture<Void> submit(Runnable success);
+  CompletableFuture<Void> submit(Runnable success);
 
-    CompletableFuture<Void> submit(Runnable success, BiConsumer<Void, ? super Throwable> failure);
+  CompletableFuture<Void> submit(Runnable success, BiConsumer<Void, ? super Throwable> failure);
 
-    void complete();
+  void complete();
 
-    void complete(Runnable success);
+  void complete(Runnable success);
 
-    void complete(Runnable success, BiConsumer<Void, ? super Throwable> failure);
+  void complete(Runnable success, BiConsumer<Void, ? super Throwable> failure);
 
 }

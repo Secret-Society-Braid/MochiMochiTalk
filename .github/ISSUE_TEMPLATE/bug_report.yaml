@@ -1,7 +1,7 @@
 name: バグレポート🐛
 description: 不具合報告の場合もこちらからお願いします！
 title: "[bug]: "
-labels: ["bug", "need-triage"]
+labels: [ "bug", "need-triage" ]
 assignees:
   - hizumiaoba
 body:

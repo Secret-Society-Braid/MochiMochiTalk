@@ -23,7 +23,7 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
   private static final String REGEX_STRING = "https://discord.com/channels/\\d*/\\d*/\\d*";
   private static final Pattern PATTERN = Pattern.compile(REGEX_STRING);
   // Logger
-  private Logger logger = LoggerFactory.getLogger(CheckContainsDiscordURL.class);
+  private final Logger logger = LoggerFactory.getLogger(CheckContainsDiscordURL.class);
 
   @Override
   public void onMessageReceived(@Nonnull MessageReceivedEvent event) {

@@ -38,7 +38,7 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
 
     Matcher m = PATTERN.matcher(message.getContentRaw());
     if (m.find()) {
-      this.logger.info("recieved discord message url");
+      this.logger.info("received discord message url");
       this.logger.info("starting to parse...");
       String url = m.group();
       String data = url.substring(29);

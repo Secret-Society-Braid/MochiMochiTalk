@@ -5,15 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +25,9 @@ public class CommandReport extends ListenerAdapter {
 
   private static final String DEV_USER_ID = "399143446939697162";
   private static final Logger logger = LoggerFactory.getLogger(CommandReport.class);
+  private static final ExecutorService concurrentPool = Executors.newCachedThreadPool(
+      new CountingThreadFactory(() -> "MochiMochiTalk", "Report command concurrent processor", true)
+  );
 
   @Override
   public void onMessageReceived(MessageReceivedEvent event) {
@@ -46,14 +53,24 @@ public class CommandReport extends ListenerAdapter {
       return;
     }
 
-    String sendBody = args[1];
 //    asynchronous user retrieve to avoid null reference of dev user
 //    merge this async user retrieve with the message send
-    CompletableFuture<User> devUserFuture = event.getJDA().retrieveUserById(DEV_USER_ID).submit();
+    CompletableFuture<PrivateChannel> devUserFuture = event.getJDA()
+        .retrieveUserById(DEV_USER_ID)
+        .submit()
+        .thenApplyAsync(dev -> dev.openPrivateChannel().complete(), concurrentPool);
 
-    CompletableFuture.supplyAsync(() -> buildEmbedMessage(author, sendBody))
-        .thenAcceptBothAsync(devUserFuture.thenApply(dev -> dev.openPrivateChannel().complete()),
-            (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).queue());
+    CompletableFuture.supplyAsync(
+            () -> buildEmbedMessage(author, args[1]), // args[1] must contain the report body
+            concurrentPool)
+        .thenAcceptBothAsync(
+            devUserFuture,
+            (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).complete(),
+            concurrentPool)
+        .thenRunAsync(
+            () -> channel.sendMessage(author.getAsMention() + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
+            concurrentPool);
+
   }
 
   @Override

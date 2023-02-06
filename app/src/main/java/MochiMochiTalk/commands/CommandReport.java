@@ -4,7 +4,6 @@ import MochiMochiTalk.App;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,20 +27,20 @@ public class CommandReport extends ListenerAdapter {
     User author = event.getAuthor();
 
 //    early return when author is bot
-    if(author.isBot()) {
+    if (author.isBot()) {
       return;
     }
     String contentRaw = event.getMessage().getContentRaw();
 
 //    early return when contentRaw is not equal to prefix + "report"
-    if(!contentRaw.equals(App.getStaticPrefix() + "report")) {
+    if (!contentRaw.equals(App.getStaticPrefix() + "report")) {
       return;
     }
     String[] args = contentRaw.split(" ");
     MessageChannel channel = event.getChannel();
 
 //    early return when args length is not equal to 2
-    if(args.length != 2) {
+    if (args.length != 2) {
       logger.info("invalid args length");
       channel.sendMessage("!!report <伝えたい内容> と入力してください").queue();
       return;
@@ -52,6 +51,9 @@ public class CommandReport extends ListenerAdapter {
 //    merge this async user retrieve with the message send
     CompletableFuture<User> devUserFuture = event.getJDA().retrieveUserById(DEV_USER_ID).submit();
 
+    CompletableFuture.supplyAsync(() -> buildEmbedMessage(author, sendBody))
+        .thenAcceptBothAsync(devUserFuture.thenApply(dev -> dev.openPrivateChannel().complete()),
+            (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).queue());
   }
 
   @Override
@@ -67,12 +69,13 @@ public class CommandReport extends ListenerAdapter {
     logger.info("description: {}", desc);
     logger.info("estimate occurred date: {}", formattedDate);
     logger.info("reported via {}", author);
-    dev.openPrivateChannel().queue(channel -> channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-            + "送信したプロデューサーさん: ** %s **\n"
-            + "内容: ``` %s ```\n"
-            + "が報告されました。\n"
-            + "障害発生予想時刻: %s \n",
-        author.getName(), desc, formattedDate).queue());
+    dev.openPrivateChannel()
+        .queue(channel -> channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
+                + "送信したプロデューサーさん: ** %s **\n"
+                + "内容: ``` %s ```\n"
+                + "が報告されました。\n"
+                + "障害発生予想時刻: %s \n",
+            author.getName(), desc, formattedDate).queue());
     event.replyFormat("%s プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…",
         author.getName()).setEphemeral(true).queue();
   }

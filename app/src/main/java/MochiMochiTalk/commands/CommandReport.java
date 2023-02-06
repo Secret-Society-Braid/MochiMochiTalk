@@ -35,14 +35,12 @@ public class CommandReport extends ListenerAdapter {
       logger.info("Sending report message.");
       String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
       logger.info("Date: {}", formattedDate);
-      dev.openPrivateChannel().queue(pChannel -> {
-        pChannel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-                + "送信したプロデューサーさん：** %s **さん\n"
-                + "送信内容：\n``` %s ```\n"
-                + "が報告されました。\n"
-                + "障害発生予想時刻： %s \n"
-            , author.getName(), sendBody, formattedDate).queue();
-      });
+      dev.openPrivateChannel().queue(pChannel -> pChannel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
+              + "送信したプロデューサーさん：** %s **さん\n"
+              + "送信内容：\n``` %s ```\n"
+              + "が報告されました。\n"
+              + "障害発生予想時刻： %s \n"
+          , author.getName(), sendBody, formattedDate).queue());
       channel.sendMessage("報告ありがとうございます。治るまで時間が掛かるかもしれないので、気長にお待ちください by 中の人").queue();
     } else if (content.equals(App.getStaticPrefix() + "report")) {
       logger.warn("sendBody parameter is missing.");
@@ -65,14 +63,12 @@ public class CommandReport extends ListenerAdapter {
     logger.info("description: {}", desc);
     logger.info("estimate occured date: {}", formattedDate);
     logger.info("reported via {}", author);
-    dev.openPrivateChannel().queue(channel -> {
-      channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-              + "送信したプロデューサーさん: ** %s **\n"
-              + "内容: ``` %s ```\n"
-              + "が報告されました。\n"
-              + "障害発生予想時刻: %s \n",
-          author.getName(), desc, formattedDate).queue();
-    });
+    dev.openPrivateChannel().queue(channel -> channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
+            + "送信したプロデューサーさん: ** %s **\n"
+            + "内容: ``` %s ```\n"
+            + "が報告されました。\n"
+            + "障害発生予想時刻: %s \n",
+        author.getName(), desc, formattedDate).queue());
     event.replyFormat("%s プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…",
         author.getName()).setEphemeral(true).queue();
   }

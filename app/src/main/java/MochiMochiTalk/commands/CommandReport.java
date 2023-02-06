@@ -61,7 +61,7 @@ public class CommandReport extends ListenerAdapter {
     String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
     logger.info("sending report message...");
     logger.info("description: {}", desc);
-    logger.info("estimate occured date: {}", formattedDate);
+    logger.info("estimate occurred date: {}", formattedDate);
     logger.info("reported via {}", author);
     dev.openPrivateChannel().queue(channel -> channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
             + "送信したプロデューサーさん: ** %s **\n"

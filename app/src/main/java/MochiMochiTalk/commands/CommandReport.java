@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,33 +20,29 @@ public class CommandReport extends ListenerAdapter {
   private final Logger logger = LoggerFactory.getLogger(CommandReport.class);
 
   @Override
-  public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
-    Message message = event.getMessage();
-    String content = message.getContentRaw();
+  public void onMessageReceived(MessageReceivedEvent event) {
     User author = event.getAuthor();
-    User dev = Objects.requireNonNull(event.getJDA().getUserById(DEV_USER_ID));
-    MessageChannel channel = event.getChannel();
-    if (author.isBot()) {
+
+//    early return when author is bot
+    if(author.isBot()) {
       return;
     }
-    if (content.startsWith(App.getStaticPrefix() + "report ")) {
-      String sendBody = content.substring(9);
-      logger.info("Sending report message.");
-      String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-      logger.info("Date: {}", formattedDate);
-      dev.openPrivateChannel().queue(pChannel -> pChannel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-              + "送信したプロデューサーさん：** %s **さん\n"
-              + "送信内容：\n``` %s ```\n"
-              + "が報告されました。\n"
-              + "障害発生予想時刻： %s \n"
-          , author.getName(), sendBody, formattedDate).queue());
-      channel.sendMessage("報告ありがとうございます。治るまで時間が掛かるかもしれないので、気長にお待ちください by 中の人").queue();
-    } else if (content.equals(App.getStaticPrefix() + "report")) {
-      logger.warn("sendBody parameter is missing.");
-      channel.sendMessage("!!reportの後に半角のスペースを入れて、その後に伝えたい内容を入れてください。").queue();
-    } else {
-      /* do nothing */
+    String contentRaw = event.getMessage().getContentRaw();
+
+//    early return when contentRaw is not equal to prefix + "report"
+    if(!contentRaw.equals(App.getStaticPrefix() + "report")) {
+      return;
     }
+    String[] args = contentRaw.split(" ");
+    MessageChannel channel = event.getChannel();
+
+//    early return when args length is not equal to 2
+    if(args.length != 2) {
+      logger.info("invalid args length");
+      channel.sendMessage("!!report <伝えたい内容> と入力してください").queue();
+      return;
+    }
+    
   }
 
   @Override

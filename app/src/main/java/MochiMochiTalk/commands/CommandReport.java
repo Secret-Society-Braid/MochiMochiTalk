@@ -54,25 +54,26 @@ public class CommandReport extends ListenerAdapter {
 
   @Override
   public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-    if (event.getName().equals("report")) {
-      User author = event.getUser();
-      User dev = Objects.requireNonNull(event.getJDA().getUserById(DEV_USER_ID));
-      String desc = event.getOption("description", OptionMapping::getAsString);
-      String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-      logger.info("sending report message...");
-      logger.info("description: {}", desc);
-      logger.info("estimate occured date: {}", formattedDate);
-      logger.info("reported via {}", author);
-      dev.openPrivateChannel().queue(channel -> {
-        channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-                + "送信したプロデューサーさん: ** %s **\n"
-                + "内容: ``` %s ```\n"
-                + "が報告されました。\n"
-                + "障害発生予想時刻: %s \n",
-            author.getName(), desc, formattedDate).queue();
-      });
-      event.replyFormat("%s プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…",
-          author.getName()).setEphemeral(true).queue();
+    if (!event.getName().equals("report")) {
+      return;
     }
+    User author = event.getUser();
+    User dev = Objects.requireNonNull(event.getJDA().getUserById(DEV_USER_ID));
+    String desc = event.getOption("description", OptionMapping::getAsString);
+    String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+    logger.info("sending report message...");
+    logger.info("description: {}", desc);
+    logger.info("estimate occured date: {}", formattedDate);
+    logger.info("reported via {}", author);
+    dev.openPrivateChannel().queue(channel -> {
+      channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
+              + "送信したプロデューサーさん: ** %s **\n"
+              + "内容: ``` %s ```\n"
+              + "が報告されました。\n"
+              + "障害発生予想時刻: %s \n",
+          author.getName(), desc, formattedDate).queue();
+    });
+    event.replyFormat("%s プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…",
+        author.getName()).setEphemeral(true).queue();
   }
 }

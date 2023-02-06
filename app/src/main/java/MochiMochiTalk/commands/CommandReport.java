@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class CommandReport extends ListenerAdapter {
 
   private static final String DEV_USER_ID = "399143446939697162";
-  private Logger logger = LoggerFactory.getLogger(CommandReport.class);
+  private final Logger logger = LoggerFactory.getLogger(CommandReport.class);
 
   @Override
   public void onMessageReceived(@Nonnull MessageReceivedEvent event) {

@@ -23,10 +23,27 @@ import org.slf4j.LoggerFactory;
 public class CommandReport extends ListenerAdapter {
 
   private static final String DEV_USER_ID = "399143446939697162";
-  private static final Logger logger = LoggerFactory.getLogger(CommandReport.class);
+  private static final Logger log = LoggerFactory.getLogger(CommandReport.class);
   private static final ExecutorService concurrentPool = Executors.newCachedThreadPool(
       new CountingThreadFactory(() -> "MochiMochiTalk", "Report command concurrent processor", true)
   );
+
+  private static MessageEmbed buildEmbedMessage(User author, String body) {
+    EmbedBuilder builder = new EmbedBuilder();
+    builder.setTitle("不正常挙動報告");
+    builder.setDescription("プロデューサーさんからおかしな挙動の報告がありました。");
+    builder.addField("送信したプロデューサーさん", author.getAsMention(), false);
+    builder.addField("内容", body, false);
+    String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+    builder.addField("障害発生予想時刻", formattedDate, false);
+    builder.setFooter("MochiMochiTalk");
+    builder.setColor(0x00ff00);
+    log.warn("sending report message...");
+    log.warn("description: {}", body);
+    log.warn("estimate occurred date: {}", formattedDate);
+    log.warn("reported via {}", author);
+    return builder.build();
+  }
 
   @Override
   public void onMessageReceived(MessageReceivedEvent event) {
@@ -44,7 +61,7 @@ public class CommandReport extends ListenerAdapter {
     MessageChannel channel = event.getChannel();
 //    early return when args length is not equal to 2
     if (args.length != 2) {
-      logger.info("invalid args length");
+      log.info("invalid args length");
       channel.sendMessage("!!report <伝えたい内容> と入力してください").queue();
       return;
     }
@@ -69,7 +86,7 @@ public class CommandReport extends ListenerAdapter {
         .whenCompleteAsync(
             (ret, ex) -> {
               if (ex != null) {
-                logger.error("error occurred while sending report message", ex);
+                log.error("error occurred while sending report message", ex);
               }
             },
             concurrentPool);
@@ -101,26 +118,9 @@ public class CommandReport extends ListenerAdapter {
         .whenCompleteAsync(
             (ret, ex) -> {
               if (ex != null) {
-                logger.error("error occurred while sending report message", ex);
+                log.error("error occurred while sending report message", ex);
               }
             },
             concurrentPool);
-  }
-
-  private static MessageEmbed buildEmbedMessage(User author, String body) {
-    EmbedBuilder builder = new EmbedBuilder();
-    builder.setTitle("不正常挙動報告");
-    builder.setDescription("プロデューサーさんからおかしな挙動の報告がありました。");
-    builder.addField("送信したプロデューサーさん", author.getAsMention(), false);
-    builder.addField("内容", body, false);
-    String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-    builder.addField("障害発生予想時刻", formattedDate, false);
-    builder.setFooter("MochiMochiTalk");
-    builder.setColor(0x00ff00);
-    logger.warn("sending report message...");
-    logger.warn("description: {}", body);
-    logger.warn("estimate occurred date: {}", formattedDate);
-    logger.warn("reported via {}", author);
-    return builder.build();
   }
 }

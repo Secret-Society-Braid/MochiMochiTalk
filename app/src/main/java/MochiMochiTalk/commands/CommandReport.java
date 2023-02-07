@@ -107,10 +107,10 @@ public class CommandReport extends ListenerAdapter {
     builder.addField("障害発生予想時刻", formattedDate, false);
     builder.setFooter("MochiMochiTalk");
     builder.setColor(0x00ff00);
-    logger.info("sending report message...");
-    logger.info("description: {}", body);
-    logger.info("estimate occurred date: {}", formattedDate);
-    logger.info("reported via {}", author);
+    logger.warn("sending report message...");
+    logger.warn("description: {}", body);
+    logger.warn("estimate occurred date: {}", formattedDate);
+    logger.warn("reported via {}", author);
     return builder.build();
   }
 }

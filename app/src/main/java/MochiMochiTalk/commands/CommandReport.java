@@ -69,8 +69,14 @@ public class CommandReport extends ListenerAdapter {
             concurrentPool)
         .thenRunAsync(
             () -> channel.sendMessage(author.getAsMention() + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
+            concurrentPool)
+        .whenCompleteAsync(
+            (ret, ex) -> {
+              if (ex != null) {
+                logger.error("error occurred while sending report message", ex);
+              }
+            },
             concurrentPool);
-
   }
 
   @Override

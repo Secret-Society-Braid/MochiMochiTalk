@@ -32,27 +32,23 @@ public class CommandReport extends ListenerAdapter {
   @Override
   public void onMessageReceived(MessageReceivedEvent event) {
     User author = event.getAuthor();
-
 //    early return when author is bot
     if (author.isBot()) {
       return;
     }
     String contentRaw = event.getMessage().getContentRaw();
-
 //    early return when contentRaw is not equal to prefix + "report"
     if (!contentRaw.equals(App.getStaticPrefix() + "report")) {
       return;
     }
     String[] args = contentRaw.split(" ");
     MessageChannel channel = event.getChannel();
-
 //    early return when args length is not equal to 2
     if (args.length != 2) {
       logger.info("invalid args length");
       channel.sendMessage("!!report <伝えたい内容> と入力してください").queue();
       return;
     }
-
 //    asynchronous user retrieve to avoid null reference of dev user
 //    merge this async user retrieve with the message send
     CompletableFuture<PrivateChannel> devUserFuture = event.getJDA()

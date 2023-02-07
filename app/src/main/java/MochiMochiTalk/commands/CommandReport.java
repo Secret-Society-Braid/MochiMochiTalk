@@ -64,7 +64,8 @@ public class CommandReport extends ListenerAdapter {
             (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).complete(),
             concurrentPool)
         .thenRunAsync(
-            () -> channel.sendMessage(author.getAsMention() + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
+            () -> channel.sendMessage(author.getAsMention()
+                + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
             concurrentPool)
         .whenCompleteAsync(
             (ret, ex) -> {
@@ -83,20 +84,28 @@ public class CommandReport extends ListenerAdapter {
     User author = event.getUser();
     User dev = Objects.requireNonNull(event.getJDA().getUserById(DEV_USER_ID));
     String desc = event.getOption("description", OptionMapping::getAsString);
-    String formattedDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-    logger.info("sending report message...");
-    logger.info("description: {}", desc);
-    logger.info("estimate occurred date: {}", formattedDate);
-    logger.info("reported via {}", author);
-    dev.openPrivateChannel()
-        .queue(channel -> channel.sendMessageFormat("プロデューサーさんからおかしな挙動の報告がありました。\n"
-                + "送信したプロデューサーさん: ** %s **\n"
-                + "内容: ``` %s ```\n"
-                + "が報告されました。\n"
-                + "障害発生予想時刻: %s \n",
-            author.getName(), desc, formattedDate).queue());
-    event.replyFormat("%s プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…",
-        author.getName()).setEphemeral(true).queue();
+    CompletableFuture<PrivateChannel> devUserChannelFuture = event.getJDA()
+        .retrieveUserById(DEV_USER_ID)
+        .submit()
+        .thenApplyAsync(devUser -> devUser.openPrivateChannel().complete(), concurrentPool);
+    CompletableFuture.supplyAsync(
+            () -> buildEmbedMessage(author, desc),
+            concurrentPool)
+        .thenAcceptBothAsync(
+            devUserChannelFuture,
+            (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).complete(),
+            concurrentPool)
+        .thenRunAsync(
+            () -> event.reply(author.getAsMention()
+                + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
+            concurrentPool)
+        .whenCompleteAsync(
+            (ret, ex) -> {
+              if (ex != null) {
+                logger.error("error occurred while sending report message", ex);
+              }
+            },
+            concurrentPool);
   }
 
   private static MessageEmbed buildEmbedMessage(User author, String body) {

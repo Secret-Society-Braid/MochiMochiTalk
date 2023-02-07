@@ -3,7 +3,6 @@ package MochiMochiTalk.commands;
 import MochiMochiTalk.App;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +37,7 @@ public class CommandReport extends ListenerAdapter {
     }
     String contentRaw = event.getMessage().getContentRaw();
 //    early return when contentRaw is not equal to prefix + "report"
-    if (!contentRaw.equals(App.getStaticPrefix() + "report")) {
+    if (!contentRaw.startsWith(App.getStaticPrefix() + "report")) {
       return;
     }
     String[] args = contentRaw.split(" ");
@@ -82,7 +81,6 @@ public class CommandReport extends ListenerAdapter {
       return;
     }
     User author = event.getUser();
-    User dev = Objects.requireNonNull(event.getJDA().getUserById(DEV_USER_ID));
     String desc = event.getOption("description", OptionMapping::getAsString);
     CompletableFuture<PrivateChannel> devUserChannelFuture = event.getJDA()
         .retrieveUserById(DEV_USER_ID)
@@ -96,8 +94,9 @@ public class CommandReport extends ListenerAdapter {
             (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).complete(),
             concurrentPool)
         .thenRunAsync(
-            () -> event.reply(author.getAsMention()
-                + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
+            () -> event.reply("プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…")
+                .setEphemeral(true)
+                .complete(),
             concurrentPool)
         .whenCompleteAsync(
             (ret, ex) -> {

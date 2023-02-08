@@ -70,7 +70,7 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
           builder.setAuthor(authorName, null, avatarUrl);
           builder.setDescription(content);
           builder.setFooter(postedChannelName + " - " + postedDate);
-          channel.sendMessageEmbeds(builder.build()).queue();
+          channel.sendMessageEmbeds(builder.build()).queue(suc -> message.delete().queue());
         }, failure -> {
           this.logger.warn("Exception while processing and parsing message.", failure);
           EmbedBuilder builderOnException = new EmbedBuilder();

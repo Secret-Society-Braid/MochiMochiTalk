@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class CommandPing extends ListenerAdapter {
 
-  private Logger logger = LoggerFactory.getLogger(CommandPing.class);
+  private final Logger logger = LoggerFactory.getLogger(CommandPing.class);
 
   // make ping command
   @Override

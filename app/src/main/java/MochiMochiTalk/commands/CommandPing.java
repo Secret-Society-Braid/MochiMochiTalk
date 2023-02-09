@@ -35,10 +35,10 @@ public class CommandPing extends ListenerAdapter {
       logger.info("Guild: {}", guild.getName());
       logger.info("Pong!");
       long time = System.currentTimeMillis();
-      channel.sendMessage("ぽ…ぽんっ…！").queue(response -> {
-        response.editMessageFormat("ぽ…ぽんっ…！: ping -> %d ms", (System.currentTimeMillis() - time))
-            .queue();
-      });
+      channel.sendMessage("ぽ…ぽんっ…！").queue(
+          response -> response.editMessageFormat("ぽ…ぽんっ…！: ping -> %d ms",
+                  (System.currentTimeMillis() - time))
+              .queue());
     }
   }
 
@@ -47,10 +47,9 @@ public class CommandPing extends ListenerAdapter {
     if (event.getName().equals("ping")) {
       logger.info("ping slash command invoked.");
       long time = System.currentTimeMillis();
-      event.reply("ぽ…ぽんっ…！").queue(suc -> {
-        suc.editOriginalFormat("ぽ…ぽんっ…！：ping -> %d ms", (System.currentTimeMillis() - time))
-            .queue();
-      });
+      event.reply("ぽ…ぽんっ…！").queue(suc -> suc.editOriginalFormat("ぽ…ぽんっ…！：ping -> %d ms",
+              (System.currentTimeMillis() - time))
+          .queue());
     }
   }
 

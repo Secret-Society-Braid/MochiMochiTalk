@@ -138,8 +138,6 @@ public class SlashCommandRegisteration implements EventListener {
           reportCommand,
           shutdownCommand,
           songCommand,
-//                songKeywordCommand,
-//                songIdCommand,
           whatsnewCommand,
           vcCommand,
           showLicenseCommand);

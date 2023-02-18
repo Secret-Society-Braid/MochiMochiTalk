@@ -128,23 +128,22 @@ public class SlashCommandRegisteration implements EventListener {
       JDA jda = event.getJDA();
       CommandListUpdateAction commands = jda.updateCommands();
 
+      log.info("Submitting command data to Discord...");
       // register slash commands
       commands.addCommands(
-          changePrefixCommand,
-          debugModeCommand,
-          dictionaryCommand,
-          helpCommand,
-          pingCommand,
-          reportCommand,
-          shutdownCommand,
-          songCommand,
-          whatsnewCommand,
-          vcCommand,
-          showLicenseCommand);
-
-      log.info("Submitting command data to Discord...");
-      commands.queue(suc -> log.info("complete submitting command data."),
-          fail -> log.error("error while submitting command data to Discord.", fail));
+              changePrefixCommand,
+              debugModeCommand,
+              dictionaryCommand,
+              helpCommand,
+              pingCommand,
+              reportCommand,
+              shutdownCommand,
+              songCommand,
+              whatsnewCommand,
+              vcCommand,
+              showLicenseCommand)
+          .queue(suc -> log.info("complete submitting command data."),
+              fail -> log.error("error while submitting command data to Discord.", fail));
 
     }
   }

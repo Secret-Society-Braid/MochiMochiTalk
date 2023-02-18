@@ -24,13 +24,13 @@ public class CommandShutdown extends ListenerAdapter {
     String content = event.getMessage().getContentRaw();
     if (content.equalsIgnoreCase(App.getStaticPrefix() + "shutdown")) {
       LOG.info("Message received: {}", event.getMessage().getContentRaw());
-      if (IDs.contains(event.getAuthor().getId())) {
-        LOG.info("Shutdown command received");
-        event.getChannel().sendMessage("終了しています…おやすみなさい。プロデューサーさん").queue(suc -> {
-          suc.getJDA().shutdown();
-        });
+      if (!IDs.contains(event.getAuthor().getId())) {
+        event.getChannel().sendMessage("このコマンドは管理者のみ使用できます。").queue();
+        return;
       }
-      event.getChannel().sendMessage("このコマンドは管理者のみ使用できます。").queue();
+      LOG.info("Shutdown command received");
+      event.getChannel().sendMessage("終了しています…おやすみなさい。プロデューサーさん")
+          .queue(suc -> suc.getJDA().shutdown());
     }
   }
 
@@ -38,12 +38,13 @@ public class CommandShutdown extends ListenerAdapter {
   public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
     if (event.getName().equals("shutdown")) {
       LOG.info("Shutdown has been requested by : {}", event.getUser());
-      if (IDs.contains(event.getUser().getId())) {
-        LOG.info("confirmed identity. invoking shutdown");
-        event.reply("終了しています……おやすみなさい。プロデューサーさん").setEphemeral(true)
-            .queue(suc -> event.getJDA().shutdown());
+      if (!IDs.contains(event.getUser().getId())) {
+        event.reply("このコマンドは管理者のみ使用できます。").setEphemeral(true).queue();
+        return;
       }
-      event.reply("このコマンドは管理者のみ使用できます。").setEphemeral(true).queue();
+      LOG.info("confirmed identity. invoking shutdown");
+      event.reply("終了しています……おやすみなさい。プロデューサーさん").setEphemeral(true)
+          .queue(suc -> suc.getJDA().shutdown());
     }
   }
 

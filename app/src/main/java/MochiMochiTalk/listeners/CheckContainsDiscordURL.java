@@ -45,6 +45,7 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
       String[] ids = data.split("/");
       if (ids.length < 3) {
         logger.info("Invalid URL format. abort parsing");
+        return;
       }
       String guildID = ids[0];
       String channelID = Objects.requireNonNull(ids[1]);

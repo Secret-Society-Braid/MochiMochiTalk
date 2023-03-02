@@ -1,6 +1,5 @@
 package MochiMochiTalk.commands;
 
-import MochiMochiTalk.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.Color;
@@ -12,13 +11,8 @@ import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +37,10 @@ public class CommandWhatsNew extends ListenerAdapter {
       "このタイトルは全部で15個あるよ！でも探すためだけにサーバーを荒らすのはやめてね！"
   };
   private static final String DESCRIPTION_FILE_NAME = "description.json";
-  private static Random random = new Random();
+  private static final Random random = new Random();
   private static CommandWhatsNew singleton = null;
   // フィールド作成
-  private Logger logger = LoggerFactory.getLogger(CommandWhatsNew.class);
+  private final Logger logger = LoggerFactory.getLogger(CommandWhatsNew.class);
   private Map<String, String> description = new HashMap<>();
 
   // コンストラクタ
@@ -77,26 +71,6 @@ public class CommandWhatsNew extends ListenerAdapter {
       description = new HashMap<>();
     }
     logger.info("description file read completed");
-  }
-
-  @Override
-  public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
-    Guild guild = event.getGuild();
-    MessageChannel channel = event.getChannel();
-    Message message = event.getMessage();
-    String content = message.getContentRaw();
-    User user = event.getAuthor();
-    if (user.isBot()) {
-      return;
-    }
-    if (content.equalsIgnoreCase(App.getStaticPrefix() + "whatsnew")) {
-      description.forEach((k, v) -> logger.info("{} : {}", k, v));
-      logger.info("Guild : {}", guild);
-      logger.info("Channel : {}", channel);
-      logger.info("Message : {}", message);
-      logger.info("User : {}", user.getName());
-      channel.sendMessageEmbeds(buildMessage()).queue();
-    }
   }
 
   @Override

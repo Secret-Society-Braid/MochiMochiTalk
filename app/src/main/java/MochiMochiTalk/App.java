@@ -3,7 +3,6 @@
  */
 package MochiMochiTalk;
 
-import MochiMochiTalk.commands.CommandChangePrefix;
 import MochiMochiTalk.commands.CommandDebugMode;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
@@ -31,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class App {
 
   private static String token = "";
-  private static Logger logger = LoggerFactory.getLogger(App.class);
+  private static final Logger logger = LoggerFactory.getLogger(App.class);
 
   private static String prefix = "";
 
@@ -72,7 +71,6 @@ public class App {
               new CommandPing(), // ping command
               new CommandHelp(), // help command
               new CommandReport(), // report command
-              new CommandChangePrefix(), // change prefix command
               CommandDictionary.getInstance(), // dictionary command
               CommandWhatsNew.getInstance(), // whats new command
               new CheckContainsDiscordURL(), // check if the message contains a discord url

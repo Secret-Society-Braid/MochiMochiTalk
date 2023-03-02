@@ -1,6 +1,5 @@
 package MochiMochiTalk.commands;
 
-import MochiMochiTalk.App;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
@@ -11,9 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
@@ -43,53 +40,6 @@ public class CommandReport extends ListenerAdapter {
     log.warn("estimate occurred date: {}", formattedDate);
     log.warn("reported via {}", author);
     return builder.build();
-  }
-
-  @Override
-  public void onMessageReceived(MessageReceivedEvent event) {
-    User author = event.getAuthor();
-//    early return when author is bot
-    if (author.isBot()) {
-      return;
-    }
-    String contentRaw = event.getMessage().getContentRaw();
-//    early return when contentRaw is not equal to prefix + "report"
-    if (!contentRaw.startsWith(App.getStaticPrefix() + "report")) {
-      return;
-    }
-    String[] args = contentRaw.split(" ");
-    MessageChannel channel = event.getChannel();
-//    early return when args length is not equal to 2
-    if (args.length != 2) {
-      log.info("invalid args length");
-      channel.sendMessage("!!report <伝えたい内容> と入力してください").queue();
-      return;
-    }
-//    asynchronous user retrieve to avoid null reference of dev user
-//    merge this async user retrieve with the message send
-    CompletableFuture<PrivateChannel> devUserFuture = event.getJDA()
-        .retrieveUserById(DEV_USER_ID)
-        .submit()
-        .thenApplyAsync(dev -> dev.openPrivateChannel().complete(), concurrentPool);
-
-    CompletableFuture.supplyAsync(
-            () -> buildEmbedMessage(author, args[1]), // args[1] must contain the report body
-            concurrentPool)
-        .thenAcceptBothAsync(
-            devUserFuture,
-            (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).complete(),
-            concurrentPool)
-        .thenRunAsync(
-            () -> channel.sendMessage(author.getAsMention()
-                + " プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…").complete(),
-            concurrentPool)
-        .whenCompleteAsync(
-            (ret, ex) -> {
-              if (ex != null) {
-                log.error("error occurred while sending report message", ex);
-              }
-            },
-            concurrentPool);
   }
 
   @Override

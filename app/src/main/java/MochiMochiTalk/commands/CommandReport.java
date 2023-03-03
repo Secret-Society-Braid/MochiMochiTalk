@@ -1,5 +1,6 @@
 package MochiMochiTalk.commands;
 
+import MochiMochiTalk.util.ConcurrencyUtil;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
@@ -65,12 +66,6 @@ public class CommandReport extends ListenerAdapter {
                 .setEphemeral(true)
                 .complete(),
             concurrentPool)
-        .whenCompleteAsync(
-            (ret, ex) -> {
-              if (ex != null) {
-                log.error("error occurred while sending report message", ex);
-              }
-            },
-            concurrentPool);
+        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, concurrentPool);
   }
 }

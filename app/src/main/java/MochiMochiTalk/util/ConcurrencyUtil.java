@@ -1,7 +1,6 @@
 package MochiMochiTalk.util;
 
 import java.util.concurrent.ThreadFactory;
-import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +10,8 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // implicit private constructor
 public class ConcurrencyUtil {
 
-  public static ThreadFactory createThreadFactory(Supplier<String> threadNameSupplier) {
-    return new CountingThreadFactory(() -> "MochiMochiTalk", threadNameSupplier.get());
+  public static ThreadFactory createThreadFactory(String threadNameSupplier) {
+    return new CountingThreadFactory(() -> "MochiMochiTalk", threadNameSupplier);
   }
 
   public static <T> void postEventHandling(T ret, Throwable t) {

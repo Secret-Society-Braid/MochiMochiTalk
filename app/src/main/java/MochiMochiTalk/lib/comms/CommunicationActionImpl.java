@@ -1,5 +1,6 @@
 package MochiMochiTalk.lib.comms;
 
+import MochiMochiTalk.util.ConcurrencyUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +43,7 @@ public class CommunicationActionImpl implements CommunicationAction {
       DEFAULT_CONCURRENCY,
       new CountingThreadFactory(() -> "MochiMochiTalk", "InterClassCommunication Thread", false));
   private static final ExecutorService DEFAULT_INTERNAL_EXECUTOR = Executors.newCachedThreadPool(
-      new CountingThreadFactory(() -> "MochiMochiTalk",
-          "CommunicationAction Internal Process Thread"));
+      ConcurrencyUtil.createThreadFactory("CommunicationAction Internal Process Thread"));
   private InterClassComms comms;
   private String message;
   private Class<?> sender;

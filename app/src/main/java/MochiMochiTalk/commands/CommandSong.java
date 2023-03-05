@@ -1,5 +1,6 @@
 package MochiMochiTalk.commands;
 
+import MochiMochiTalk.util.ConcurrencyUtil;
 import com.google.api.client.util.Strings;
 import hajimeapi4j.api.endpoint.EndPoint;
 import hajimeapi4j.api.endpoint.ListEndPoint;
@@ -68,7 +69,7 @@ public class CommandSong extends ListenerAdapter {
 
     // post process
     sendDetailMessage.whenCompleteAsync(
-        CommandSong::postInteraction,
+        ConcurrencyUtil::postEventHandling,
         concurrentExecutor);
   }
 
@@ -107,7 +108,7 @@ public class CommandSong extends ListenerAdapter {
 
     // post process
     sendResultMessage.whenCompleteAsync(
-        CommandSong::postInteraction,
+        ConcurrencyUtil::postEventHandling,
         concurrentExecutor);
   }
 
@@ -181,25 +182,6 @@ public class CommandSong extends ListenerAdapter {
         information.getName() + "(内部管理ID" + information.getSongId() + ")",
         information.getLink(),
         false);
-  }
-
-  private static void postInteraction(Message result, Throwable t) {
-    if (t == null) {
-      log.debug("successfully sent song detail message");
-      return;
-    }
-
-    log.warn("failed to send song detail message: {}", result, t);
-
-    // create auto report message
-    CompletableFuture<MessageEmbed> createReportMessageFuture = CompletableFuture.supplyAsync(
-        () -> createErrorReportMessage(t),
-        concurrentExecutor);
-    result.getJDA().openPrivateChannelById(DEV_USER).submit().thenCombineAsync(
-        createReportMessageFuture,
-        (channel, reportEmbed) -> channel.sendMessageEmbeds(Objects.requireNonNull(reportEmbed))
-            .complete(),
-        concurrentExecutor);
   }
 
   @Override

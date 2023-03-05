@@ -1,5 +1,6 @@
 package MochiMochiTalk.lib;
 
+import MochiMochiTalk.util.ConcurrencyUtil;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 import java.io.File;
@@ -17,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 @Slf4j
 public class CacheFileController {
@@ -25,7 +25,7 @@ public class CacheFileController {
   public static final String DIRECTORY_NAME = "tmp" + File.separator + ".vocalcord";
   private static final ScheduledExecutorService updateScheduler = Executors.newScheduledThreadPool(
       1,
-      new CountingThreadFactory(() -> "MochiMochiTalk", "Voice byte data Cache Controller Thread"));
+      ConcurrencyUtil.createThreadFactory("Voice byte data Cache Controller Thread"));
   private static CacheFileController singleton;
   private List<Path> paths;
 

@@ -16,6 +16,7 @@ import MochiMochiTalk.commands.SlashCommandRegisteration;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
 import MochiMochiTalk.listeners.EventLogger;
 import MochiMochiTalk.listeners.ReadyListener;
+import MochiMochiTalk.util.ConcurrencyUtil;
 import MochiMochiTalk.voice.nvoice.EventListenerForTTS;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +38,8 @@ public class App {
 
   private static final Logger logger = LoggerFactory.getLogger(App.class);
   private static String prefix = "";
-  private static final ExecutorService executorService = Executors.newWorkStealingPool(); // FIXME: replace this Executors with concurrency util
+  private static final ExecutorService executorService = Executors.newCachedThreadPool(
+      ConcurrencyUtil.createThreadFactory("concurrent-runner"));
 
   public static void main(String[] args) {
     logger.info("Hello, world!");
@@ -93,7 +95,7 @@ public class App {
         logger.error("Failed to login.", e);
         throw new RuntimeException(e);
       }
-    }, executorService);
+    }, executorService).join();
   }
 
   public static String getStaticPrefix() {

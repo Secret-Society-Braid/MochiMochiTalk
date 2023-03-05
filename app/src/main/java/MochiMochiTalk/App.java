@@ -60,7 +60,8 @@ public class App {
     }, executorService).thenAcceptAsync(builder -> {
       logger.info("TOKEN was successfully set.");
       try {
-        builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
+        builder
+            .disableCache(CacheFlag.MEMBER_OVERRIDES)
             .setBulkDeleteSplittingEnabled(false)
             .setActivity(Activity.competing("ぷかぷかぶるーむ"))
             .setStatus(OnlineStatus.ONLINE)
@@ -71,7 +72,8 @@ public class App {
                 GatewayIntent.GUILD_MESSAGE_REACTIONS,
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.MESSAGE_CONTENT)
-            .addEventListeners(new ReadyListener(), // recognizes when the bot is ready
+            .addEventListeners(
+                new ReadyListener(), // recognizes when the bot is ready
                 new CommandPing(), // ping command
                 new CommandHelp(), // help command
                 new CommandReport(), // report command
@@ -84,8 +86,8 @@ public class App {
                 new EventListenerForTTS(), // refreshed voice event handler
                 new SlashCommandRegisteration(), // registering slash commands
                 new CommandDebugMode(), // handle debug mode
-                new CommandShowLicense() // show license information
-            ).build();
+                new CommandShowLicense()) // show license information
+            .build();
         logger.info("JDA was successfully built.");
       } catch (InvalidTokenException e) {
         logger.error("Failed to login.", e);

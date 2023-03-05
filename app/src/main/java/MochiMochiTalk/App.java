@@ -37,7 +37,7 @@ public class App {
 
   private static final Logger logger = LoggerFactory.getLogger(App.class);
   private static String prefix = "";
-  private static final ExecutorService executorService = Executors.newWorkStealingPool();
+  private static final ExecutorService executorService = Executors.newWorkStealingPool(); // FIXME: replace this Executors with concurrency util
 
   public static void main(String[] args) {
     logger.info("Hello, world!");

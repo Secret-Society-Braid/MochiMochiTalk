@@ -1,5 +1,6 @@
 package MochiMochiTalk.commands;
 
+import MochiMochiTalk.util.ConcurrencyUtil;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,14 +10,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 @Slf4j
 public class CommandShowLicense extends ListenerAdapter {
 
   private static final String LICENSE_URL = "https://github.com/Secret-Society-Braid/MochiMochiTalk/tree/main/app/src/main/resources/licenses.json";
-  private static ExecutorService serv = Executors.newCachedThreadPool(
-      new CountingThreadFactory(() -> "MochiMochiTalk", "license file fetch thread")
+  private static final ExecutorService serv = Executors.newCachedThreadPool(
+      ConcurrencyUtil.createThreadFactory("license file fetch thread")
   );
 
   @Nonnull

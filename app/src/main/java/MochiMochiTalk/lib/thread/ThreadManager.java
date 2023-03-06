@@ -2,30 +2,23 @@ package MochiMochiTalk.lib.thread;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 
 @Slf4j
-public class ThreadManager{
+public class ThreadManager {
 
-    private static List<ThreadChannel> threadChannels = new LinkedList<>();
+  private static ThreadManager instance;
+  private final List<ThreadChannel> threadChannels;
 
-    private ThreadManager() {
+  private ThreadManager() {
+    this.threadChannels = new LinkedList<>();
+  }
+
+  public static ThreadManager getInstance() {
+    if (instance == null) {
+      instance = new ThreadManager();
     }
-
-    public static synchronized boolean addThreadChannel(ThreadChannel threadChannel) {
-        if (threadChannels.contains(threadChannel)) {
-            log.warn("thread channel {} is already added", threadChannel.getName());
-            return false;
-        }
-        threadChannels.add(threadChannel);
-        log.info("thread channel {} is added", threadChannel.getName());
-        return true;
-    }
-
-    public static synchronized List<ThreadChannel> getThreadChannels() {
-        return threadChannels;
-    }
-
+    return instance;
+  }
 }

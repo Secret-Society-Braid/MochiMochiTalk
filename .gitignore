@@ -24,3 +24,5 @@ app/src/main/resources/GOOGLE_APP_CREDENTIALS.json
 app/src/main/resources/property.json
 app/src/test/resources/property.json
 
+# ignore ide specific files
+.idea

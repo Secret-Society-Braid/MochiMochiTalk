@@ -3,14 +3,6 @@
  */
 package MochiMochiTalk;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import MochiMochiTalk.commands.CommandChangePrefix;
 import MochiMochiTalk.commands.CommandDebugMode;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandHelp;
@@ -21,94 +13,96 @@ import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.commands.SlashCommandRegisteration;
-import MochiMochiTalk.lib.DerepoUpdatesDetector;
-import MochiMochiTalk.lib.FileReadThreadImpl;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
 import MochiMochiTalk.listeners.EventLogger;
 import MochiMochiTalk.listeners.ReadyListener;
+import MochiMochiTalk.util.ConcurrencyUtil;
 import MochiMochiTalk.voice.nvoice.EventListenerForTTS;
-import net.dv8tion.jda.api.JDA;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class App {
 
-    private static String token = "";
-    private static Logger logger = LoggerFactory.getLogger(App.class);
+  private static final Logger logger = LoggerFactory.getLogger(App.class);
+  private static String prefix = "";
+  private static final ExecutorService executorService = Executors.newCachedThreadPool(
+      ConcurrencyUtil.createThreadFactory("concurrent-runner"));
 
-    private static String prefix = "";
+  public static void main(String[] args) {
+    logger.info("Hello, world!");
+    CompletableFuture.supplyAsync(() -> {
+      // read token and prefix from property.json file in resources
+      Map<String, String> map;
+      try {
+        map = new ObjectMapper().readValue(App.class.getResourceAsStream("/property.json"),
+            new TypeReference<>() {
+            });
+      } catch (IOException e) {
+        logger.error("Failed to read property.json file.", e);
+        throw new RuntimeException(e);
+      }
+      return map;
+    }, executorService).thenApplyAsync(map -> {
+      JDABuilder builder = JDABuilder.createDefault(map.get("token"));
+      setStaticPrefix(map.get("prefix"));
+      return builder;
+    }, executorService).thenAcceptAsync(builder -> {
+      logger.info("TOKEN was successfully set.");
+      try {
+        builder
+            .disableCache(CacheFlag.MEMBER_OVERRIDES)
+            .setBulkDeleteSplittingEnabled(false)
+            .setActivity(Activity.competing("ぷかぷかぶるーむ"))
+            .setStatus(OnlineStatus.ONLINE)
+            .enableIntents(
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.MESSAGE_CONTENT)
+            .addEventListeners(
+                new ReadyListener(), // recognizes when the bot is ready
+                new CommandPing(), // ping command
+                new CommandHelp(), // help command
+                new CommandReport(), // report command
+                CommandDictionary.getInstance(), // dictionary command
+                CommandWhatsNew.getInstance(), // whats new command
+                new CheckContainsDiscordURL(), // check if the message contains a discord url
+                new CommandSong(), //  song information command
+                new CommandShutdown(), // shutdown command
+                EventLogger.getInstance(), // logger
+                new EventListenerForTTS(), // refreshed voice event handler
+                new SlashCommandRegisteration(), // registering slash commands
+                new CommandDebugMode(), // handle debug mode
+                new CommandShowLicense()) // show license information
+            .build();
+        logger.info("JDA was successfully built.");
+      } catch (InvalidTokenException e) {
+        logger.error("Failed to login.", e);
+        throw new RuntimeException(e);
+      }
+    }, executorService).join();
+  }
 
-    public static void main(String[] args) {
-	logger.info("Hello, world!");
-	FileReadThreadImpl fileReadThread = new FileReadThreadImpl();
-	fileReadThread.run();
-	while (!fileReadThread.getFlag()) {
-	    try {
-		Thread.sleep(100);
-	    } catch (InterruptedException e) {
-		logger.error("Error: ", e);
-		Thread.currentThread().interrupt();
-	    }
-	    logger.debug("Waiting for file read thread to finish.");
-	}
-	token = fileReadThread.getToken();
-	prefix = fileReadThread.getPrefix();
-	logger.info("token: {}", token);
-	logger.info("prefix: {}", prefix);
-	JDABuilder builder = JDABuilder.createDefault(token);
-	logger.info("TOKEN was successfully set.");
-	try {
-	builder.disableCache(CacheFlag.MEMBER_OVERRIDES)
-	    .setBulkDeleteSplittingEnabled(false)
-	    .setActivity(Activity.competing("ぷかぷかぶるーむ"))
-	    .setStatus(OnlineStatus.ONLINE)
-		.enableIntents(GatewayIntent.GUILD_MESSAGES,
-			GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-			GatewayIntent.GUILD_VOICE_STATES,
-			GatewayIntent.GUILD_MESSAGE_REACTIONS,
-			GatewayIntent.GUILD_MEMBERS,
-			GatewayIntent.MESSAGE_CONTENT
-		)
-	    .addEventListeners(
-		    new ReadyListener(), // recognizes when the bot is ready
-		    // new VoiceEventListener(), // Event for text-to-speech
-		    new CommandPing(), // ping command
-		    new CommandHelp(), // help command
-		    new CommandReport(), // report command
-		    new CommandChangePrefix(), // change prefix command
-		    CommandDictionary.getInstance(), // dictionary command
-		    CommandWhatsNew.getInstance(), // whats new command
-		    new CheckContainsDiscordURL(), // check if the message contains a discord url
-            new CommandSong(), //  song information command
-			new CommandShutdown(), // shutdown command
-			EventLogger.getInstance(), // logger
-			new EventListenerForTTS(), // refreshed voice event handler
-			new SlashCommandRegisteration(), // registering slash commands
-			new CommandDebugMode(), // handle debug mode
-			new CommandShowLicense() // show license information
-		    )
-	    .build();
-	    logger.info("JDA was successfully built.");
-		// ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-		// scheduledExecutorService.scheduleWithFixedDelay(() -> DerepoUpdatesDetector.postDataCycle(jda), 5, 60, TimeUnit.SECONDS);
-	} catch (InvalidTokenException e) {
-	    logger.error("Failed to login.", e);
-	}
-    }
+  public static String getStaticPrefix() {
+    return prefix;
+  }
 
-	public static String getStaticToken() {
-		return token;
-	}
-
-	public static void setStaticPrefix(String param) {
-		prefix = param;
-	}
-
-	public static String getStaticPrefix() {
-		return prefix;
-	}
+  public static void setStaticPrefix(String param) {
+    prefix = param;
+  }
 }

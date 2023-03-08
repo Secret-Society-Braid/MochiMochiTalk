@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
@@ -22,6 +23,7 @@ public class ThreadManager {
   );
   @Getter
   private final Map<Guild, List<ThreadChannel>> threadChannels;
+  private final AtomicBoolean initialized = new AtomicBoolean(false);
 
   private ThreadManager(JDA jda, boolean awaitInitialize) {
     this.threadChannels = new ConcurrentHashMap<>();
@@ -39,16 +41,34 @@ public class ThreadManager {
   }
 
   private CompletableFuture<Void> init(JDA jda) {
-    return CompletableFuture.runAsync(() -> {
-      List<Guild> guilds = jda.getGuilds();
-      for (Guild guild : guilds) {
-        List<ThreadChannel> threadChannels = guild.getThreadChannels();
-        this.threadChannels.put(guild, threadChannels);
-      }
-    }, executorService);
+    return CompletableFuture
+        .runAsync(() -> this.updateTask(jda), executorService)
+        .thenRunAsync(() -> {
+          log.info("ThreadChannel Manager initialized");
+          initialized.set(true);
+        }, executorService);
   }
 
   public boolean isInitialized() {
-    return !threadChannels.isEmpty();
+    return initialized.get();
+  }
+
+  public boolean update(JDA jda) {
+    if (!isInitialized()) {
+      return false;
+    }
+    updateTask(jda);
+    return true;
+  }
+
+  public List<ThreadChannel> getThreadChannels(Guild guild) {
+    return threadChannels.get(guild);
+  }
+
+  private void updateTask(JDA jda) {
+    for (Guild guild : jda.getGuilds()) {
+      List<ThreadChannel> threadChannels = guild.getThreadChannels();
+      this.threadChannels.put(guild, threadChannels);
+    }
   }
 }

@@ -1,6 +1,7 @@
 package MochiMochiTalk.commands;
 
 import MochiMochiTalk.util.ConcurrencyUtil;
+import MochiMochiTalk.util.DiscordServerOperatorUtil;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +26,8 @@ public class CommandShowLicense extends ListenerAdapter {
     builder
         .setTitle("使用ライブラリのライセンス情報", LICENSE_URL)
         .setDescription("Botが使用しているライブラリの情報は、上のタイトルリンクをクリックの上ご確認ください。")
-        .addField("このBotのライセンス情報", "このBotは <@399143446939697162> によって開発、保守されています。", false)
+        .addField("このBotのライセンス情報", String.format("このBotは <@%s> によって開発、保守されています。",
+            DiscordServerOperatorUtil.getBotDevUserId()), false)
         .addField("ソースコード、コントリビューション",
             "MochiMochiTalkはOSS（オープンソースプロジェクト）です。\nソースは以下のリポジトリで公開しています。", false)
         .addField("OSSリポジトリ", "https://github.com/Secret-Society-Braid/MochiMochiTalk", false);
@@ -58,7 +60,7 @@ public class CommandShowLicense extends ListenerAdapter {
               .addField("例外メッセージ", (exceptionMessage == null ? "null" : exceptionMessage), false)
               .addField("スタックトレース", exceptionStackTrace, false);
           event.getJDA()
-              .getUserById("399143446939697162")
+              .getUserById(DiscordServerOperatorUtil.getBotDevUserId())
               .openPrivateChannel()
               .submit()
               .thenComposeAsync(channel -> channel.sendMessageEmbeds(builder.build()).submit(),

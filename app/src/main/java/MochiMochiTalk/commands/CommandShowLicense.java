@@ -9,8 +9,10 @@ import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.RestAction;
 
 @Slf4j
 public class CommandShowLicense extends ListenerAdapter {
@@ -35,7 +37,6 @@ public class CommandShowLicense extends ListenerAdapter {
   }
 
   @Override
-  @SuppressWarnings("null")
   public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
     if (!event.getName().equals("license")) {
       return;
@@ -60,11 +61,12 @@ public class CommandShowLicense extends ListenerAdapter {
               .addField("例外メッセージ", (exceptionMessage == null ? "null" : exceptionMessage), false)
               .addField("スタックトレース", exceptionStackTrace, false);
           event.getJDA()
-              .getUserById(DiscordServerOperatorUtil.getBotDevUserId())
-              .openPrivateChannel()
+              .retrieveUserById(DiscordServerOperatorUtil.getBotDevUserId())
+              .map(User::openPrivateChannel)
+              .map(RestAction::complete)
               .submit()
               .thenComposeAsync(channel -> channel.sendMessageEmbeds(builder.build()).submit(),
                   serv);
-        });
+        }, serv);
   }
 }

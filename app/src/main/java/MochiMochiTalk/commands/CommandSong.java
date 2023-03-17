@@ -33,7 +33,6 @@ public class CommandSong extends ListenerAdapter {
 
   private static final Executor concurrentExecutor = Executors.newCachedThreadPool(
       new CountingThreadFactory(() -> "MochiMochiTalk", "Song detail integration thread", true));
-  private static final String DEV_USER = "399143446939697162";
 
   private static void invokeId(SlashCommandInteractionEvent event) {
     CompletableFuture<InteractionHook> earlyReplyFuture = event.reply(
@@ -156,7 +155,6 @@ public class CommandSong extends ListenerAdapter {
     information
         .parallelStream()
         .map(EndPoint::getName)
-        .filter(Objects::nonNull)
         .forEach(name -> target.addField(fieldTitle, Objects.requireNonNull(name), true));
   }
 

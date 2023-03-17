@@ -5,6 +5,7 @@ import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
+import MochiMochiTalk.util.ConcurrencyUtil;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -26,20 +28,19 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VoiceEventListener extends ListenerAdapter {
 
-  private static final CountingThreadFactory THREAD_FACTORY = new CountingThreadFactory(
-      () -> "MochiMochiTalk", "AFK-Checker");
-  private Logger logger = LoggerFactory.getLogger(VoiceEventListener.class);
+  private static final ThreadFactory THREAD_FACTORY = ConcurrencyUtil.createThreadFactory(
+      "AFK-Checker");
+  private final Logger logger = LoggerFactory.getLogger(VoiceEventListener.class);
   private ScheduledExecutorService schedulerService;
 
   private MessageChannel channel = null;
   private AudioManager audioManager;
-  private DeprecatedTTSEngine ttsEngine = new DeprecatedTTSEngine();
+  private final DeprecatedTTSEngine ttsEngine = new DeprecatedTTSEngine();
   private boolean flag = false;
   private ScheduledExecutorService service;
   private List<String> allowed = new ArrayList<>();

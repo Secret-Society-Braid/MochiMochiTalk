@@ -1,5 +1,7 @@
 package MochiMochiTalk.commands;
 
+import MochiMochiTalk.util.ConcurrencyUtil;
+import MochiMochiTalk.util.DiscordServerOperatorUtil;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
@@ -19,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 public class CommandReport extends ListenerAdapter {
 
-  private static final String DEV_USER_ID = "399143446939697162";
   private static final Logger log = LoggerFactory.getLogger(CommandReport.class);
   private static final ExecutorService concurrentPool = Executors.newCachedThreadPool(
       new CountingThreadFactory(() -> "MochiMochiTalk", "Report command concurrent processor", true)
@@ -50,7 +51,7 @@ public class CommandReport extends ListenerAdapter {
     User author = event.getUser();
     String desc = event.getOption("description", OptionMapping::getAsString);
     CompletableFuture<PrivateChannel> devUserChannelFuture = event.getJDA()
-        .retrieveUserById(DEV_USER_ID)
+        .retrieveUserById(DiscordServerOperatorUtil.getBotDevUserId())
         .submit()
         .thenApplyAsync(devUser -> devUser.openPrivateChannel().complete(), concurrentPool);
     CompletableFuture.supplyAsync(
@@ -65,12 +66,6 @@ public class CommandReport extends ListenerAdapter {
                 .setEphemeral(true)
                 .complete(),
             concurrentPool)
-        .whenCompleteAsync(
-            (ret, ex) -> {
-              if (ex != null) {
-                log.error("error occurred while sending report message", ex);
-              }
-            },
-            concurrentPool);
+        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, concurrentPool);
   }
 }

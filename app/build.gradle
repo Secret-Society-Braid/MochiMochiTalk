@@ -41,7 +41,7 @@ dependencies {
 
 
     // logback
-    implementation('ch.qos.logback:logback-classic:1.4.5')
+    implementation('ch.qos.logback:logback-classic:1.4.6')
 
     // implementation 'com.google.cloud:google-cloud-speech:2.2.2'
     // implementation 'com.google.cloud:google-cloud-texttospeech:2.1.1'
@@ -51,7 +51,7 @@ dependencies {
     implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.2.0'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
-    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.11.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.13.0'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
     implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.16.0'

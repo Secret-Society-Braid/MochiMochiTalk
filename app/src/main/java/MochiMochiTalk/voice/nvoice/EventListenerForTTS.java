@@ -4,6 +4,7 @@ import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
+import MochiMochiTalk.util.ConcurrencyUtil;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +30,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 @Slf4j
 public class EventListenerForTTS extends ListenerAdapter {
 
-  private static final CountingThreadFactory factory = new CountingThreadFactory(
-      () -> "MochiMochiTalk", "AFK-Checker");
+  private static final ThreadFactory factory = ConcurrencyUtil.createThreadFactory("AFK-Checker");
   private static final List<String> allowed;
 
   static {
@@ -43,7 +43,7 @@ public class EventListenerForTTS extends ListenerAdapter {
 
   private MessageChannel boundedChannel;
   private AudioManager audioManager;
-  private GoogleTTSEngine engine;
+  private final GoogleTTSEngine engine;
   private boolean flag;
   private ScheduledExecutorService schedulerService;
 
@@ -200,11 +200,8 @@ public class EventListenerForTTS extends ListenerAdapter {
   }
 
   private boolean doesNeedEscape(String content) {
-    boolean res = false;
+    boolean res = content.matches(".*<:[A-Za-z].+\\d*>*");
     // checks whether content contains mention or not
-    if (content.matches(".*<:[A-Za-z].+\\d*>*")) {
-      res = true;
-    }
     // checks whether content is shorter than 40 characters.
     if (content.length() > 40) {
       res = true;

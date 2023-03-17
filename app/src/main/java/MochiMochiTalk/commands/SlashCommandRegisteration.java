@@ -144,7 +144,6 @@ public class SlashCommandRegisteration implements EventListener {
               showLicenseCommand)
           .queue(suc -> log.info("complete submitting command data."),
               fail -> log.error("error while submitting command data to Discord.", fail));
-
     }
   }
 

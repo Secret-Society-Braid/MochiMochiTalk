@@ -29,6 +29,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 
@@ -85,7 +87,7 @@ application {
 }
 
 tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8';
+    options.encoding = 'UTF-8'
 }
 
 tasks.named('test') {

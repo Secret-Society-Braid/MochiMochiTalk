@@ -2,6 +2,9 @@ package MochiMochiTalk.commands.global;
 
 import MochiMochiTalk.lib.global.InvokeMethod;
 import MochiMochiTalk.util.ConcurrencyUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,11 +59,21 @@ public class CommandJoin extends ListenerAdapter {
 
   static class UriConstructor {
 
-    private static final String BASE_URI = "https://script.google.com/macros/s/AKfycbzyb2KTw6wz6YH_KOlwehdHsVbjZy-pq0Vw30MBgwoMBstkggZ5FIKb5xUmyQNKCUd-Eg/exec";
-
+    private static final String BASE_URI;
     private final InvokeMethod invokeMethod;
     private final String guildId;
     private final String channelId;
+
+    static {
+      JsonNode configNode;
+      try {
+        configNode = new ObjectMapper().readTree(
+            UriConstructor.class.getResourceAsStream("/property.json"));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      BASE_URI = configNode.get("global_raid_api_uri").asText();
+    }
 
     public UriConstructor(InvokeMethod invokeMethod, String guildId, String channelId) {
       this.invokeMethod = invokeMethod;

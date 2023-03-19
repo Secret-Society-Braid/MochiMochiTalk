@@ -1,10 +1,15 @@
 package MochiMochiTalk.commands.global;
 
 import MochiMochiTalk.lib.global.InvokeMethod;
+import MochiMochiTalk.lib.global.types.ResponseSchema;
 import MochiMochiTalk.util.ConcurrencyUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.ResponseBody;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +33,10 @@ public class CommandJoin extends ListenerAdapter {
   private static final ExecutorService DatabaseApiHandshakeExecutor = Executors.newCachedThreadPool(
       ConcurrencyUtil.createThreadFactory("bot database api handshake thread")
   );
+
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
+  private OkHttpClient apiClient;
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
@@ -53,8 +62,41 @@ public class CommandJoin extends ListenerAdapter {
               event.getUser()),
           internalProcessingExecutor
       ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+      return;
     }
 
+    UriConstructor searchGuildUriConstructor = new UriConstructor(
+        InvokeMethod.SEARCH_GUILD,
+        Objects.requireNonNull(event.getGuild()).getId(),
+        event.getChannel().getId()
+    );
+
+    apiClient = apiClient == null ? new OkHttpClient() : apiClient;
+
+    Request request = new Request.Builder()
+        .url(searchGuildUriConstructor.construct())
+        .get()
+        .build();
+
+    earlyReply.thenComposeAsync(
+        hook -> CompletableFuture.supplyAsync(
+            () -> {
+              try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+                return MAPPER.readValue(b.string(), ResponseSchema.class);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            }, DatabaseApiHandshakeExecutor)
+        , internalProcessingExecutor).exceptionally(
+        t -> {
+          log.error("Encountered an Exception while sending a request to the DB API", t);
+          return ResponseSchema.createEmpty();
+        }).thenComposeAsync(
+        response ->
+            event.getChannel().sendMessage(
+                ""
+            ).submit(),
+        internalProcessingExecutor);
   }
 
   static class UriConstructor {
@@ -67,7 +109,7 @@ public class CommandJoin extends ListenerAdapter {
     static {
       JsonNode configNode;
       try {
-        configNode = new ObjectMapper().readTree(
+        configNode = MAPPER.readTree(
             UriConstructor.class.getResourceAsStream("/property.json"));
       } catch (IOException e) {
         throw new RuntimeException(e);

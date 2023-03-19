@@ -47,7 +47,7 @@ public class CommandJoin extends ListenerAdapter {
       ).thenAcceptAsync(
           (suc) -> log.info(
               "The command [global] command was invoked in the Direct Message Channel by [{}]",
-              suc.getAuthor()),
+              event.getUser()),
           internalProcessingExecutor
       ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
     }

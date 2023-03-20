@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    implementation 'org.mockito:mockito-junit-jupiter:5.2.0'
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'

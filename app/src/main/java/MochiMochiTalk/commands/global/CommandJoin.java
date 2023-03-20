@@ -141,7 +141,7 @@ public class CommandJoin extends ListenerAdapter {
                     }
                   }, DatabaseApiHandshakeExecutor);
             },
-            DatabaseApiHandshakeExecutor
+            internalProcessingExecutor
         ).thenAcceptAsync(
             response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.APPEND_INFORMATION.toString())) {

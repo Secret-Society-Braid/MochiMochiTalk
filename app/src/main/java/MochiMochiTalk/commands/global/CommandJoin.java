@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 
 @Slf4j
@@ -79,24 +80,37 @@ public class CommandJoin extends ListenerAdapter {
         .build();
 
     earlyReply.thenComposeAsync(
-        hook -> CompletableFuture.supplyAsync(
-            () -> {
-              try (ResponseBody b = apiClient.newCall(request).execute().body()) {
-                return MAPPER.readValue(b.string(), ResponseSchema.class);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
+            hook -> CompletableFuture.supplyAsync(
+                () -> {
+                  try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+                    return MAPPER.readValue(b.string(), ResponseSchema.class);
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                }, DatabaseApiHandshakeExecutor)
+            , internalProcessingExecutor)
+        .exceptionally( // replace to "exceptionallyAsync" when update to java 12
+            t -> {
+              log.error("Encountered an Exception while sending a request to the DB API", t);
+              return ResponseSchema.createEmpty();
+            }).thenComposeAsync(
+            response -> {
+              if (!response.getInvokeMethod().equals(InvokeMethod.SEARCH_GUILD.toString())) {
+                throw new IllegalStateException(
+                    "The response is not for the SEARCH_GUILD request. Please contact the developer.");
               }
-            }, DatabaseApiHandshakeExecutor)
-        , internalProcessingExecutor).exceptionally(
-        t -> {
-          log.error("Encountered an Exception while sending a request to the DB API", t);
-          return ResponseSchema.createEmpty();
-        }).thenComposeAsync(
-        response ->
-            event.getChannel().sendMessage(
-                ""
-            ).submit(),
-        internalProcessingExecutor);
+              if (response.isExist()) {
+                return event.getHook().sendMessage("このサーバーはすでにグローバルチャットに参加しています。").submit();
+              } else {
+                return event.getHook()
+                    .sendMessage("このサーバーはまだグローバルチャットに参加していません。\n以下のボタンから参加する/しないを選択してください。")
+                    .addActionRow(
+                        Button.primary("global_accept", "参加する"),
+                        Button.danger("global_reject", "参加しない")
+                    ).submit();
+              }
+            }, interactionExecutor)
+        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
   }
 
   static class UriConstructor {

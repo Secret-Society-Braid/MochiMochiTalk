@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -111,6 +112,62 @@ public class CommandJoin extends ListenerAdapter {
               }
             }, interactionExecutor)
         .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+  }
+
+  @Override
+  public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+    CompletableFuture<InteractionHook> deferReply = event.deferReply().submit();
+    switch (event.getComponentId()) {
+      case "global_accept":
+        deferReply.thenComposeAsync(
+            hook -> hook.editOriginal("グローバルチャットに参加します。").submit(),
+            interactionExecutor).thenComposeAsync(
+            message -> {
+              UriConstructor registerGuildUriConstructor = new UriConstructor(
+                  InvokeMethod.APPEND_INFORMATION,
+                  Objects.requireNonNull(event.getGuild()).getId(),
+                  event.getChannel().getId()
+              );
+              Request request = new Request.Builder()
+                  .url(registerGuildUriConstructor.construct())
+                  .get()
+                  .build();
+              return CompletableFuture.supplyAsync(
+                  () -> {
+                    try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+                      return MAPPER.readValue(b.string(), ResponseSchema.class);
+                    } catch (IOException e) {
+                      throw new RuntimeException(e);
+                    }
+                  }, DatabaseApiHandshakeExecutor);
+            },
+            DatabaseApiHandshakeExecutor
+        ).thenAcceptAsync(
+            response -> {
+              if (!response.getInvokeMethod().equals(InvokeMethod.APPEND_INFORMATION.toString())) {
+                throw new IllegalStateException(
+                    "The response is not for the APPEND_INFORMATION request. Please contact the developer.");
+              }
+              if (response.isExist()) {
+                log.info("The guild [{}] has been registered to the global chat.",
+                    event.getGuild());
+              } else {
+                log.error("The guild [{}] has not been registered to the global chat.",
+                    event.getGuild());
+              }
+            },
+            internalProcessingExecutor
+        ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+        break;
+      case "global_reject":
+        deferReply.thenComposeAsync(
+                hook -> hook.editOriginal("グローバルチャットに参加しません。").submit(),
+                interactionExecutor)
+            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+        break;
+      default:
+        break;
+    }
   }
 
   static class UriConstructor {

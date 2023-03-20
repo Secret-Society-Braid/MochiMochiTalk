@@ -40,6 +40,19 @@ public class CommandJoin extends ListenerAdapter {
 
   private OkHttpClient apiClient;
 
+  /**
+   * このメソッドは、ユーザーが「/global」スラッシュ コマンドを呼び出したときに呼び出されます
+   * <p>
+   * コマンドがギルド内で呼び出されたかどうかをチェックし、DB API からの応答を非同期で受け取りながら早期応答を送信します。
+   * <p>
+   * コマンドがギルドで呼び出された場合、このメソッドは、将来のアップデートでダイレクト メッセージへの参加が計画されているというメッセージを送信します。
+   * <p>
+   * ギルドがすでにグローバル チャットに参加している場合は、それに応じてメッセージが送信されます。
+   * <p>
+   * ギルドにまだ参加していない場合は、「参加」と「拒否」の 2 つのボタンを含むメッセージが送信され、ユーザーは参加するかどうかを選択できます。
+   *
+   * @param event コマンドの相互作用に関する詳細を含む SlashCommandInteractionEvent オブジェクト
+   */
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
     // early return if the command is not "join"
@@ -114,6 +127,12 @@ public class CommandJoin extends ListenerAdapter {
         .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
   }
 
+  /**
+   * {@link ListenerAdapter#onButtonInteraction(ButtonInteractionEvent)} メソッドをオーバーライドして、グローバル
+   * チャットに関連するボタン インタラクションを処理します。
+   *
+   * @param event 処理するボタン インタラクション イベント
+   */
   @Override
   public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
     CompletableFuture<InteractionHook> deferReply = event.deferReply().submit();

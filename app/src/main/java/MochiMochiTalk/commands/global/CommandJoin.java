@@ -71,7 +71,7 @@ public class CommandJoin extends ListenerAdapter {
     // check whether the command is invoked in the guild
     if (event.isFromGuild()) {
       earlyReply.thenComposeAsync(
-          hook -> hook.editOriginal("ダイレクトメッセージからの参加は将来のアップデートで実装予定です。").submit(),
+          hook -> hook.editOriginal("ダイレクトメッセージからの操作は将来のアップデートで実装予定です。").submit(),
           interactionExecutor
       ).thenAcceptAsync(
           (suc) -> log.info(

@@ -82,6 +82,11 @@ public class CommandJoin extends ListenerAdapter {
 
     // do process below if subcommand name is "join"
 
+    invokeJoinSubCommand(event, earlyReply);
+  }
+
+  private void invokeJoinSubCommand(@NotNull SlashCommandInteractionEvent event,
+      CompletableFuture<InteractionHook> earlyReply) {
     UriConstructor searchGuildUriConstructor = new UriConstructor(
         InvokeMethod.SEARCH_GUILD,
         Objects.requireNonNull(event.getGuild()).getId(),

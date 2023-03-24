@@ -60,8 +60,6 @@ public class CommandJoin extends ListenerAdapter {
       return;
     }
 
-    // do process below if subcommand name is "join"
-
     // send early reply for asynchronously receive the response from the DB API.
     CompletableFuture<InteractionHook> earlyReply = event
         .reply("グローバルチャット レイドデータベースに接続しています…")
@@ -81,6 +79,8 @@ public class CommandJoin extends ListenerAdapter {
       ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
       return;
     }
+
+    // do process below if subcommand name is "join"
 
     UriConstructor searchGuildUriConstructor = new UriConstructor(
         InvokeMethod.SEARCH_GUILD,

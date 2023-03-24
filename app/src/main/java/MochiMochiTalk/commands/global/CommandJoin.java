@@ -158,12 +158,10 @@ public class CommandJoin extends ListenerAdapter {
     switch (event.getComponentId()) {
       case "global_accept_join":
         deferReply.thenComposeAsync(hook -> hook.editOriginal("グローバルチャットに参加します。").submit(),
-                interactionExecutor).thenComposeAsync(message -> {
-              UriConstructor registerGuildUriConstructor = new UriConstructor(
-                  InvokeMethod.APPEND_INFORMATION, Objects.requireNonNull(event.getGuild()).getId(),
-                  event.getChannel().getId());
-              return generateResponseFuture(registerGuildUriConstructor);
-            }, internalProcessingExecutor).thenAcceptAsync(response -> {
+                interactionExecutor)
+            .thenComposeAsync(message -> generateResponseFuture(InvokeMethod.APPEND_INFORMATION,
+                    Objects.requireNonNull(event.getGuild()).getId(), event.getChannel().getId()),
+                internalProcessingExecutor).thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.APPEND_INFORMATION.toString())) {
                 throw new IllegalStateException(
                     "The response is not for the APPEND_INFORMATION request. Please contact the developer.");
@@ -185,11 +183,11 @@ public class CommandJoin extends ListenerAdapter {
       case "global_accept_remove":
         deferReply.thenComposeAsync(
                 hook -> hook.sendMessage("データベースから削除します。ご参加ありがとうございました！").submit(),
-                interactionExecutor).thenComposeAsync(message -> {
-              UriConstructor deleteGuildUriConstructor = new UriConstructor(InvokeMethod.DELETE_ROW,
-                  Objects.requireNonNull(event.getGuild()).getId(), event.getChannel().getId());
-              return generateResponseFuture(deleteGuildUriConstructor);
-            }, internalProcessingExecutor).thenAcceptAsync(response -> {
+                interactionExecutor).thenComposeAsync(
+                message -> generateResponseFuture(InvokeMethod.DELETE_ROW,
+                    Objects.requireNonNull(event.getGuild()).getId(),
+                    event.getChannel().getId()), internalProcessingExecutor)
+            .thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.DELETE_ROW.toString())) {
                 throw new IllegalStateException(
                     "The response is not for the DELETE_ROW request. Please contact the developer.");
@@ -210,8 +208,10 @@ public class CommandJoin extends ListenerAdapter {
 
   @NotNull
   private CompletableFuture<ResponseSchema> generateResponseFuture(
-      UriConstructor registerGuildUriConstructor) {
-    Request request = new Request.Builder().url(registerGuildUriConstructor.construct()).get()
+      InvokeMethod invokeMethod, String guildId, String channelId) {
+    UriConstructor uriConstructor = new UriConstructor(
+        invokeMethod, guildId, channelId);
+    Request request = new Request.Builder().url(uriConstructor.construct()).get()
         .build();
     return CompletableFuture.supplyAsync(() -> {
       try (ResponseBody b = apiClient.newCall(request).execute().body()) {

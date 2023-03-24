@@ -25,14 +25,8 @@ import org.jetbrains.annotations.NotNull;
 @Slf4j
 public class CommandJoin extends ListenerAdapter {
 
-  private static final ExecutorService interactionExecutor = Executors.newCachedThreadPool(
+  private static final ExecutorService commandJoinInternalExecutor = Executors.newCachedThreadPool(
       ConcurrencyUtil.createThreadFactory("bot interaction thread"));
-
-  private static final ExecutorService internalProcessingExecutor = Executors.newCachedThreadPool(
-      ConcurrencyUtil.createThreadFactory("bot internal processing thread"));
-
-  private static final ExecutorService DatabaseApiHandshakeExecutor = Executors.newCachedThreadPool(
-      ConcurrencyUtil.createThreadFactory("bot database api handshake thread"));
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -66,10 +60,10 @@ public class CommandJoin extends ListenerAdapter {
     if (event.isFromGuild()) {
       earlyReply.thenComposeAsync(
               hook -> hook.editOriginal("ダイレクトメッセージからの操作は将来のアップデートで実装予定です。").submit(),
-              interactionExecutor).thenAcceptAsync((suc) -> log.info(
+              commandJoinInternalExecutor).thenAcceptAsync((suc) -> log.info(
               "The command [global] command was invoked in the Direct Message Channel by [{}]",
-              event.getUser()), internalProcessingExecutor)
-          .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+              event.getUser()), commandJoinInternalExecutor)
+          .whenCompleteAsync(ConcurrencyUtil::postEventHandling, commandJoinInternalExecutor);
       return;
     }
 
@@ -100,7 +94,7 @@ public class CommandJoin extends ListenerAdapter {
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
-        }, DatabaseApiHandshakeExecutor), internalProcessingExecutor)
+        }, commandJoinInternalExecutor), commandJoinInternalExecutor)
         .exceptionally( // replace to "exceptionallyAsync" when update to java 12
             t -> {
               log.error("Encountered an Exception while sending a request to the DB API", t);
@@ -118,8 +112,8 @@ public class CommandJoin extends ListenerAdapter {
                 .addActionRow(Button.primary("global_accept_join", "参加する"),
                     Button.danger("global_reject", "参加しない")).submit();
           }
-        }, interactionExecutor)
-        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+        }, commandJoinInternalExecutor)
+        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, commandJoinInternalExecutor);
   }
 
   private void invokeRemoveSubCommand(@Nonnull SlashCommandInteractionEvent event,
@@ -130,7 +124,7 @@ public class CommandJoin extends ListenerAdapter {
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
-        }, DatabaseApiHandshakeExecutor).exceptionally(t -> {
+        }, commandJoinInternalExecutor).exceptionally(t -> {
           log.error("Encountered an Exception while sending a request to the DB API", t);
           return ResponseSchema.createEmpty();
         }).thenComposeAsync(response -> {
@@ -142,8 +136,8 @@ public class CommandJoin extends ListenerAdapter {
           } else {
             return event.getHook().sendMessage("データベースへの登録が確認できませんでした。").submit();
           }
-        }, interactionExecutor)
-        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor));
+        }, commandJoinInternalExecutor)
+        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, commandJoinInternalExecutor));
   }
 
   /**
@@ -158,10 +152,10 @@ public class CommandJoin extends ListenerAdapter {
     switch (event.getComponentId()) {
       case "global_accept_join":
         deferReply.thenComposeAsync(hook -> hook.editOriginal("グローバルチャットに参加します。").submit(),
-                interactionExecutor)
+                commandJoinInternalExecutor)
             .thenComposeAsync(message -> generateResponseFuture(InvokeMethod.APPEND_INFORMATION,
                     Objects.requireNonNull(event.getGuild()).getId(), event.getChannel().getId()),
-                internalProcessingExecutor).thenAcceptAsync(response -> {
+                commandJoinInternalExecutor).thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.APPEND_INFORMATION.toString())) {
                 throw new IllegalStateException(
                     "The response is not for the APPEND_INFORMATION request. Please contact the developer.");
@@ -172,21 +166,21 @@ public class CommandJoin extends ListenerAdapter {
                 log.error("The guild [{}] has not been registered to the global chat.",
                     event.getGuild());
               }
-            }, internalProcessingExecutor)
-            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+            }, commandJoinInternalExecutor)
+            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, commandJoinInternalExecutor);
         break;
       case "global_reject":
         deferReply.thenComposeAsync(hook -> hook.editOriginal("操作を終了しました。").submit(),
-                interactionExecutor)
-            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+                commandJoinInternalExecutor)
+            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, commandJoinInternalExecutor);
         break;
       case "global_accept_remove":
         deferReply.thenComposeAsync(
                 hook -> hook.sendMessage("データベースから削除します。ご参加ありがとうございました！").submit(),
-                interactionExecutor).thenComposeAsync(
+                commandJoinInternalExecutor).thenComposeAsync(
                 message -> generateResponseFuture(InvokeMethod.DELETE_ROW,
                     Objects.requireNonNull(event.getGuild()).getId(),
-                    event.getChannel().getId()), internalProcessingExecutor)
+                    event.getChannel().getId()), commandJoinInternalExecutor)
             .thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.DELETE_ROW.toString())) {
                 throw new IllegalStateException(
@@ -198,8 +192,8 @@ public class CommandJoin extends ListenerAdapter {
                 log.error("The guild [{}] has not been deleted from the global chat.",
                     event.getGuild());
               }
-            }, internalProcessingExecutor)
-            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+            }, commandJoinInternalExecutor)
+            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, commandJoinInternalExecutor);
         break;
       default:
         break;
@@ -219,7 +213,7 @@ public class CommandJoin extends ListenerAdapter {
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-    }, DatabaseApiHandshakeExecutor);
+    }, commandJoinInternalExecutor);
   }
 
   static class UriConstructor {

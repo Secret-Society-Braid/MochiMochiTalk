@@ -186,7 +186,7 @@ public class CommandJoin extends ListenerAdapter {
             .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
         break;
       case "global_reject":
-        deferReply.thenComposeAsync(hook -> hook.editOriginal("グローバルチャットに参加しません。").submit(),
+        deferReply.thenComposeAsync(hook -> hook.editOriginal("操作を終了しました。").submit(),
                 interactionExecutor)
             .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
         break;

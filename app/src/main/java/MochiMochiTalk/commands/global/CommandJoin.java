@@ -162,15 +162,7 @@ public class CommandJoin extends ListenerAdapter {
               UriConstructor registerGuildUriConstructor = new UriConstructor(
                   InvokeMethod.APPEND_INFORMATION, Objects.requireNonNull(event.getGuild()).getId(),
                   event.getChannel().getId());
-              Request request = new Request.Builder().url(registerGuildUriConstructor.construct()).get()
-                  .build();
-              return CompletableFuture.supplyAsync(() -> {
-                try (ResponseBody b = apiClient.newCall(request).execute().body()) {
-                  return MAPPER.readValue(b.string(), ResponseSchema.class);
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              }, DatabaseApiHandshakeExecutor);
+              return generateResponseFuture(registerGuildUriConstructor);
             }, internalProcessingExecutor).thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.APPEND_INFORMATION.toString())) {
                 throw new IllegalStateException(
@@ -196,15 +188,7 @@ public class CommandJoin extends ListenerAdapter {
                 interactionExecutor).thenComposeAsync(message -> {
               UriConstructor deleteGuildUriConstructor = new UriConstructor(InvokeMethod.DELETE_ROW,
                   Objects.requireNonNull(event.getGuild()).getId(), event.getChannel().getId());
-              Request request = new Request.Builder().url(deleteGuildUriConstructor.construct()).get()
-                  .build();
-              return CompletableFuture.supplyAsync(() -> {
-                try (ResponseBody b = apiClient.newCall(request).execute().body()) {
-                  return MAPPER.readValue(b.string(), ResponseSchema.class);
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              }, DatabaseApiHandshakeExecutor);
+              return generateResponseFuture(deleteGuildUriConstructor);
             }, internalProcessingExecutor).thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.DELETE_ROW.toString())) {
                 throw new IllegalStateException(
@@ -222,6 +206,20 @@ public class CommandJoin extends ListenerAdapter {
       default:
         break;
     }
+  }
+
+  @NotNull
+  private CompletableFuture<ResponseSchema> generateResponseFuture(
+      UriConstructor registerGuildUriConstructor) {
+    Request request = new Request.Builder().url(registerGuildUriConstructor.construct()).get()
+        .build();
+    return CompletableFuture.supplyAsync(() -> {
+      try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+        return MAPPER.readValue(b.string(), ResponseSchema.class);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }, DatabaseApiHandshakeExecutor);
   }
 
   static class UriConstructor {

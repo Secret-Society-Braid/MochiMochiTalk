@@ -115,7 +115,7 @@ public class CommandJoin extends ListenerAdapter {
           } else {
             return event.getHook()
                 .sendMessage("このサーバーはまだグローバルチャットに参加していません。\n以下のボタンから参加する/しないを選択してください。")
-                .addActionRow(Button.primary("global_accept", "参加する"),
+                .addActionRow(Button.primary("global_accept_join", "参加する"),
                     Button.danger("global_reject", "参加しない")).submit();
           }
         }, interactionExecutor)
@@ -137,7 +137,7 @@ public class CommandJoin extends ListenerAdapter {
           if (response.isExist()) {
             return event.getHook()
                 .sendMessage("データベースへの登録が確認できました。以下のボタンから削除する/しないを選択してください。")
-                .addActionRow(Button.primary("global_remove", "削除する"),
+                .addActionRow(Button.primary("global_accept_remove", "削除する"),
                     Button.danger("global_reject", "削除しない")).submit();
           } else {
             return event.getHook().sendMessage("データベースへの登録が確認できませんでした。").submit();
@@ -156,7 +156,7 @@ public class CommandJoin extends ListenerAdapter {
   public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
     CompletableFuture<InteractionHook> deferReply = event.deferReply().submit();
     switch (event.getComponentId()) {
-      case "global_accept":
+      case "global_accept_join":
         deferReply.thenComposeAsync(hook -> hook.editOriginal("グローバルチャットに参加します。").submit(),
                 interactionExecutor).thenComposeAsync(message -> {
               UriConstructor registerGuildUriConstructor = new UriConstructor(
@@ -189,6 +189,8 @@ public class CommandJoin extends ListenerAdapter {
         deferReply.thenComposeAsync(hook -> hook.editOriginal("操作を終了しました。").submit(),
                 interactionExecutor)
             .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+        break;
+      case "global_accept_remove":
         break;
       default:
         break;

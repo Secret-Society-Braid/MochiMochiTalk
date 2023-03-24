@@ -191,6 +191,35 @@ public class CommandJoin extends ListenerAdapter {
             .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
         break;
       case "global_accept_remove":
+        deferReply.thenComposeAsync(
+            hook -> hook.sendMessage("データベースから削除します。ご参加ありがとうございました！").submit(),
+            interactionExecutor
+        ).thenComposeAsync(message -> {
+          UriConstructor deleteGuildUriConstructor = new UriConstructor(
+              InvokeMethod.DELETE_ROW, Objects.requireNonNull(event.getGuild()).getId(),
+              event.getChannel().getId());
+          Request request = new Request.Builder().url(deleteGuildUriConstructor.construct()).get()
+              .build();
+          return CompletableFuture.supplyAsync(() -> {
+            try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+              return MAPPER.readValue(b.string(), ResponseSchema.class);
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }, DatabaseApiHandshakeExecutor);
+        }, internalProcessingExecutor).thenAcceptAsync(response -> {
+              if (!response.getInvokeMethod().equals(InvokeMethod.DELETE_ROW.toString())) {
+                throw new IllegalStateException(
+                    "The response is not for the DELETE_ROW request. Please contact the developer.");
+              }
+              if (response.isExist()) {
+                log.info("The guild [{}] has been deleted from the global chat.", event.getGuild());
+              } else {
+                log.error("The guild [{}] has not been deleted from the global chat.",
+                    event.getGuild());
+              }
+            }, internalProcessingExecutor
+        ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
         break;
       default:
         break;

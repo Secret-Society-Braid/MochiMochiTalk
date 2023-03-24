@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -25,16 +26,13 @@ import org.jetbrains.annotations.NotNull;
 public class CommandJoin extends ListenerAdapter {
 
   private static final ExecutorService interactionExecutor = Executors.newCachedThreadPool(
-      ConcurrencyUtil.createThreadFactory("bot interaction thread")
-  );
+      ConcurrencyUtil.createThreadFactory("bot interaction thread"));
 
   private static final ExecutorService internalProcessingExecutor = Executors.newCachedThreadPool(
-      ConcurrencyUtil.createThreadFactory("bot internal processing thread")
-  );
+      ConcurrencyUtil.createThreadFactory("bot internal processing thread"));
 
   private static final ExecutorService DatabaseApiHandshakeExecutor = Executors.newCachedThreadPool(
-      ConcurrencyUtil.createThreadFactory("bot database api handshake thread")
-  );
+      ConcurrencyUtil.createThreadFactory("bot database api handshake thread"));
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -61,77 +59,91 @@ public class CommandJoin extends ListenerAdapter {
     }
 
     // send early reply for asynchronously receive the response from the DB API.
-    CompletableFuture<InteractionHook> earlyReply = event
-        .reply("グローバルチャット レイドデータベースに接続しています…")
-        .setEphemeral(true)
-        .submit();
+    CompletableFuture<InteractionHook> earlyReply = event.reply("グローバルチャット レイドデータベースに接続しています…")
+        .setEphemeral(true).submit();
 
     // check whether the command is invoked in the guild
     if (event.isFromGuild()) {
       earlyReply.thenComposeAsync(
-          hook -> hook.editOriginal("ダイレクトメッセージからの操作は将来のアップデートで実装予定です。").submit(),
-          interactionExecutor
-      ).thenAcceptAsync(
-          (suc) -> log.info(
+              hook -> hook.editOriginal("ダイレクトメッセージからの操作は将来のアップデートで実装予定です。").submit(),
+              interactionExecutor).thenAcceptAsync((suc) -> log.info(
               "The command [global] command was invoked in the Direct Message Channel by [{}]",
-              event.getUser()),
-          internalProcessingExecutor
-      ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+              event.getUser()), internalProcessingExecutor)
+          .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
       return;
     }
 
+    UriConstructor searchGuildUriConstructor = new UriConstructor(InvokeMethod.SEARCH_GUILD,
+        Objects.requireNonNull(event.getGuild()).getId(), event.getChannel().getId());
+
+    apiClient =
+        apiClient == null ? new OkHttpClient() : apiClient; // null check and lazy initialization
+
+    Request request = new Request.Builder().url(searchGuildUriConstructor.construct()).get()
+        .build();
+
     // do process below if subcommand name is "join"
 
-    invokeJoinSubCommand(event, earlyReply);
+    invokeJoinSubCommand(event, earlyReply, request);
+
+    // do process below if subcommand name is "remove"
+
+    invokeRemoveSubCommand(event, earlyReply, request);
   }
 
   private void invokeJoinSubCommand(@NotNull SlashCommandInteractionEvent event,
-      CompletableFuture<InteractionHook> earlyReply) {
-    UriConstructor searchGuildUriConstructor = new UriConstructor(
-        InvokeMethod.SEARCH_GUILD,
-        Objects.requireNonNull(event.getGuild()).getId(),
-        event.getChannel().getId()
-    );
+      CompletableFuture<InteractionHook> earlyReply, Request request) {
 
-    apiClient = apiClient == null ? new OkHttpClient() : apiClient;
-
-    Request request = new Request.Builder()
-        .url(searchGuildUriConstructor.construct())
-        .get()
-        .build();
-
-    earlyReply.thenComposeAsync(
-            hook -> CompletableFuture.supplyAsync(
-                () -> {
-                  try (ResponseBody b = apiClient.newCall(request).execute().body()) {
-                    return MAPPER.readValue(b.string(), ResponseSchema.class);
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
-                }, DatabaseApiHandshakeExecutor)
-            , internalProcessingExecutor)
+    earlyReply.thenComposeAsync(hook -> CompletableFuture.supplyAsync(() -> {
+          try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+            return MAPPER.readValue(b.string(), ResponseSchema.class);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        }, DatabaseApiHandshakeExecutor), internalProcessingExecutor)
         .exceptionally( // replace to "exceptionallyAsync" when update to java 12
             t -> {
               log.error("Encountered an Exception while sending a request to the DB API", t);
               return ResponseSchema.createEmpty();
-            }).thenComposeAsync(
-            response -> {
-              if (!response.getInvokeMethod().equals(InvokeMethod.SEARCH_GUILD.toString())) {
-                throw new IllegalStateException(
-                    "The response is not for the SEARCH_GUILD request. Please contact the developer.");
-              }
-              if (response.isExist()) {
-                return event.getHook().sendMessage("このサーバーはすでにグローバルチャットに参加しています。").submit();
-              } else {
-                return event.getHook()
-                    .sendMessage("このサーバーはまだグローバルチャットに参加していません。\n以下のボタンから参加する/しないを選択してください。")
-                    .addActionRow(
-                        Button.primary("global_accept", "参加する"),
-                        Button.danger("global_reject", "参加しない")
-                    ).submit();
-              }
-            }, interactionExecutor)
+            }).thenComposeAsync(response -> {
+          if (!response.getInvokeMethod().equals(InvokeMethod.SEARCH_GUILD.toString())) {
+            throw new IllegalStateException(
+                "The response is not for the SEARCH_GUILD request. Please contact the developer.");
+          }
+          if (response.isExist()) {
+            return event.getHook().sendMessage("このサーバーはすでにグローバルチャットに参加しています。").submit();
+          } else {
+            return event.getHook()
+                .sendMessage("このサーバーはまだグローバルチャットに参加していません。\n以下のボタンから参加する/しないを選択してください。")
+                .addActionRow(Button.primary("global_accept", "参加する"),
+                    Button.danger("global_reject", "参加しない")).submit();
+          }
+        }, interactionExecutor)
         .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+  }
+
+  private void invokeRemoveSubCommand(@Nonnull SlashCommandInteractionEvent event,
+      CompletableFuture<InteractionHook> earlyReply, Request request) {
+    earlyReply.thenComposeAsync(hook -> CompletableFuture.supplyAsync(() -> {
+          try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+            return MAPPER.readValue(b.string(), ResponseSchema.class);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        }, DatabaseApiHandshakeExecutor).exceptionally(t -> {
+          log.error("Encountered an Exception while sending a request to the DB API", t);
+          return ResponseSchema.createEmpty();
+        }).thenComposeAsync(response -> {
+          if (response.isExist()) {
+            return event.getHook()
+                .sendMessage("データベースへの登録が確認できました。以下のボタンから削除する/しないを選択してください。")
+                .addActionRow(Button.primary("global_remove", "削除する"),
+                    Button.danger("global_reject", "削除しない")).submit();
+          } else {
+            return event.getHook().sendMessage("データベースへの登録が確認できませんでした。").submit();
+          }
+        }, interactionExecutor)
+        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor));
   }
 
   /**
@@ -145,49 +157,36 @@ public class CommandJoin extends ListenerAdapter {
     CompletableFuture<InteractionHook> deferReply = event.deferReply().submit();
     switch (event.getComponentId()) {
       case "global_accept":
-        deferReply.thenComposeAsync(
-            hook -> hook.editOriginal("グローバルチャットに参加します。").submit(),
-            interactionExecutor).thenComposeAsync(
-            message -> {
+        deferReply.thenComposeAsync(hook -> hook.editOriginal("グローバルチャットに参加します。").submit(),
+                interactionExecutor).thenComposeAsync(message -> {
               UriConstructor registerGuildUriConstructor = new UriConstructor(
-                  InvokeMethod.APPEND_INFORMATION,
-                  Objects.requireNonNull(event.getGuild()).getId(),
-                  event.getChannel().getId()
-              );
-              Request request = new Request.Builder()
-                  .url(registerGuildUriConstructor.construct())
-                  .get()
+                  InvokeMethod.APPEND_INFORMATION, Objects.requireNonNull(event.getGuild()).getId(),
+                  event.getChannel().getId());
+              Request request = new Request.Builder().url(registerGuildUriConstructor.construct()).get()
                   .build();
-              return CompletableFuture.supplyAsync(
-                  () -> {
-                    try (ResponseBody b = apiClient.newCall(request).execute().body()) {
-                      return MAPPER.readValue(b.string(), ResponseSchema.class);
-                    } catch (IOException e) {
-                      throw new RuntimeException(e);
-                    }
-                  }, DatabaseApiHandshakeExecutor);
-            },
-            internalProcessingExecutor
-        ).thenAcceptAsync(
-            response -> {
+              return CompletableFuture.supplyAsync(() -> {
+                try (ResponseBody b = apiClient.newCall(request).execute().body()) {
+                  return MAPPER.readValue(b.string(), ResponseSchema.class);
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
+              }, DatabaseApiHandshakeExecutor);
+            }, internalProcessingExecutor).thenAcceptAsync(response -> {
               if (!response.getInvokeMethod().equals(InvokeMethod.APPEND_INFORMATION.toString())) {
                 throw new IllegalStateException(
                     "The response is not for the APPEND_INFORMATION request. Please contact the developer.");
               }
               if (response.isExist()) {
-                log.info("The guild [{}] has been registered to the global chat.",
-                    event.getGuild());
+                log.info("The guild [{}] has been registered to the global chat.", event.getGuild());
               } else {
                 log.error("The guild [{}] has not been registered to the global chat.",
                     event.getGuild());
               }
-            },
-            internalProcessingExecutor
-        ).whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
+            }, internalProcessingExecutor)
+            .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
         break;
       case "global_reject":
-        deferReply.thenComposeAsync(
-                hook -> hook.editOriginal("グローバルチャットに参加しません。").submit(),
+        deferReply.thenComposeAsync(hook -> hook.editOriginal("グローバルチャットに参加しません。").submit(),
                 interactionExecutor)
             .whenCompleteAsync(ConcurrencyUtil::postEventHandling, internalProcessingExecutor);
         break;
@@ -199,20 +198,20 @@ public class CommandJoin extends ListenerAdapter {
   static class UriConstructor {
 
     private static final String BASE_URI;
-    private final InvokeMethod invokeMethod;
-    private final String guildId;
-    private final String channelId;
 
     static {
       JsonNode configNode;
       try {
-        configNode = MAPPER.readTree(
-            UriConstructor.class.getResourceAsStream("/property.json"));
+        configNode = MAPPER.readTree(UriConstructor.class.getResourceAsStream("/property.json"));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
       BASE_URI = configNode.get("global_raid_api_uri").asText();
     }
+
+    private final InvokeMethod invokeMethod;
+    private final String guildId;
+    private final String channelId;
 
     public UriConstructor(InvokeMethod invokeMethod, String guildId, String channelId) {
       this.invokeMethod = invokeMethod;

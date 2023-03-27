@@ -6,7 +6,9 @@ public enum InvokeMethod {
 
   APPEND_INFORMATION("appendInformation"),
 
-  DELETE_ROW("deleteRow");
+  DELETE_ROW("deleteRow"),
+
+  GET_ALL("getAll");
 
   final String value;
 

@@ -3,7 +3,7 @@ package MochiMochiTalk.commands.global;
 import MochiMochiTalk.lib.global.InvokeMethod;
 import MochiMochiTalk.lib.global.types.ResponseSchema;
 import MochiMochiTalk.util.ConcurrencyUtil;
-import com.fasterxml.jackson.databind.JsonNode;
+import MochiMochiTalk.util.global.GlobalApiUriConstructor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -67,7 +67,8 @@ public class CommandJoin extends ListenerAdapter {
       return;
     }
 
-    UriConstructor searchGuildUriConstructor = new UriConstructor(InvokeMethod.SEARCH_GUILD,
+    GlobalApiUriConstructor searchGuildUriConstructor = new GlobalApiUriConstructor(
+        InvokeMethod.SEARCH_GUILD,
         Objects.requireNonNull(event.getGuild()).getId(), event.getChannel().getId());
 
     apiClient =
@@ -203,7 +204,7 @@ public class CommandJoin extends ListenerAdapter {
   @NotNull
   private CompletableFuture<ResponseSchema> generateResponseFuture(
       InvokeMethod invokeMethod, String guildId, String channelId) {
-    UriConstructor uriConstructor = new UriConstructor(
+    GlobalApiUriConstructor uriConstructor = new GlobalApiUriConstructor(
         invokeMethod, guildId, channelId);
     Request request = new Request.Builder().url(uriConstructor.construct()).get()
         .build();
@@ -216,33 +217,4 @@ public class CommandJoin extends ListenerAdapter {
     }, commandJoinInternalExecutor);
   }
 
-  static class UriConstructor {
-
-    private static final String BASE_URI;
-
-    static {
-      JsonNode configNode;
-      try {
-        configNode = MAPPER.readTree(UriConstructor.class.getResourceAsStream("/property.json"));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      BASE_URI = configNode.get("global_raid_api_uri").asText();
-    }
-
-    private final InvokeMethod invokeMethod;
-    private final String guildId;
-    private final String channelId;
-
-    public UriConstructor(InvokeMethod invokeMethod, String guildId, String channelId) {
-      this.invokeMethod = invokeMethod;
-      this.guildId = guildId;
-      this.channelId = channelId;
-    }
-
-    public String construct() {
-      return BASE_URI + "?invokeMethod=" + invokeMethod + "&guildId=" + guildId + "&channelId="
-          + channelId;
-    }
-  }
 }

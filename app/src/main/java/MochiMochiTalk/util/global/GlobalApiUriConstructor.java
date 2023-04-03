@@ -32,7 +32,8 @@ public class GlobalApiUriConstructor {
   }
 
   public String construct() {
-    return BASE_URI + "?invokeMethod=" + invokeMethod + "&guildId=" + guildId + "&channelId="
-        + channelId;
+    return String.format("%s?invokeMethod=%s&guildId=%s&channelId=%s", BASE_URI, invokeMethod,
+        guildId,
+        channelId);
   }
 }

@@ -41,7 +41,7 @@ dependencies {
 
 
     // logback
-    implementation('ch.qos.logback:logback-classic:1.4.7')
+    implementation('ch.qos.logback:logback-classic:1.4.8')
 
     // implementation 'com.google.cloud:google-cloud-speech:2.2.2'
     // implementation 'com.google.cloud:google-cloud-texttospeech:2.1.1'

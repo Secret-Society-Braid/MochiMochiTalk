@@ -29,7 +29,7 @@ repositories {
 }
 
 ext {
-  var jacksonVersion = "2.16.0"
+  jacksonVersion = "2.16.0"
 }
 
 dependencies {

@@ -68,9 +68,9 @@ dependencies {
 
 
     // jackson core, databind, annotation
-    implementation("com.fasterxml.jackson.core:jackson-core:2.15.3")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.3")
+    implementation("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
 
     // HajimeAPI wrapper
     implementation(fileTree(dir: '..\\native', include: ['hajimeapi4j.jar']))

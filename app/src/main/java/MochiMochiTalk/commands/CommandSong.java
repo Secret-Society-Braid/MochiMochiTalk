@@ -191,13 +191,16 @@ public class CommandSong extends ListenerAdapter {
     final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
     log.info("got interaction with following command: {} in {}", subCommandName, event.getName());
 
-    if (subCommandName.equals("id")) {
-      invokeId(event);
-    } else if (subCommandName.equals("keyword")) {
-      invokeKeyword(event);
-    } else {
-      log.error("unexpected subcommand name: {}", subCommandName);
-      throw new UnsupportedOperationException("unexpected subcommand name: " + subCommandName);
+    switch (subCommandName) {
+      case "id":
+        invokeId(event);
+        break;
+      case "keyword":
+        invokeKeyword(event);
+        break;
+      default:
+        log.error("unexpected subcommand name: {}", subCommandName);
+        throw new UnsupportedOperationException("unexpected subcommand name: " + subCommandName);
     }
   }
 }

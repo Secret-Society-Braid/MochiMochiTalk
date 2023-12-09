@@ -58,7 +58,7 @@ public class CommandSong extends ListenerAdapter {
         MusicParameter.Hide.LIVE_MEMBER);
 
     CompletableFuture<Message> sendDetailMessage = earlyReplyFuture.thenCombineAsync(
-        builder.build().submit(), // invoke API request
+      builder.build().handleAsync(), // invoke API request
         (hook, response) -> {
           MessageEmbed detailEmbed = createSongDetailMessage(response);
           hook.editOriginal("取得完了。表示します……").complete();
@@ -97,7 +97,7 @@ public class CommandSong extends ListenerAdapter {
         .setLimit(1);
 
     CompletableFuture<Message> sendResultMessage = earlyReplyFuture.thenCombineAsync(
-        builder.build().submit(),
+      builder.build().handleAsync(),
         (hook, response) -> {
           MessageEmbed resultEmbed = createSearchResultMessage(response);
           hook.editOriginal("検索完了。表示します……").complete();
@@ -191,13 +191,16 @@ public class CommandSong extends ListenerAdapter {
     final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
     log.info("got interaction with following command: {} in {}", subCommandName, event.getName());
 
-    if (subCommandName.equals("id")) {
-      invokeId(event);
-    } else if (subCommandName.equals("keyword")) {
-      invokeKeyword(event);
-    } else {
-      log.error("unexpected subcommand name: {}", subCommandName);
-      throw new UnsupportedOperationException("unexpected subcommand name: " + subCommandName);
+    switch (subCommandName) {
+      case "id":
+        invokeId(event);
+        break;
+      case "keyword":
+        invokeKeyword(event);
+        break;
+      default:
+        log.error("unexpected subcommand name: {}", subCommandName);
+        throw new UnsupportedOperationException("unexpected subcommand name: " + subCommandName);
     }
   }
 }

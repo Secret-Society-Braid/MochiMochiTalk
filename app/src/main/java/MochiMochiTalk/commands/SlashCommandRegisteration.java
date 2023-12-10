@@ -4,17 +4,20 @@ import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import org.jetbrains.annotations.NotNull;
 
 @Slf4j
-public class SlashCommandRegisteration implements EventListener {
+public class SlashCommandRegisteration extends ListenerAdapter {
 
 
   private static final String LOG_FORMAT = "registering {}...";
@@ -122,29 +125,31 @@ public class SlashCommandRegisteration implements EventListener {
   }
 
   @Override
-  public void onEvent(@Nonnull GenericEvent event) {
-    if (event instanceof ReadyEvent) {
-      log.info("Attempt to register slash commands.");
-      JDA jda = event.getJDA();
-      CommandListUpdateAction commands = jda.updateCommands();
+  public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
-      log.info("Submitting command data to Discord...");
-      // register slash commands
-      commands.addCommands(
-              changePrefixCommand,
-              debugModeCommand,
-              dictionaryCommand,
-              helpCommand,
-              pingCommand,
-              reportCommand,
-              shutdownCommand,
-              songCommand,
-              whatsnewCommand,
-              vcCommand,
-              showLicenseCommand)
-          .queue(suc -> log.info("complete submitting command data."),
-              fail -> log.error("error while submitting command data to Discord.", fail));
-    }
   }
 
+  @Override
+  public void onReady(@NotNull ReadyEvent event) {
+    log.info("Attempt to register slash commands.");
+    JDA jda = event.getJDA();
+    CommandListUpdateAction commands = jda.updateCommands();
+
+    log.info("Submitting command data to Discord...");
+    // register slash commands
+    commands.addCommands(
+            changePrefixCommand,
+            debugModeCommand,
+            dictionaryCommand,
+            helpCommand,
+            pingCommand,
+            reportCommand,
+            shutdownCommand,
+            songCommand,
+            whatsnewCommand,
+            vcCommand,
+            showLicenseCommand)
+        .queue(suc -> log.info("complete submitting command data."),
+            fail -> log.error("error while submitting command data to Discord.", fail));
+  }
 }

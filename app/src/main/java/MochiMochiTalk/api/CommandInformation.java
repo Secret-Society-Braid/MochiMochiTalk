@@ -25,7 +25,7 @@ public abstract class CommandInformation {
 
   public abstract void slashCommandHandler(@NotNull SlashCommandInteractionEvent event);
 
-  protected boolean shouldHandle(@Nonnull SlashCommandInteractionEvent e) {
+  public boolean shouldHandle(@Nonnull SlashCommandInteractionEvent e) {
     return Objects.equals(e.getName(), this.getCommandName());
   }
 }

@@ -1,12 +1,11 @@
 package MochiMochiTalk.commands;
 
-import javax.annotation.Nonnull;
+import MochiMochiTalk.api.CommandInformation;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -19,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
 @Slf4j
 public class SlashCommandRegisteration extends ListenerAdapter {
 
+  private static final List<CommandInformation> commandList = List.of(
+    new CommandPing()
+  );
 
   private static final String LOG_FORMAT = "registering {}...";
 
@@ -126,7 +128,18 @@ public class SlashCommandRegisteration extends ListenerAdapter {
 
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-
+    log.info("Slash command invoked.");
+    commandList
+      .parallelStream()
+      .filter(c -> c.shouldHandle(event))
+      .findFirst()
+      .ifPresentOrElse(
+        c -> c.slashCommandHandler(event),
+        () -> {
+          log.warn("Command not found.");
+          event.reply("コマンドが見つかりませんでした。").setEphemeral(true).queue();
+        }
+      );
   }
 
   @Override

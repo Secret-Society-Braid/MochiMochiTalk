@@ -4,7 +4,6 @@
 package MochiMochiTalk;
 
 import MochiMochiTalk.commands.CommandDictionary;
-import MochiMochiTalk.commands.CommandHelp;
 import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandShowLicense;
 import MochiMochiTalk.commands.CommandShutdown;
@@ -74,7 +73,6 @@ public class App {
                 GatewayIntent.MESSAGE_CONTENT)
             .addEventListeners(
                 new ReadyListener(), // recognizes when the bot is ready
-                new CommandHelp(), // help command
                 new CommandReport(), // report command
                 CommandDictionary.getInstance(), // dictionary command
                 CommandWhatsNew.getInstance(), // whats new command

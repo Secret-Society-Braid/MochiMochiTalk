@@ -1,6 +1,7 @@
 package MochiMochiTalk.commands;
 
 import MochiMochiTalk.api.CommandInformation;
+import MochiMochiTalk.util.ConcurrencyUtil;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -33,14 +34,13 @@ public class CommandHelp extends CommandInformation {
   @Override
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.info("help slash command invoked.");
+
     event
-      .deferReply()
-      .setEphemeral(true)
-      .queue(
-        suc -> suc
-          .setEphemeral(true)
-          .editOriginal("コマンドの各詳細はスラッシュコマンド一覧の説明をご参照ください。")
-          .queue(),
-        err -> log.error("failed to interact with slash command.", err));
+      .deferReply(true)
+      .submit(true)
+      .thenComposeAsync(
+        hook -> hook.editOriginal("コマンドの各詳細はスラッシュコマンド一覧の説明をご参照ください。")
+          .submit())
+      .whenCompleteAsync(ConcurrencyUtil::postEventHandling);
   }
 }

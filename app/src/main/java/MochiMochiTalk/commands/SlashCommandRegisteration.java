@@ -2,6 +2,7 @@ package MochiMochiTalk.commands;
 
 import MochiMochiTalk.api.CommandInformation;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -28,7 +29,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   private static final CommandData debugModeCommand;
   private static final CommandData dictionaryCommand;
   private static final CommandData helpCommand;
-  private static final CommandData pingCommand;
   private static final CommandData reportCommand;
   private static final CommandData shutdownCommand;
 
@@ -68,16 +68,12 @@ public class SlashCommandRegisteration extends ListenerAdapter {
             .setRequired(true))
         .setGuildOnly(true);
 
-    log.debug("complete");
-    log.debug(LOG_FORMAT, "helpCommand");
-
     helpCommand = Commands.slash("help", "Botのヘルプを表示します。")
         .addOptions(new OptionData(OptionType.STRING, "category", "ヘルプ内容を指定します。"));
 
     log.debug("complete");
     log.debug(LOG_FORMAT, "pingCommand");
 
-    pingCommand = Commands.slash("ping", "BotのPingを表示します");
 
     log.debug("complete");
     log.debug(LOG_FORMAT, "reportCommand");
@@ -151,18 +147,12 @@ public class SlashCommandRegisteration extends ListenerAdapter {
     log.info("Submitting command data to Discord...");
     // register slash commands
     commands.addCommands(
-            changePrefixCommand,
-            debugModeCommand,
-            dictionaryCommand,
-            helpCommand,
-            pingCommand,
-            reportCommand,
-            shutdownCommand,
-            songCommand,
-            whatsnewCommand,
-            vcCommand,
-            showLicenseCommand)
-        .queue(suc -> log.info("complete submitting command data."),
-            fail -> log.error("error while submitting command data to Discord.", fail));
+      commandList
+        .parallelStream()
+        .map(CommandInformation::getCommandData)
+        .collect(Collectors.toList())
+    ).queue(
+      suc -> log.info("complete submitting command data."),
+      fail -> log.error("error while submitting command data to Discord.", fail));
   }
 }

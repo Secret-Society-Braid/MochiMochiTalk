@@ -22,14 +22,14 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   private static final List<CommandInformation> commandList = List.of(
     new CommandPing(),
     new CommandDebugMode(),
-    new CommandHelp()
+    new CommandHelp(),
+    new CommandReport()
   );
 
   private static final String LOG_FORMAT = "registering {}...";
 
   private static final CommandData changePrefixCommand;
   private static final CommandData dictionaryCommand;
-  private static final CommandData reportCommand;
   private static final CommandData shutdownCommand;
 
   private static final CommandData songCommand;
@@ -50,10 +50,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
         .addOptions(new OptionData(OptionType.STRING, "dict", "変換先の単語を指定します。")
             .setRequired(true))
         .setGuildOnly(true);
-
-    reportCommand = Commands.slash("report", "Bot開発者へ、Botの不具合などを報告できるコマンドです")
-        .addOptions(new OptionData(OptionType.STRING, "description", "報告したい内容を入力してください")
-            .setRequired(true));
 
     shutdownCommand = Commands.slash("shutdown", "Botを強制的に停止させます。");
 

@@ -20,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
 public class SlashCommandRegisteration extends ListenerAdapter {
 
   private static final List<CommandInformation> commandList = List.of(
-    new CommandPing()
+    new CommandPing(),
+    new CommandDebugMode()
   );
 
   private static final String LOG_FORMAT = "registering {}...";

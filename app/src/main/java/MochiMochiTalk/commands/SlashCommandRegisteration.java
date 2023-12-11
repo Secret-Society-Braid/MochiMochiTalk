@@ -21,14 +21,14 @@ public class SlashCommandRegisteration extends ListenerAdapter {
 
   private static final List<CommandInformation> commandList = List.of(
     new CommandPing(),
-    new CommandDebugMode()
+    new CommandDebugMode(),
+    new CommandHelp()
   );
 
   private static final String LOG_FORMAT = "registering {}...";
 
   private static final CommandData changePrefixCommand;
   private static final CommandData dictionaryCommand;
-  private static final CommandData helpCommand;
   private static final CommandData reportCommand;
   private static final CommandData shutdownCommand;
 
@@ -38,19 +38,11 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   private static final CommandData showLicenseCommand;
 
   static {
-    log.debug("Registering commands...");
-    log.debug("--------------------------------");
-    log.debug(LOG_FORMAT, "changePrefix");
 
     changePrefixCommand = Commands.slash("prefix", "Prefixを変更します")
         .addOptions(new OptionData(OptionType.STRING, "new", "新しいPrefixを指定します。")
             .setRequired(true))
         .setGuildOnly(true);
-
-    log.debug("complete.");
-    log.debug(LOG_FORMAT, "debugModeCommand");
-
-    log.debug(LOG_FORMAT, "dictionaryCommand");
 
     dictionaryCommand = Commands.slash("dict", "Botの単語変換辞書を操作します。")
         .addOptions(new OptionData(OptionType.STRING, "phrase", "変換元の単語を指定します。")
@@ -59,27 +51,12 @@ public class SlashCommandRegisteration extends ListenerAdapter {
             .setRequired(true))
         .setGuildOnly(true);
 
-    helpCommand = Commands.slash("help", "Botのヘルプを表示します。")
-        .addOptions(new OptionData(OptionType.STRING, "category", "ヘルプ内容を指定します。"));
-
-    log.debug("complete");
-    log.debug(LOG_FORMAT, "pingCommand");
-
-
-    log.debug("complete");
-    log.debug(LOG_FORMAT, "reportCommand");
-
     reportCommand = Commands.slash("report", "Bot開発者へ、Botの不具合などを報告できるコマンドです")
         .addOptions(new OptionData(OptionType.STRING, "description", "報告したい内容を入力してください")
             .setRequired(true));
 
-    log.debug("complete");
-    log.debug(LOG_FORMAT, "shutdownCommand");
-
     shutdownCommand = Commands.slash("shutdown", "Botを強制的に停止させます。");
 
-    log.debug("complete");
-    log.debug(LOG_FORMAT, "song with keyword command");
     songCommand = Commands.slash("song", "デレステの楽曲情報を検索します (Powered by ふじわらはじめ楽曲DB)")
         .addSubcommands(
             new SubcommandData("keyword", "指定したキーワードを基に、楽曲を検索します。")
@@ -90,27 +67,14 @@ public class SlashCommandRegisteration extends ListenerAdapter {
                     .setRequired(true)))
         .setGuildOnly(true);
 
-    log.debug("complete");
-    log.debug(LOG_FORMAT, "whatsnew command");
-
     whatsnewCommand = Commands.slash("whatsnew", "Botに最近加えられた変更を表示します");
-
-    log.debug("complete.");
-    log.debug(LOG_FORMAT, "vc command");
 
     vcCommand = Commands.slash("vc",
             "Botが現在VCに入室しているかどうか自動で判断し、入っていない場合は入室して読み上げを開始、入っている場合は退出して読み上げの終了処理を行います。")
         .setGuildOnly(true);
 
-    log.debug("complete.");
-    log.debug(LOG_FORMAT, "showLicense command");
-
     showLicenseCommand = Commands.slash("license", "Botが使用しているライブラリのライセンス情報を出力します。");
 
-    log.debug("complete.");
-
-    log.debug("-----------------------------------");
-    log.debug("Slash command registeration complete.");
   }
 
   @Override

@@ -4,7 +4,6 @@
 package MochiMochiTalk;
 
 import MochiMochiTalk.commands.CommandDictionary;
-import MochiMochiTalk.commands.CommandReport;
 import MochiMochiTalk.commands.CommandShowLicense;
 import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
@@ -73,7 +72,6 @@ public class App {
                 GatewayIntent.MESSAGE_CONTENT)
             .addEventListeners(
                 new ReadyListener(), // recognizes when the bot is ready
-                new CommandReport(), // report command
                 CommandDictionary.getInstance(), // dictionary command
                 CommandWhatsNew.getInstance(), // whats new command
                 new CheckContainsDiscordURL(), // check if the message contains a discord url

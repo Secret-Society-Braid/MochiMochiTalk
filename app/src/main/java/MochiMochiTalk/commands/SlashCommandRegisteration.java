@@ -26,7 +26,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   private static final String LOG_FORMAT = "registering {}...";
 
   private static final CommandData changePrefixCommand;
-  private static final CommandData debugModeCommand;
   private static final CommandData dictionaryCommand;
   private static final CommandData helpCommand;
   private static final CommandData reportCommand;
@@ -50,15 +49,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
     log.debug("complete.");
     log.debug(LOG_FORMAT, "debugModeCommand");
 
-    // debugMode command
-
-    debugModeCommand = Commands.slash("debugmode", "Botの開発を容易にするデバッグモードを切り替えます")
-        .addSubcommands(
-            new SubcommandData("on", "デバッグモードをONにします。"),
-            new SubcommandData("off", "デバッグモードをOFFにします")
-        );
-
-    log.debug("complete");
     log.debug(LOG_FORMAT, "dictionaryCommand");
 
     dictionaryCommand = Commands.slash("dict", "Botの単語変換辞書を操作します。")

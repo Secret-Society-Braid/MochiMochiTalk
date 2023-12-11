@@ -34,19 +34,19 @@ public class CommandDebugMode extends CommandInformation {
         this.getCommandDescription())
       .addSubcommands(
         new SubcommandData("on", "デバッグモードをONにします。"),
-        new SubcommandData("off", "デバッグモードをOFFにします")
+        new SubcommandData("off", "デバッグモードをOFFにします"),
+        new SubcommandData("state", "デバッグモードの状態を確認します。")
       );
   }
 
   @Override
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.debug("debugmode slash command invoked.");
-    String subcommandName = Objects.requireNonNull(event.getSubcommandName());
 
     switch (Objects.requireNonNullElseGet(event.getSubcommandName(), () -> {
       log.warn("No subcommand name found. what caused to reach here?");
-      log.warn("Falling back to \"off\" subcommand for preventing excessive log output.");
-      return "off";
+      log.warn("Falling back to \"state\" subcommand for preventing excessive log output.");
+      return "state";
     })) {
       case "on":
         log.trace("subcommand: on");
@@ -62,12 +62,22 @@ public class CommandDebugMode extends CommandInformation {
         debugModeModerator.setDebugState(false);
         log.debug("debug is disabled. now we stop debugging...");
         break;
+      case "state":
+        log.trace("subcommand: state");
+        event
+          .reply(String.format("デバッグモードは %s です。",
+            debugModeModerator.getDebugState() ? "有効" : "無効"))
+          .setEphemeral(true).queue();
+        log.info("Debug state has been checked by {} in {} channel, in the {} guild.",
+          event.getUser(), event.getChannel(), event.getGuild());
+        break;
       default:
-        throw new IllegalStateException("Unexpected subcommand value: " + subcommandName);
+        throw new IllegalStateException(
+          "Unexpected subcommand value: " + event.getSubcommandName());
     }
   }
 
-  public static class DebugModeModerator {
+  static class DebugModeModerator {
 
     private static DebugModeModerator singleton;
     private final AtomicBoolean debugState = new AtomicBoolean(false);

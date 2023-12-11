@@ -1,32 +1,80 @@
 package MochiMochiTalk.commands;
 
+import MochiMochiTalk.api.CommandInformation;
 import MochiMochiTalk.util.ConcurrencyUtil;
 import MochiMochiTalk.util.DiscordServerOperatorUtil;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javax.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
-public class CommandReport extends ListenerAdapter {
+@Slf4j
+public class CommandReport extends CommandInformation {
 
-  private static final Logger log = LoggerFactory.getLogger(CommandReport.class);
-  private static final ExecutorService concurrentPool = Executors.newCachedThreadPool(
-      new CountingThreadFactory(() -> "MochiMochiTalk", "Report command concurrent processor", true)
-  );
+  @Override
+  public String getCommandName() {
+    return "report";
+  }
 
-  private static MessageEmbed buildEmbedMessage(User author, String body) {
+  @Override
+  protected String getCommandDescription() {
+    return "Bot開発者へ、Botの不具合などを報告できるコマンドです";
+  }
+
+  @Override
+  protected void setCommandData() {
+    if (this.commandData != null) {
+      return;
+    }
+    this.commandData = Commands.slash(
+        this.getCommandName(),
+        this.getCommandDescription())
+      .addOptions(
+        new OptionData(
+          OptionType.STRING,
+          "description",
+          "報告したい内容を入力してください")
+          .setRequired(true));
+  }
+
+  @Override
+  public void slashCommandHandler(@NotNull SlashCommandInteractionEvent event) {
+    log.info("report command invoked");
+    event.deferReply(true).queue();
+    InteractionHook hook = event.getHook().setEphemeral(true);
+
+    User author = event.getUser();
+    // description won't be null as it is required option
+    String description = event.getOption("description", OptionMapping::getAsString);
+
+    // search for the Bot dev user.
+    // since RestAction#flatMap will combine the result of the previous operation, we can use it as normal method chain.
+    // Note that the interactions that are chained with flatMap won't be sent until the #submit is called.
+    event
+      .getJDA()
+      .retrieveUserById(DiscordServerOperatorUtil.getBotDevUserId())
+      .flatMap(User::openPrivateChannel)
+      // send message to the dev user
+      .flatMap(c -> c.sendMessageEmbeds(buildEmbedMessage(author, description)))
+      // send message to the user that acknowledge is completed
+      .flatMap(m -> hook.editOriginal(
+        "プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…"))
+      // execute all the operations above.
+      .submit(true)
+      // post event handling for error logging.
+      .whenCompleteAsync(ConcurrencyUtil::postEventHandling);
+  }
+
+  private MessageEmbed buildEmbedMessage(User author, String body) {
     EmbedBuilder builder = new EmbedBuilder();
     builder.setTitle("不正常挙動報告");
     builder.setDescription("プロデューサーさんからおかしな挙動の報告がありました。");
@@ -41,31 +89,5 @@ public class CommandReport extends ListenerAdapter {
     log.warn("estimate occurred date: {}", formattedDate);
     log.warn("reported via {}", author);
     return builder.build();
-  }
-
-  @Override
-  public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-    if (!event.getName().equals("report")) {
-      return;
-    }
-    User author = event.getUser();
-    String desc = event.getOption("description", OptionMapping::getAsString);
-    CompletableFuture<PrivateChannel> devUserChannelFuture = event.getJDA()
-        .retrieveUserById(DiscordServerOperatorUtil.getBotDevUserId())
-        .submit()
-        .thenApplyAsync(devUser -> devUser.openPrivateChannel().complete(), concurrentPool);
-    CompletableFuture.supplyAsync(
-            () -> buildEmbedMessage(author, desc),
-            concurrentPool)
-        .thenAcceptBothAsync(
-            devUserChannelFuture,
-            (embed, privateChannel) -> privateChannel.sendMessageEmbeds(embed).complete(),
-            concurrentPool)
-        .thenRunAsync(
-            () -> event.reply("プロデューサーさん、報告ありがとうございます。治るまで時間が掛かるかもしれませんが、私、がんばりますっ…")
-                .setEphemeral(true)
-                .complete(),
-            concurrentPool)
-        .whenCompleteAsync(ConcurrencyUtil::postEventHandling, concurrentPool);
   }
 }

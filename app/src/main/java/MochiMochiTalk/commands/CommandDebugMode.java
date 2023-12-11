@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
@@ -42,6 +43,8 @@ public class CommandDebugMode extends CommandInformation {
   @Override
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.debug("debugmode slash command invoked.");
+    event.deferReply().setEphemeral(true).queue();
+    InteractionHook hook = event.getHook().setEphemeral(true);
 
     switch (Objects.requireNonNullElseGet(event.getSubcommandName(), () -> {
       log.warn("No subcommand name found. what caused to reach here?");
@@ -50,7 +53,7 @@ public class CommandDebugMode extends CommandInformation {
     })) {
       case "on":
         log.trace("subcommand: on");
-        event.reply("デバッグモードをONにしました。").setEphemeral(true).queue();
+        hook.editOriginal("デバッグモードをONにしました。").queue();
         debugModeModerator.setDebugState(true);
         log.debug(
           "debug is enabled by {}, in {} channel, in the {} guild. now we will output things necessary.",
@@ -58,16 +61,16 @@ public class CommandDebugMode extends CommandInformation {
         break;
       case "off":
         log.trace("subcommand: off");
-        event.reply("デバッグモードをOFFにしました。").setEphemeral(true).queue();
+        hook.editOriginal("デバッグモードをOFFにしました。").queue();
         debugModeModerator.setDebugState(false);
         log.debug("debug is disabled. now we stop debugging...");
         break;
       case "state":
         log.trace("subcommand: state");
-        event
-          .reply(String.format("デバッグモードは %s です。",
+        hook
+          .editOriginal(String.format("デバッグモードは %s です。",
             debugModeModerator.getDebugState() ? "有効" : "無効"))
-          .setEphemeral(true).queue();
+          .queue();
         log.info("Debug state has been checked by {} in {} channel, in the {} guild.",
           event.getUser(), event.getChannel(), event.getGuild());
         break;

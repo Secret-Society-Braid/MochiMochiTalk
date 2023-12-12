@@ -34,8 +34,9 @@ public class CommandHelp extends CommandInformation {
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.info("help slash command invoked.");
     event
-      .reply("コマンドの各詳細はスラッシュコマンド一覧の説明をご参照ください。")
+      .getHook()
       .setEphemeral(true)
+      .editOriginal("コマンドの各詳細はスラッシュコマンド一覧の説明をご参照ください。")
       .queue();
   }
 }

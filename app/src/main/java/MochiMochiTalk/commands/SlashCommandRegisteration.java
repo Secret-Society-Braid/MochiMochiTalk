@@ -77,6 +77,7 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
     log.info("Slash command invoked.");
+    event.deferReply(true).queue();
     commandList
       .parallelStream()
       .filter(c -> c.shouldHandle(event))
@@ -85,7 +86,11 @@ public class SlashCommandRegisteration extends ListenerAdapter {
         c -> c.slashCommandHandler(event),
         () -> {
           log.warn("Command not found.");
-          event.reply("コマンドが見つかりませんでした。").setEphemeral(true).queue();
+          event
+            .getHook()
+            .setEphemeral(true)
+            .editOriginal("コマンドが見つかりませんでした。")
+            .queue();
         }
       );
   }

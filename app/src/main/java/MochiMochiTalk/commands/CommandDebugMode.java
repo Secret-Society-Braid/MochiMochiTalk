@@ -43,7 +43,6 @@ public class CommandDebugMode extends CommandInformation {
   @Override
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.debug("debugmode slash command invoked.");
-    event.deferReply().setEphemeral(true).queue();
     InteractionHook hook = event.getHook().setEphemeral(true);
 
     switch (Objects.requireNonNullElseGet(event.getSubcommandName(), () -> {

@@ -34,7 +34,6 @@ public class CommandPing extends CommandInformation {
   @Override
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.info("ping slash command invoked.");
-    event.deferReply().setEphemeral(true).queue();
     long time = System.currentTimeMillis();
     event
       .getHook()

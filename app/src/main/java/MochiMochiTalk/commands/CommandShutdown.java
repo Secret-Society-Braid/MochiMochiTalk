@@ -35,7 +35,6 @@ public class CommandShutdown extends CommandInformation {
   @Override
   public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
     log.info("Shutdown has been requested by : {}", event.getUser());
-    event.deferReply(true).queue();
     InteractionHook hook = event.getHook().setEphemeral(true);
     if (!DiscordServerOperatorUtil.isMutsucordOperator(event.getUser().getId())) {
       hook.editOriginal("このコマンドは管理者のみ使用できます。").queue();

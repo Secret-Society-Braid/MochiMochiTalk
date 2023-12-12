@@ -49,7 +49,6 @@ public class CommandReport extends CommandInformation {
   @Override
   public void slashCommandHandler(@NotNull SlashCommandInteractionEvent event) {
     log.info("report command invoked");
-    event.deferReply(true).queue();
     InteractionHook hook = event.getHook().setEphemeral(true);
 
     User author = event.getUser();

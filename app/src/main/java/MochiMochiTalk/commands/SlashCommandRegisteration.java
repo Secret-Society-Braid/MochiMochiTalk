@@ -23,7 +23,8 @@ public class SlashCommandRegisteration extends ListenerAdapter {
     new CommandPing(),
     new CommandDebugMode(),
     new CommandHelp(),
-    new CommandReport()
+    new CommandReport(),
+    new CommandShutdown()
   );
 
   private static final String LOG_FORMAT = "registering {}...";

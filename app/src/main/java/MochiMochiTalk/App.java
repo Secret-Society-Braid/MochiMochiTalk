@@ -5,7 +5,6 @@ package MochiMochiTalk;
 
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandShowLicense;
-import MochiMochiTalk.commands.CommandShutdown;
 import MochiMochiTalk.commands.CommandSong;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.commands.SlashCommandRegisteration;
@@ -76,7 +75,6 @@ public class App {
                 CommandWhatsNew.getInstance(), // whats new command
                 new CheckContainsDiscordURL(), // check if the message contains a discord url
                 new CommandSong(), //  song information command
-                new CommandShutdown(), // shutdown command
                 EventLogger.getInstance(), // logger
                 new EventListenerForTTS(), // refreshed voice event handler
                 new SlashCommandRegisteration(), // registering slash commands

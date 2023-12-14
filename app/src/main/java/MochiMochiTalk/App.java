@@ -74,11 +74,9 @@ public class App {
                 CommandDictionary.getInstance(), // dictionary command
                 CommandWhatsNew.getInstance(), // whats new command
                 new CheckContainsDiscordURL(), // check if the message contains a discord url
-                new CommandSong(), //  song information command
                 EventLogger.getInstance(), // logger
                 new EventListenerForTTS(), // refreshed voice event handler
-                new SlashCommandRegisteration(), // registering slash commands
-                new CommandShowLicense()) // show license information
+                new SlashCommandRegisteration()) // registering slash commands
             .build();
         logger.info("JDA was successfully built.");
       } catch (InvalidTokenException e) {

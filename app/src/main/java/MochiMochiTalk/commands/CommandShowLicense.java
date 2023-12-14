@@ -1,29 +1,42 @@
 package MochiMochiTalk.commands;
 
-import MochiMochiTalk.util.ConcurrencyUtil;
+import MochiMochiTalk.api.CommandInformation;
 import MochiMochiTalk.util.DiscordServerOperatorUtil;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 @Slf4j
-public class CommandShowLicense extends ListenerAdapter {
+public class CommandShowLicense extends CommandInformation {
 
   private static final String LICENSE_URL = "https://github.com/Secret-Society-Braid/MochiMochiTalk/tree/main/app/src/main/resources/licenses.json";
-  private static final ExecutorService serv = Executors.newCachedThreadPool(
-      ConcurrencyUtil.createThreadFactory("license file fetch thread")
-  );
+
+  @Override
+  public String getCommandName() {
+    return "showLicense";
+  }
+
+  @Override
+  protected String getCommandDescription() {
+    return "このBotが使用しているライブラリのライセンス情報を表示します。";
+  }
+
+  @Override
+  protected void setCommandData() {
+    if(this.commandData != null) {
+      return;
+    }
+    this.commandData = Commands.slash(
+        this.getCommandName(),
+        this.getCommandDescription()
+    );
+  }
 
   @Nonnull
-  private static synchronized MessageEmbed constructReplyEmbedMessage() {
+  private synchronized MessageEmbed constructReplyEmbedMessage() {
     EmbedBuilder builder = new EmbedBuilder();
     builder
         .setTitle("使用ライブラリのライセンス情報", LICENSE_URL)
@@ -37,36 +50,12 @@ public class CommandShowLicense extends ListenerAdapter {
   }
 
   @Override
-  public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-    if (!event.getName().equals("license")) {
-      return;
-    }
-    event.replyEmbeds(constructReplyEmbedMessage()).setEphemeral(true).submit()
-        .whenCompleteAsync((ret, ex) -> {
-          if (ex == null) {
-            log.info("the command interaction [showLicense] has been finished successfully");
-            return;
-          }
-          log.warn("There was an exception while invoking [showLicense] event handling.", ex);
-          log.warn("constructing information message for devs...");
-          EmbedBuilder builder = new EmbedBuilder();
-          final String exceptionClassName = ex.getClass().getSimpleName();
-          log.warn("The exception that was encountered: {}", exceptionClassName);
-          final String exceptionMessage = ex.getMessage();
-          log.warn("The message that was sent: {}", exceptionMessage);
-          final String exceptionStackTrace = Arrays.toString(ex.getStackTrace());
-          log.warn("Got stack trace.");
-          builder.setTitle("イベント処理中に例外が発生しました")
-              .addField("例外", exceptionClassName, false)
-              .addField("例外メッセージ", (exceptionMessage == null ? "null" : exceptionMessage), false)
-              .addField("スタックトレース", exceptionStackTrace, false);
-          event.getJDA()
-              .retrieveUserById(DiscordServerOperatorUtil.getBotDevUserId())
-              .map(User::openPrivateChannel)
-              .map(RestAction::complete)
-              .submit()
-              .thenComposeAsync(channel -> channel.sendMessageEmbeds(builder.build()).submit(),
-                  serv);
-        }, serv);
+  public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
+    log.info("showLicense command invoked.");
+    event
+        .getHook()
+        .setEphemeral(true)
+        .editOriginalEmbeds(constructReplyEmbedMessage())
+        .queue();
   }
 }

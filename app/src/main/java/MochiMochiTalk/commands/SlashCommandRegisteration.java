@@ -24,19 +24,18 @@ public class SlashCommandRegisteration extends ListenerAdapter {
     new CommandDebugMode(),
     new CommandHelp(),
     new CommandReport(),
-    new CommandShutdown()
+    new CommandShowLicense(),
+    new CommandShutdown(),
+    new CommandSong()
   );
 
   private static final String LOG_FORMAT = "registering {}...";
 
   private static final CommandData changePrefixCommand;
   private static final CommandData dictionaryCommand;
-  private static final CommandData shutdownCommand;
 
-  private static final CommandData songCommand;
   private static final CommandData whatsnewCommand;
   private static final CommandData vcCommand;
-  private static final CommandData showLicenseCommand;
 
   static {
 
@@ -52,25 +51,11 @@ public class SlashCommandRegisteration extends ListenerAdapter {
             .setRequired(true))
         .setGuildOnly(true);
 
-    shutdownCommand = Commands.slash("shutdown", "Botを強制的に停止させます。");
-
-    songCommand = Commands.slash("song", "デレステの楽曲情報を検索します (Powered by ふじわらはじめ楽曲DB)")
-        .addSubcommands(
-            new SubcommandData("keyword", "指定したキーワードを基に、楽曲を検索します。")
-                .addOptions(new OptionData(OptionType.STRING, "keyword", "検索する文字列を入力してください")
-                    .setRequired(true)),
-            new SubcommandData("id", "指定された ふじわらはじめ楽曲DB管理ID を使用して詳細な情報を表示します。")
-                .addOptions(new OptionData(OptionType.STRING, "id", "管理IDを入力します。")
-                    .setRequired(true)))
-        .setGuildOnly(true);
-
     whatsnewCommand = Commands.slash("whatsnew", "Botに最近加えられた変更を表示します");
 
     vcCommand = Commands.slash("vc",
             "Botが現在VCに入室しているかどうか自動で判断し、入っていない場合は入室して読み上げを開始、入っている場合は退出して読み上げの終了処理を行います。")
         .setGuildOnly(true);
-
-    showLicenseCommand = Commands.slash("license", "Botが使用しているライブラリのライセンス情報を出力します。");
 
   }
 

@@ -1,7 +1,6 @@
 package MochiMochiTalk.commands;
 
 import MochiMochiTalk.api.CommandInformation;
-import MochiMochiTalk.util.ConcurrencyUtil;
 import com.google.api.client.util.Strings;
 import hajimeapi4j.api.endpoint.EndPoint;
 import hajimeapi4j.api.endpoint.ListEndPoint;
@@ -9,30 +8,22 @@ import hajimeapi4j.api.endpoint.MusicEndPoint;
 import hajimeapi4j.internal.builder.ListEndPointBuilder;
 import hajimeapi4j.internal.builder.MusicEndPointBuilder;
 import hajimeapi4j.util.enums.ListParameter;
-import hajimeapi4j.util.enums.MusicParameter;
 import hajimeapi4j.util.enums.MusicParameter.Hide;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 // no fixes need for potentially null access
 @Slf4j
@@ -80,10 +71,24 @@ public class CommandSong extends CommandInformation {
                 ));
   }
 
-  private static final Executor concurrentExecutor = Executors.newCachedThreadPool(
-      new CountingThreadFactory(() -> "MochiMochiTalk", "Song detail integration thread", true));
+  private static MessageEmbed createSongDetailMessage(MusicEndPoint response) {
+    EmbedBuilder builder = new EmbedBuilder();
+    builder
+        .setTitle(String.format("ID:%d の楽曲情報", response.getSongId()), response.getLink())
+        .setDescription("ブラウザでこの情報を見るにはこのメッセージのタイトルをクリック")
+        .addField("楽曲名", response.getName(), false)
+        .setFooter("MochiMochiTalk Song detail integration powered by ふじわらはじめAPI");
+    setInheritListedInformation(builder, response.getComposer().orElse(Collections.emptyList()),
+        "作曲者名");
+    setInheritListedInformation(builder, response.getLyrics().orElse(Collections.emptyList()),
+        "作詞者名");
+    setInheritListedInformation(builder, response.getArrange().orElse(Collections.emptyList()),
+        "編曲者名");
+    setInheritListedInformation(builder, response.getMember(), "歌唱メンバー");
+    return builder.build();
+  }
 
-  private static void invokeId(SlashCommandInteractionEvent event) {
+  private void invokeId(SlashCommandInteractionEvent event) {
     log.info("got interaction with following command: {} in {}", event.getSubcommandName(),
         event.getName());
     final InteractionHook hook = event.getHook();
@@ -114,6 +119,7 @@ public class CommandSong extends CommandInformation {
                 hook.editOriginal("楽曲情報の取得に失敗しました。")
                     .flatMap(m -> m.editMessageEmbeds(createErrorReportMessage(t)))
                     .queue();
+                return;
               }
               hook.editOriginal("楽曲情報の取得に成功しました。表示します……")
                   .flatMap(m -> m.editMessageEmbeds(createSongDetailMessage(r)))
@@ -122,23 +128,21 @@ public class CommandSong extends CommandInformation {
         );
   }
 
-  private static void invokeKeyword(SlashCommandInteractionEvent event) {
-    CompletableFuture<InteractionHook> earlyReplyFuture = event.reply(
-            "検索を開始します…お待ちください。（Powered by ふじわらはじめAPI）")
-        .submit();
+  private void invokeKeyword(SlashCommandInteractionEvent event) {
+    log.info("invoked keyword search command.");
+    final InteractionHook hook = event.getHook();
     final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
     String searchQuery = event.getOption(subCommandName, OptionMapping::getAsString);
 
     if (Strings.isNullOrEmpty(searchQuery)) {
-      earlyReplyFuture.thenApplyAsync(
-          hook -> hook.editOriginal("検索キーワードが指定されていない可能性があります。処理を中止しました。").complete(),
-          concurrentExecutor).thenRunAsync(
-          () -> log.warn(
-              "it seems user {} specified no search query. this log is for unintended behavior recording purpose.",
-              event.getUser()),
-          concurrentExecutor);
-      return; // early return for rejecting task
+      hook.editOriginal("検索キーワードを正しく指定してください。").queue();
+      log.warn(
+          "User {} specified illegal search query. this log is for unintended behavior recording purpose.",
+          event.getUser());
+      return;
     }
+
+    hook.editOriginal("楽曲情報を検索しています……しばらくお待ちください。").queue();
 
     ListEndPointBuilder builder = ListEndPointBuilder.createFor(ListParameter.Type.MUSIC);
     builder
@@ -146,36 +150,23 @@ public class CommandSong extends CommandInformation {
         .setSearch(searchQuery)
         .setLimit(1);
 
-    CompletableFuture<Message> sendResultMessage = earlyReplyFuture.thenCombineAsync(
-      builder.build().handleAsync(),
-        (hook, response) -> {
-          MessageEmbed resultEmbed = createSearchResultMessage(response);
-          hook.editOriginal("検索完了。表示します……").complete();
-          return hook.editOriginalEmbeds(resultEmbed).complete();
-        },
-        concurrentExecutor);
-
-    // post process
-    sendResultMessage.whenCompleteAsync(
-        ConcurrencyUtil::postEventHandling,
-        concurrentExecutor);
-  }
-
-  private static MessageEmbed createSongDetailMessage(@Nullable MusicEndPoint response) {
-    EmbedBuilder builder = new EmbedBuilder();
     builder
-        .setTitle(String.format("ID:%d の楽曲情報", response.getSongId()), response.getLink())
-        .setDescription("ブラウザでこの情報を見るにはこのメッセージのタイトルをクリック")
-        .addField("楽曲名", response.getName(), false)
-        .setFooter("MochiMochiTalk Song detail integration powered by ふじわらはじめAPI");
-    setInheritListedInformation(builder, response.getComposer().orElse(Collections.emptyList()),
-        "作曲者名");
-    setInheritListedInformation(builder, response.getLyrics().orElse(Collections.emptyList()),
-        "作詞者名");
-    setInheritListedInformation(builder, response.getArrange().orElse(Collections.emptyList()),
-        "編曲者名");
-    setInheritListedInformation(builder, response.getMember(), "歌唱メンバー");
-    return builder.build();
+        .build()
+        .handleAsync(
+            r -> {
+              if (r == null) {
+                Throwable t = new NullPointerException("returned null response.");
+                log.error("unexpected null response from API.", t);
+                hook.editOriginal("楽曲情報の取得に失敗しました。")
+                    .flatMap(m -> m.editMessageEmbeds(createErrorReportMessage(t)))
+                    .queue();
+                return;
+              }
+              hook.editOriginal("楽曲情報の取得に成功しました。表示します……")
+                  .flatMap(m -> m.editMessageEmbeds(createSearchResultMessage(r)))
+                  .queue();
+            }
+        );
   }
 
   private static MessageEmbed createSearchResultMessage(List<ListEndPoint> response) {

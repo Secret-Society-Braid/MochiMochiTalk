@@ -16,7 +16,7 @@ public class CommandShowLicense extends CommandInformation {
 
   @Override
   public String getCommandName() {
-    return "showLicense";
+    return "showlicense";
   }
 
   @Override

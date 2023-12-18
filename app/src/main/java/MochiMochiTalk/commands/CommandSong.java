@@ -25,7 +25,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-// no fixes need for potentially null access
 @Slf4j
 public class CommandSong extends CommandInformation {
 

@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +25,8 @@ public class SlashCommandRegisteration extends ListenerAdapter {
     new CommandReport(),
     new CommandShowLicense(),
     new CommandShutdown(),
-    new CommandSong()
+    new CommandSong(),
+    new CommandWhatsNew()
   );
 
   private static final String LOG_FORMAT = "registering {}...";
@@ -34,7 +34,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   private static final CommandData changePrefixCommand;
   private static final CommandData dictionaryCommand;
 
-  private static final CommandData whatsnewCommand;
   private static final CommandData vcCommand;
 
   static {
@@ -51,8 +50,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
             .setRequired(true))
         .setGuildOnly(true);
 
-    whatsnewCommand = Commands.slash("whatsnew", "Botに最近加えられた変更を表示します");
-
     vcCommand = Commands.slash("vc",
             "Botが現在VCに入室しているかどうか自動で判断し、入っていない場合は入室して読み上げを開始、入っている場合は退出して読み上げの終了処理を行います。")
         .setGuildOnly(true);
@@ -62,7 +59,7 @@ public class SlashCommandRegisteration extends ListenerAdapter {
   @Override
   public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
     log.info("Slash command invoked.");
-    event.deferReply(true).queue();
+    event.deferReply().queue();
     commandList
       .parallelStream()
       .filter(c -> c.shouldHandle(event))

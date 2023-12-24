@@ -25,7 +25,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-// no fixes need for potentially null access
 @Slf4j
 public class CommandSong extends CommandInformation {
 
@@ -33,12 +32,10 @@ public class CommandSong extends CommandInformation {
   public String getCommandName() {
     return "song";
   }
-
   @Override
   protected String getCommandDescription() {
     return "デレステの楽曲情報を検索します (Powered by ふじわらはじめ楽曲DB)";
   }
-
   @Override
   protected void setCommandData() {
     if (this.commandData != null) {
@@ -93,10 +90,11 @@ public class CommandSong extends CommandInformation {
         event.getName());
     final InteractionHook hook = event.getHook();
     final String subCommandName = Objects.requireNonNull(event.getSubcommandName());
-    int id = event.getOption(subCommandName, () -> -1, OptionMapping::getAsInt);
+    int id = event.getOption(subCommandName, () -> -1, m -> m.getAsInt() <= 0 ? -1 : m.getAsInt());
 
     if (id == -1) {
-      hook.editOriginal("楽曲IDが指定されていない可能性があります。IDは整数の範囲でご指定ください。").queue();
+      hook.editOriginal(
+          "楽曲IDが指定されていない可能性があります。IDは自然数の範囲でご指定ください。").queue();
       log.warn("User {} specified illegal song ID. this log is for unintended behavior recording purpose.",
           event.getUser());
       return;

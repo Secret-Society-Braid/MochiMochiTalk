@@ -3,7 +3,6 @@ package MochiMochiTalk.voice;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
-import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import MochiMochiTalk.util.ConcurrencyUtil;
 import com.google.re2j.Matcher;
@@ -157,8 +156,6 @@ public class VoiceEventListener extends ListenerAdapter {
     builder.addField("読まれないものの一覧",
         "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
     channel.sendMessageEmbeds(builder.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    channel.sendMessageEmbeds(whatsNew.buildMessage()).queue();
     service = Executors.newScheduledThreadPool(1, THREAD_FACTORY);
     service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     logger.info("Connected to voice channel.");
@@ -281,8 +278,6 @@ public class VoiceEventListener extends ListenerAdapter {
     embed.addField("読まれないものの一覧",
         "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
     event.getChannel().sendMessageEmbeds(embed.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    event.getChannel().sendMessageEmbeds(whatsNew.buildMessage()).queue();
     schedulerService = Executors.newSingleThreadScheduledExecutor(THREAD_FACTORY);
     schedulerService.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     logger.info("Connected to the voice channel.");

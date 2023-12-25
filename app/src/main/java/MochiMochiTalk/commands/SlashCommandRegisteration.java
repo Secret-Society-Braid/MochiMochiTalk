@@ -26,13 +26,13 @@ public class SlashCommandRegisteration extends ListenerAdapter {
     new CommandShowLicense(),
     new CommandShutdown(),
     new CommandSong(),
-    new CommandWhatsNew()
+    new CommandWhatsNew(),
+    new CommandDictionary()
   );
 
   private static final String LOG_FORMAT = "registering {}...";
 
   private static final CommandData changePrefixCommand;
-  private static final CommandData dictionaryCommand;
 
   private static final CommandData vcCommand;
 
@@ -40,13 +40,6 @@ public class SlashCommandRegisteration extends ListenerAdapter {
 
     changePrefixCommand = Commands.slash("prefix", "Prefixを変更します")
         .addOptions(new OptionData(OptionType.STRING, "new", "新しいPrefixを指定します。")
-            .setRequired(true))
-        .setGuildOnly(true);
-
-    dictionaryCommand = Commands.slash("dict", "Botの単語変換辞書を操作します。")
-        .addOptions(new OptionData(OptionType.STRING, "phrase", "変換元の単語を指定します。")
-            .setRequired(true))
-        .addOptions(new OptionData(OptionType.STRING, "dict", "変換先の単語を指定します。")
             .setRequired(true))
         .setGuildOnly(true);
 

@@ -68,11 +68,10 @@ public class App {
                 GatewayIntent.MESSAGE_CONTENT)
             .addEventListeners(
                 new ReadyListener(), // recognizes when the bot is ready
-                CommandDictionary.getInstance(), // dictionary command
                 new CheckContainsDiscordURL(), // check if the message contains a discord url
                 EventLogger.getInstance(), // logger
                 new EventListenerForTTS(), // refreshed voice event handler
-                new SlashCommandRegisteration()) // registering slash commands
+                new SlashCommandRegisteration())
             .build();
         logger.info("JDA was successfully built.");
       } catch (InvalidTokenException e) {

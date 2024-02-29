@@ -18,7 +18,8 @@ public class ConcurrencyUtil {
     if (t == null) {
       log.info("Event handling completed successfully. ret={}", ret);
     } else {
-      log.warn("There was an error while handling an event. ret={}, t={}", ret, t);
+      log.warn("There was an error while handling an event. ret={}, t={}", ret,
+        t.getLocalizedMessage(), t);
     }
   }
 }

@@ -28,55 +28,59 @@ repositories {
     }
 }
 
+ext {
+  jacksonVersion = "2.16.1"
+}
+
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'com.google.guava:guava:33.0.0-jre'
 
     // Java Discord API
     // https://mvnrepository.com/artifact/net.dv8tion/JDA
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.8'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.20'
 
 
     // logback
-    implementation('ch.qos.logback:logback-classic:1.4.7')
+    implementation('ch.qos.logback:logback-classic:1.5.3')
 
     // implementation 'com.google.cloud:google-cloud-speech:2.2.2'
     // implementation 'com.google.cloud:google-cloud-texttospeech:2.1.1'
     // implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
-    implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.2.0'
+    implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.3.0'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
-    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.17.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.37.0'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
-    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.16.1'
+    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.23.0'
 
 // google drive api
-    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20230423-2.0.0'
+    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20240123-2.0.0'
 
 // libraries for regex matching
     implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
 
 
     // jackson core, databind, annotation
-    implementation('com.fasterxml.jackson.core:jackson-core:2.15.0')
-    implementation('com.fasterxml.jackson.core:jackson-databind:2.15.0')
-    implementation('com.fasterxml.jackson.core:jackson-annotations:2.15.0')
+    implementation("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
 
     // HajimeAPI wrapper
     implementation(fileTree(dir: '..\\native', include: ['hajimeapi4j.jar']))
 
     // Lombok
-    implementation 'org.projectlombok:lombok:1.18.26'
-    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    implementation 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-    testImplementation 'org.projectlombok:lombok:1.18.26'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testImplementation 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 }
 
 application {

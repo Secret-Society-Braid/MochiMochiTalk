@@ -37,11 +37,11 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:33.1.0-jre'
+    implementation 'com.google.guava:guava:33.2.1-jre'
 
     // Java Discord API
     // https://mvnrepository.com/artifact/net.dv8tion/JDA
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.23'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.1'
 
 
     // logback
@@ -52,16 +52,16 @@ dependencies {
     // implementation 'com.github.wdavies973:VocalCord:2.3'
 
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client
-    implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.4.1'
+    implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.6.0'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
-    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.42.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.47.0'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
-    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.23.0'
+    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.24.0'
 
 // google drive api
-    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20240327-2.0.0'
+    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20240722-2.0.0'
 
 // libraries for regex matching
     implementation group: 'com.google.re2j', name: 're2j', version: '1.7'

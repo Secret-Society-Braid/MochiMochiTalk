@@ -64,7 +64,7 @@ dependencies {
     implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20250122-2.0.0'
 
 // libraries for regex matching
-    implementation group: 'com.google.re2j', name: 're2j', version: '1.7'
+    implementation group: 'com.google.re2j', name: 're2j', version: '1.8'
 
 
     // jackson core, databind, annotation

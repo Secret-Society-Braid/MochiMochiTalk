@@ -69,7 +69,7 @@ public class App {
             .setStatus(OnlineStatus.ONLINE)
             .enableIntents(
                 GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+              GatewayIntent.GUILD_EXPRESSIONS,
                 GatewayIntent.GUILD_VOICE_STATES,
                 GatewayIntent.GUILD_MESSAGE_REACTIONS,
                 GatewayIntent.GUILD_MEMBERS,

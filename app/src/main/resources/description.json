@@ -1,8 +1,8 @@
 {
   "hotfix": "緊急の機能改修はありません。",
   "feature": "新しい機能追加はありません。",
-  "bugfix": "バグ修正はありません。",
+  "bugfix": "DiscordSDKのアップデートによって使用が非推奨となっていた部分を更新しました",
   "bugs": "今後、いくつかのコマンドにてより直感的に操作が出来るよう改良を行う予定です。",
   "Developer": "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-  "version": "MochiMochiTalk-v6.0.8"
+  "version": "MochiMochiTalk-v6.0.9"
 }

@@ -3,15 +3,7 @@
  */
 package MochiMochiTalk;
 
-import MochiMochiTalk.commands.CommandDebugMode;
 import MochiMochiTalk.commands.CommandDictionary;
-import MochiMochiTalk.commands.CommandHelp;
-import MochiMochiTalk.commands.CommandPing;
-import MochiMochiTalk.commands.CommandReport;
-import MochiMochiTalk.commands.CommandShowLicense;
-import MochiMochiTalk.commands.CommandShutdown;
-import MochiMochiTalk.commands.CommandSong;
-import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.commands.SlashCommandRegisteration;
 import MochiMochiTalk.listeners.CheckContainsDiscordURL;
 import MochiMochiTalk.listeners.EventLogger;
@@ -76,19 +68,10 @@ public class App {
                 GatewayIntent.MESSAGE_CONTENT)
             .addEventListeners(
                 new ReadyListener(), // recognizes when the bot is ready
-                new CommandPing(), // ping command
-                new CommandHelp(), // help command
-                new CommandReport(), // report command
-                CommandDictionary.getInstance(), // dictionary command
-                CommandWhatsNew.getInstance(), // whats new command
                 new CheckContainsDiscordURL(), // check if the message contains a discord url
-                new CommandSong(), //  song information command
-                new CommandShutdown(), // shutdown command
                 EventLogger.getInstance(), // logger
                 new EventListenerForTTS(), // refreshed voice event handler
-                new SlashCommandRegisteration(), // registering slash commands
-                new CommandDebugMode(), // handle debug mode
-                new CommandShowLicense()) // show license information
+                new SlashCommandRegisteration())
             .build();
         logger.info("JDA was successfully built.");
       } catch (InvalidTokenException e) {

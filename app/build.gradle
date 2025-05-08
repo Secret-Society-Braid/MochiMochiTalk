@@ -56,7 +56,7 @@ dependencies {
     implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.7.2'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
-    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.60.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.63.0'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
     implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.33.1'

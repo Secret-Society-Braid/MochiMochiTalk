@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - voicevox_api
   voicevox_api:
     image: 'voicevox/voicevox_engine:cpu-latest'
     container_name: voicevox_api
@@ -10,4 +12,3 @@ services:
       - "50021:50021"
     environment:
       - VOICEVOX_API_PORT=50021
-      - VOICEVOX_API_HOST=

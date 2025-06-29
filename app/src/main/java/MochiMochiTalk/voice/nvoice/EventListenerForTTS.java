@@ -48,7 +48,7 @@ public class EventListenerForTTS extends ListenerAdapter {
   private ScheduledExecutorService schedulerService;
 
   public EventListenerForTTS() {
-    this.engine = new GoogleTTSEngine();
+    this.engine = new VoiceVoxTtsEngine();
   }
 
   private static List<String> readWhiteList() {

@@ -19,7 +19,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
 
   public static final int AUDIO_FRAME = DeprecatedTTSEngine.AUDIO_FRAME;
   private static final OkHttpClient client = new OkHttpClient.Builder().build();
-  private static final String VOICEVOX_API_URL = "http://localhost:50021";
+  private static final String VOICEVOX_API_URL = "http://voicevox_api:50021";
   private byte[] out;
   private int index;
   private ByteBuffer lastFrame;

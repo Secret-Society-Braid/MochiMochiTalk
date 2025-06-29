@@ -71,6 +71,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     }
   }
 
+  @Override
   public void say(String phrase) throws IOException, InterruptedException {
     while (isSpeaking) {
       TimeUnit.SECONDS.sleep(1);

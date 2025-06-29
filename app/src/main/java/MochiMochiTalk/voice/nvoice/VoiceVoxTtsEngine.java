@@ -5,16 +5,20 @@ import MochiMochiTalk.voice.DeprecatedTTSEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.User;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.collections4.map.LRUMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 
 @Slf4j
 public class VoiceVoxTtsEngine implements TtsEngine {
@@ -30,14 +34,26 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   private final PCMByteCacheLogic cacheLogic;
   private final CacheFileController cacheController;
   private List<VoicevoxSpeaker> speakers;
-
+  private final MultiKeyMap<User, Integer> userSpeakerMap;
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
 
     // load cache
     cacheLogic = new PCMByteCacheLogic();
     cacheController = CacheFileController.getInstance();
+    this.userSpeakerMap = MultiKeyMap.multiKeyMap(new LRUMap<>());
     loadSpeakers();
+  }
+
+  private VoicevoxSpeaker selectSpeaker(User user) {
+    return this.userSpeakerMap.computeIfAbsent(user, key -> {
+      SecureRandom random = new SecureRandom();
+      int randomIndex = random.nextInt(speakers.size());
+      VoicevoxSpeaker speaker = speakers.get(randomIndex);
+      int styleIndex = random.nextInt(speaker.getStyles().size());
+      VoicevoxSpeaker.Style style = speaker.getStyles().get(styleIndex);
+      return style.getId();
+    });
   }
 
   private void loadSpeakers() {

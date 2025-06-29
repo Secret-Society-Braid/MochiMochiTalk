@@ -2,8 +2,10 @@ package MochiMochiTalk.voice.nvoice;
 
 import MochiMochiTalk.lib.CacheFileController;
 import MochiMochiTalk.voice.DeprecatedTTSEngine;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -19,6 +21,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
 
   public static final int AUDIO_FRAME = DeprecatedTTSEngine.AUDIO_FRAME;
   private static final OkHttpClient client = new OkHttpClient.Builder().build();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final String VOICEVOX_API_URL = "http://voicevox_api:50021";
   private byte[] out;
   private int index;
@@ -26,6 +29,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   private boolean isSpeaking = false;
   private final PCMByteCacheLogic cacheLogic;
   private final CacheFileController cacheController;
+  private List<VoicevoxSpeaker> speakers;
 
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
@@ -33,6 +37,27 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     // load cache
     cacheLogic = new PCMByteCacheLogic();
     cacheController = CacheFileController.getInstance();
+    loadSpeakers();
+  }
+
+  private void loadSpeakers() {
+    final String speakersPath = "/speakers";
+    Request speakersRequest = new Request.Builder()
+      .url(VOICEVOX_API_URL + speakersPath)
+      .get()
+      .addHeader("Accept", "application/json")
+      .build();
+    try (Response response = client.newCall(speakersRequest).execute()) {
+      if (!response.isSuccessful()) {
+        throw new IOException("Unexpected code " + response);
+      }
+      String jsonResponse = Objects.requireNonNull(response.body()).string();
+      this.speakers = MAPPER.readValue(jsonResponse,
+        MAPPER.getTypeFactory().constructCollectionType(List.class, VoicevoxSpeaker.class));
+      log.info("Loaded {} speakers from VoiceVox API", speakers.size());
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load speakers from VoiceVox API", e);
+    }
   }
 
   private String retrieveJsonAudioQuery(String phrase) {

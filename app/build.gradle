@@ -38,7 +38,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.0'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:33.4.0-jre'
+    implementation 'com.google.guava:guava:33.4.8-jre'
 
     // Java Discord API
     // https://mvnrepository.com/artifact/net.dv8tion/JDA

@@ -1,25 +1,48 @@
 package MochiMochiTalk.commands;
 
+import MochiMochiTalk.api.CommandInformation;
 import javax.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 
-public class CommandPing extends ListenerAdapter {
+@Slf4j
+public class CommandPing extends CommandInformation {
 
-  private final Logger logger = LoggerFactory.getLogger(CommandPing.class);
 
   @Override
-  public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-    if (event.getName().equals("ping")) {
-      logger.info("ping slash command invoked.");
-      long time = System.currentTimeMillis();
-      event.reply("ぽ…ぽんっ…！").queue(suc -> suc.editOriginalFormat("ぽ…ぽんっ…！：ping -> %d ms",
-              (System.currentTimeMillis() - time))
-          .queue());
+  public String getCommandName() {
+    return "ping";
+  }
+
+  @Override
+  protected String getCommandDescription() {
+    return "Botのpingを計測します。";
+  }
+
+  @Override
+  protected void setCommandData() {
+    if (this.commandData != null) {
+      return;
     }
+    this.commandData = Commands.slash(
+      this.getCommandName(),
+      this.getCommandDescription());
+  }
+
+  @Override
+  public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
+    log.info("ping slash command invoked.");
+    long time = System.currentTimeMillis();
+    event
+      .getHook()
+      .setEphemeral(true)
+      .editOriginal("ぽ…ぽんっ…！")
+      .queue(
+        suc -> suc.editMessage(String.format("ぽ…ぽんっ…！：ping -> %d ms",
+            (System.currentTimeMillis() - time)))
+          .queue());
   }
 
 }

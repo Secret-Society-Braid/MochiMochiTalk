@@ -2,9 +2,9 @@ package MochiMochiTalk.voice.nvoice;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
-import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import MochiMochiTalk.util.ConcurrencyUtil;
+import com.google.common.collect.Multimap;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.io.IOException;
@@ -17,6 +17,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -32,13 +34,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 @Slf4j
+@RequiredArgsConstructor
 public class EventListenerForTTS extends ListenerAdapter {
 
   private static final ThreadFactory factory = ConcurrencyUtil.createThreadFactory("AFK-Checker");
   private static final List<String> allowed;
 
+  private volatile CommandDictionary dict;
+
   static {
-    allowed = readWhiteList();
+    allowed = new AllowedVCRead().read();
   }
 
   private MessageChannel boundedChannel;
@@ -48,11 +53,16 @@ public class EventListenerForTTS extends ListenerAdapter {
   private ScheduledExecutorService schedulerService;
 
   public EventListenerForTTS() {
-    this.engine = new GoogleTTSEngine();
+    this(new CommandDictionary());
   }
 
-  private static List<String> readWhiteList() {
-    return new AllowedVCRead().read();
+  public EventListenerForTTS(CommandDictionary dict) {
+    this(dict, new GoogleTTSEngine());
+  }
+
+  private EventListenerForTTS(CommandDictionary dict, GoogleTTSEngine engine) {
+    this.dict = dict;
+    this.engine = engine;
   }
 
   private static String replaceMentions(MessageReceivedEvent event) {
@@ -153,10 +163,7 @@ public class EventListenerForTTS extends ListenerAdapter {
         return;
       }
       String immutableContent = content;
-      CompletableFuture<Optional<String>> dictFetchFuture = CompletableFuture.supplyAsync(() -> {
-        CommandDictionary instance = CommandDictionary.getInstance();
-        return instance.getDict(immutableContent);
-      });
+      CompletableFuture<Optional<String>> dictFetchFuture = CompletableFuture.supplyAsync(() -> this.dict.getDict(immutableContent));
       if (!event.getChannel().equals(boundedChannel)) {
         log.info("Message is not in the same channel as the voice channel.");
         return;
@@ -177,25 +184,8 @@ public class EventListenerForTTS extends ListenerAdapter {
         log.warn(
             "This event thread will continue working. if disconnecting still consists, it will need more investigating.");
       } catch (IOException ioe) {
-        log.error("Encountered IO Error while handshaking tts engine: {}", ioe);
+        log.error("Encountered IO Error while handshaking tts engine", ioe);
       }
-    }
-  }
-
-  @Override
-  public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
-    if (event.getName().equals("vc")) {
-      if (audioManager == null || !(audioManager.isConnected())) {
-        log.info("User wants Bot to be connected. connecting...");
-        Guild requested = Objects.requireNonNull(
-            event.getGuild()); // we don't need to be care about null access since we expect this command executed in only the guild.
-        log.info("Requested guild: {}", requested);
-        this.audioManager = requested.getAudioManager();
-        onConnectWithSlash(event);
-        return;
-      }
-      log.info("Bot is currently connected to the voice channel. disconnecting");
-      onDisconnectWithSlash(event);
     }
   }
 
@@ -244,8 +234,6 @@ public class EventListenerForTTS extends ListenerAdapter {
     embed.addField("読まれないものの一覧",
         "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
     boundedChannel.sendMessageEmbeds(embed.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    boundedChannel.sendMessageEmbeds(whatsNew.buildMessage()).queue();
     schedulerService = Executors.newSingleThreadScheduledExecutor(factory);
     schedulerService.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     log.info("Connected to the voice channel.");
@@ -288,8 +276,6 @@ public class EventListenerForTTS extends ListenerAdapter {
     embed.addField("読まれないものの一覧",
         "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
     event.getChannel().sendMessageEmbeds(embed.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    event.getChannel().sendMessageEmbeds(whatsNew.buildMessage()).queue();
     schedulerService = Executors.newSingleThreadScheduledExecutor(factory);
     schedulerService.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     log.info("Connected to the voice channel.");
@@ -302,5 +288,29 @@ public class EventListenerForTTS extends ListenerAdapter {
     flag = false;
     event.reply("読み上げを終わります。お疲れ様でした……").queue();
     log.info("Disconnected from the voice channel");
+  }
+  @Override
+  public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
+    if (event.getName().equals("vc")) {
+      if (audioManager == null || !(audioManager.isConnected())) {
+        log.info("User wants Bot to be connected. connecting...");
+        Guild requested = Objects.requireNonNull(
+            event.getGuild()); // we don't need to be care about null access since we expect this command executed in only the guild.
+        log.info("Requested guild: {}", requested);
+        this.audioManager = requested.getAudioManager();
+        onConnectWithSlash(event);
+        return;
+      }
+      log.info("Bot is currently connected to the voice channel. disconnecting");
+      onDisconnectWithSlash(event);
+    }
+  }
+
+  public static class VoiceChannelSlashCommand {
+    private Multimap<String, VoiceChannel> map;
+
+    public VoiceChannelSlashCommand(Multimap<String, VoiceChannel> map) {
+      this.map = map;
+    }
   }
 }

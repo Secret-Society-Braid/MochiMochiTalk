@@ -2,31 +2,39 @@ package MochiMochiTalk.voice;
 
 
 import MochiMochiTalk.App;
+import MochiMochiTalk.api.CommandInformation;
 import MochiMochiTalk.commands.CommandDictionary;
-import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import MochiMochiTalk.util.ConcurrencyUtil;
+import MochiMochiTalk.voice.nvoice.GoogleTTSEngine;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +52,7 @@ public class VoiceEventListener extends ListenerAdapter {
   private boolean flag = false;
   private ScheduledExecutorService service;
   private List<String> allowed = new ArrayList<>();
+  private final CommandDictionary dict = new CommandDictionary();
 
   public VoiceEventListener() {
     AllowedVCRead read = new AllowedVCRead();
@@ -111,10 +120,8 @@ public class VoiceEventListener extends ListenerAdapter {
 
     if (flag && !content.startsWith(App.getStaticPrefix())) {
       String immutableContent = content;
-      CompletableFuture<Optional<String>> dictFetchFuture = CompletableFuture.supplyAsync(() -> {
-        CommandDictionary instance = CommandDictionary.getInstance();
-        return instance.getDict(immutableContent);
-      });
+      CompletableFuture<Optional<String>> dictFetchFuture = CompletableFuture.supplyAsync(
+        () -> this.dict.getDict(immutableContent));
       if (!event.getChannel().equals(channel)) {
         logger.info("Message is not in the same channel as the voice channel.");
         return;
@@ -157,8 +164,6 @@ public class VoiceEventListener extends ListenerAdapter {
     builder.addField("読まれないものの一覧",
         "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
     channel.sendMessageEmbeds(builder.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    channel.sendMessageEmbeds(whatsNew.buildMessage()).queue();
     service = Executors.newScheduledThreadPool(1, THREAD_FACTORY);
     service.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     logger.info("Connected to voice channel.");
@@ -281,8 +286,6 @@ public class VoiceEventListener extends ListenerAdapter {
     embed.addField("読まれないものの一覧",
         "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
     event.getChannel().sendMessageEmbeds(embed.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    event.getChannel().sendMessageEmbeds(whatsNew.buildMessage()).queue();
     schedulerService = Executors.newSingleThreadScheduledExecutor(THREAD_FACTORY);
     schedulerService.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     logger.info("Connected to the voice channel.");
@@ -308,6 +311,88 @@ public class VoiceEventListener extends ListenerAdapter {
       }
       logger.info("Bot is currently connected to the voice channel. disconnecting");
       onDisconnectWithSlash(event);
+    }
+  }
+
+  @Slf4j
+  static class SlashCommandVoiceEventHandler extends CommandInformation {
+
+    private AudioChannelUnion boundedUnion;
+    private ScheduledExecutorService service;
+
+    private synchronized void onConnect(SlashCommandInteractionEvent event) {
+      GuildVoiceState state = Objects.requireNonNull(event.getMember()).getVoiceState();
+      AudioChannelUnion union = Objects.requireNonNull(state).getChannel();
+      if (Objects.equals(union, boundedUnion)) {
+        event.getHook().sendMessage("すでに接続しています。").queue();
+        return;
+      }
+      Guild guild = Objects.requireNonNull(event.getGuild());
+      AudioManager manager = guild.getAudioManager();
+      manager.setSendingHandler(new GoogleTTSEngine());
+      manager.openAudioConnection(union);
+      this.boundedUnion = union;
+      event.getHook().sendMessage("準備ができました！いつでもお喋りできます…！").queue();
+      if (this.service == null) {
+        this.service = Executors.newScheduledThreadPool(1,
+          ConcurrencyUtil.createThreadFactory("AFK-Checker"));
+        this.service.scheduleWithFixedDelay(this::onAfk, 1, 5, TimeUnit.SECONDS);
+      }
+    }
+
+    private synchronized void onDisconnect(SlashCommandInteractionEvent event) {
+      GuildVoiceState state = Objects.requireNonNull(event.getMember()).getVoiceState();
+      AudioChannelUnion union = Objects.requireNonNull(state).getChannel();
+      if (!Objects.equals(union, boundedUnion)) {
+        event.getHook().sendMessage("ボイスチャンネルへの接続状態を確認できませんでした……").queue();
+        return;
+      }
+      Guild guild = Objects.requireNonNull(event.getGuild());
+      AudioManager manager = guild.getAudioManager();
+      manager.closeAudioConnection();
+      this.boundedUnion = null;
+      event.getHook().sendMessage("終わりますか？お疲れ様でした…").queue();
+    }
+
+    private synchronized void onAfk() {
+      if (boundedUnion == null) {
+        return;
+      }
+      if (boundedUnion.getMembers().size() == 1) {
+        Guild guild = boundedUnion.getGuild();
+        AudioManager manager = guild.getAudioManager();
+        manager.closeAudioConnection();
+        this.boundedUnion = null;
+      }
+    }
+
+    @Override
+    public String getCommandName() {
+      return "vc";
+    }
+
+    @Override
+    public String getCommandDescription() {
+      return "VCに入室していない場合は接続し、入室している場合は切断します。";
+    }
+
+    @Override
+    public void setCommandData() {
+      this.commandData = Commands.slash(this.getCommandName(), this.getCommandDescription())
+        .setGuildOnly(true);
+    }
+
+    @Override
+    public void slashCommandHandler(@Nonnull SlashCommandInteractionEvent event) {
+      GuildVoiceState state = Objects.requireNonNull(event.getMember()).getVoiceState();
+      AudioChannelUnion union = Objects.requireNonNull(state).getChannel();
+      if (union == null) {
+        log.info("connecting...");
+        onConnect(event);
+      } else {
+        log.info("disconnecting...");
+        onDisconnect(event);
+      }
     }
   }
 }

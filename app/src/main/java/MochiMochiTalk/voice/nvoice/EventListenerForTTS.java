@@ -43,7 +43,7 @@ public class EventListenerForTTS extends ListenerAdapter {
 
   private MessageChannel boundedChannel;
   private AudioManager audioManager;
-  private final GoogleTTSEngine engine;
+  private final TtsEngine engine;
   private boolean flag;
   private ScheduledExecutorService schedulerService;
 

@@ -19,10 +19,9 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
 
 @Slf4j
-public class GoogleTTSEngine implements AudioSendHandler {
+public class GoogleTTSEngine implements TtsEngine {
 
   public static final int AUDIO_FRAME = DeprecatedTTSEngine.AUDIO_FRAME;
 
@@ -31,8 +30,8 @@ public class GoogleTTSEngine implements AudioSendHandler {
   private ByteBuffer lastFrame;
   private boolean isSpeaking = false;
 
-  private PCMByteCacheLogic cacheLogic;
-  private CacheFileController cacheController;
+  private final PCMByteCacheLogic cacheLogic;
+  private final CacheFileController cacheController;
 
   public GoogleTTSEngine() {
     this.out = new byte[0];

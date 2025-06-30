@@ -1,6 +1,7 @@
 package MochiMochiTalk.voice.nvoice;
 
 import MochiMochiTalk.lib.CacheFileController;
+import MochiMochiTalk.util.DiscordServerOperatorUtil;
 import MochiMochiTalk.voice.DeprecatedTTSEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -72,6 +73,9 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     if (speakers == null || speakers.isEmpty()) {
       throw new IllegalStateException("No speakers loaded from VoiceVox API");
     }
+    if (DiscordServerOperatorUtil.getBotDevUserId().equals(user.getId())) {
+      return 8; // Default speaker ID for bot developer
+    }
     // 既存の紐付けを探す
     for (Map.Entry<Integer, Set<User>> entry : tiedSpeakerCache.entrySet()) {
       if (entry.getValue().contains(user)) {
@@ -105,6 +109,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     String jsonAudioQuery;
     try (Response response = client.newCall(audioQueryRequest).execute()) {
       jsonAudioQuery = Objects.requireNonNull(response.body()).string();
+      log.trace("audio query created for phrase '{}'", phrase);
     } catch (IOException e) {
       throw new RuntimeException("Failed to retrieve audio query from VoiceVox API", e);
     }
@@ -124,6 +129,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
       if (!response.isSuccessful()) {
         throw new IOException("Unexpected code " + response);
       }
+      log.trace("synthesize completed.");
       return Objects.requireNonNull(response.body()).bytes();
     }
   }

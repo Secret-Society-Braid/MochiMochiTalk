@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.User;
 
 @Slf4j
 public class GoogleTTSEngine implements TtsEngine {
@@ -82,7 +83,7 @@ public class GoogleTTSEngine implements TtsEngine {
     }
   }
 
-  public void say(String phrase) throws IOException, InterruptedException {
+  public void say(String phrase, User author) throws IOException, InterruptedException {
     while (this.isSpeaking) {
       TimeUnit.SECONDS.sleep(1);
     }

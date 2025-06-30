@@ -171,7 +171,7 @@ public class EventListenerForTTS extends ListenerAdapter {
       log.debug("current content: {}", content);
 
       try {
-        engine.say(content);
+        engine.say(content, author);
       } catch (InterruptedException ignore) {
         log.error("Cannot handle tts because another method(s) interrupt this thread:", ignore);
         log.warn(

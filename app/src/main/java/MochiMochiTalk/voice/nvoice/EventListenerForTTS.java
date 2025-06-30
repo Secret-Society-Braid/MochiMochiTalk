@@ -286,10 +286,12 @@ public class EventListenerForTTS extends ListenerAdapter {
     embed.setTitle("テキスト読み上げBot「聖ちゃんの聖歌隊」");
     embed.setDescription("現在、以下の条件に当てはまる文章は読まれません。注意してください。");
     embed.addField("読まれないものの一覧",
-        "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
+      "- 文字数が40文字以上の文章\n- サーバーオリジナル絵文字\n- コードブロックを含む文章\n- URLを含む文章",
+      false);
+    embed.addField("音声使用に係る権利表記",
+      "音声合成にはVOICEVOXを使用しています。使用に係る宣言については[こちら](https://github.com/Secret-Society-Braid/MochiMochiTalk/blob/main/VOICEVOX_LEGAL.md)をご覧下さい。",
+      false);
     event.getChannel().sendMessageEmbeds(embed.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    event.getChannel().sendMessageEmbeds(whatsNew.buildMessage()).queue();
     schedulerService = Executors.newSingleThreadScheduledExecutor(factory);
     schedulerService.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     log.info("Connected to the voice channel.");

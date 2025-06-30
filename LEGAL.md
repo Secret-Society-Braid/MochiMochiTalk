@@ -62,6 +62,7 @@ These are the third-party libraries that make this project possible:
 - [Logback - ロギングフレームワーク](https://logback.qos.ch/)
 - [Guava](https://github.com/google/guava)
 - [Jackson - JSON処理ライブラリ](https://github.com/FasterXML/jackson-core)
+- [OkHttp - HTTP client library for Java and kotlin](https://square.github.io/okhttp/)
 - [VOICEVOX - 中品質のテキスト読み上げエンジン](https://voicevox.hiroshiba.jp/)
   - 各VOICEVOX音声ライブラリの利用規約は、[VOICEVOXの利用に関する宣言](./VOICEVOX_LEGAL.md)
     ファイルに記載されています。

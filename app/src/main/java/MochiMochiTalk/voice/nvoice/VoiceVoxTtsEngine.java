@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +20,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.apache.commons.collections4.map.LRUMap;
-import org.apache.commons.collections4.map.MultiKeyMap;
 
 @Slf4j
 public class VoiceVoxTtsEngine implements TtsEngine {
@@ -34,26 +35,17 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   private final PCMByteCacheLogic cacheLogic;
   private final CacheFileController cacheController;
   private List<VoicevoxSpeaker> speakers;
-  private final MultiKeyMap<User, Integer> userSpeakerMap;
+  private static final SecureRandom secureRandom = new SecureRandom();
+  private final Map<Integer, Set<User>> tiedSpeakerCache;
+
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
 
     // load cache
     cacheLogic = new PCMByteCacheLogic();
     cacheController = CacheFileController.getInstance();
-    this.userSpeakerMap = MultiKeyMap.multiKeyMap(new LRUMap<>());
     loadSpeakers();
-  }
-
-  private VoicevoxSpeaker selectSpeaker(User user) {
-    return this.userSpeakerMap.computeIfAbsent(user, key -> {
-      SecureRandom random = new SecureRandom();
-      int randomIndex = random.nextInt(speakers.size());
-      VoicevoxSpeaker speaker = speakers.get(randomIndex);
-      int styleIndex = random.nextInt(speaker.getStyles().size());
-      VoicevoxSpeaker.Style style = speaker.getStyles().get(styleIndex);
-      return style.getId();
-    });
+    this.tiedSpeakerCache = new ConcurrentHashMap<>(10);
   }
 
   private void loadSpeakers() {
@@ -76,9 +68,34 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     }
   }
 
-  private String retrieveJsonAudioQuery(String phrase) {
+  private int selectSpeakerId(User user) {
+    if (speakers == null || speakers.isEmpty()) {
+      throw new IllegalStateException("No speakers loaded from VoiceVox API");
+    }
+    // 既存の紐付けを探す
+    for (Map.Entry<Integer, Set<User>> entry : tiedSpeakerCache.entrySet()) {
+      if (entry.getValue().contains(user)) {
+        // SpeakerIDに紐付いている場合、そのSpeakerを返す
+        return speakers.stream()
+          .flatMap(s -> s.getStyles().stream())
+          .filter(s -> s.getId() == entry.getKey())
+          .findFirst()
+          .map(VoicevoxSpeaker.Style::getId)
+          .orElse(8); // Default to a common speaker ID if not found
+      }
+    }
+    // Randomly select a speaker and style
+    VoicevoxSpeaker randomSpeaker = speakers.get(secureRandom.nextInt(speakers.size()));
+    VoicevoxSpeaker.Style style = randomSpeaker.getStyles()
+      .get(secureRandom.nextInt(randomSpeaker.getStyles().size()));
+    tiedSpeakerCache
+      .computeIfAbsent(style.getId(), k -> ConcurrentHashMap.newKeySet())
+      .add(user);
+    return style.getId();
+  }
+
+  private String retrieveJsonAudioQuery(String phrase, int speakerId) {
     final String audioQueryPath = "/audio_query?speaker=%s&text=%s";
-    final int speakerId = 8; // temporary speaker ID for testing (Tsumugi)
     final RequestBody body = RequestBody.create("", MediaType.get("application/json"));
     Request audioQueryRequest = new Request.Builder()
       .url(String.format(VOICEVOX_API_URL + audioQueryPath, speakerId, phrase))
@@ -94,9 +111,8 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     return jsonAudioQuery;
   }
 
-  private byte[] tts(String audioQuery) throws IOException {
+  private byte[] tts(String audioQuery, int speakerId) throws IOException {
     final String synthesisPath = "/synthesis?speaker=%s";
-    final int speakerId = 8; // temporary speaker ID for testing (Tsumugi)
     RequestBody body = RequestBody.create(audioQuery, MediaType.get("application/json"));
     Request synthesisRequest = new Request.Builder()
       .url(String.format(VOICEVOX_API_URL + synthesisPath, speakerId))
@@ -113,7 +129,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   }
 
   @Override
-  public void say(String phrase) throws IOException, InterruptedException {
+  public void say(String phrase, User author) throws IOException, InterruptedException {
     while (isSpeaking) {
       TimeUnit.SECONDS.sleep(1);
     }
@@ -127,7 +143,8 @@ public class VoiceVoxTtsEngine implements TtsEngine {
       log.info("Using cached TTS");
       this.out = response.pcmIfCached;
     } else {
-      byte[] ttsData = tts(retrieveJsonAudioQuery(phrase));
+      int speakerId = selectSpeakerId(author);
+      byte[] ttsData = tts(retrieveJsonAudioQuery(phrase, speakerId), speakerId);
       data = convertToDiscordCompatible(resampling(ttsData, 16, 24000, 48000));
       log.info("Using TTS");
       this.out = data;

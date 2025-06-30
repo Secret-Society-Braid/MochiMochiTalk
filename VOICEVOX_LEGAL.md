@@ -1,14 +1,15 @@
-# Legal expressions for the use of VOICEVOX voicebanks
+# Legal declarations for the use of VOICEVOX voicebanks
 
 ## Preamble
 
-This document outlines the legal terms for using VOICEVOX voicebanks in this project.
+This document outlines the legal declaration for using VOICEVOX voicebanks in this project.
 
 If you come to see this document directly, please note that this document is intended to be shown
-the explicit terms of use of the VOICEVOX voicebanks used in this project, and does not include the
+the declaration of terms of use of the VOICEVOX voicebanks used in this project, and does not
+include the
 legal terms for the project itself.
 
-## Expressions for the use of VOICEVOX Voicebank
+## Declarations for the use of VOICEVOX Voicebank
 
 ### Definitions
 

@@ -8,7 +8,25 @@ If you come to see this document directly, please note that this document is int
 the explicit terms of use of the VOICEVOX voicebanks used in this project, and does not include the
 legal terms for the project itself.
 
-## VOICEVOX Voicebank Terms of Use
+## Expressions for the use of VOICEVOX Voicebank
+
+### Definitions
+
+"VOICEVOX voicebank" or "voicebank" shall refer to the voicebank libraries provided by the VOICEVOX
+project.
+
+"individual use" or "individual" shall mean that there is no corporate involvement, meaning that
+voicebank is used entirely within the category of personal development.
+
+"non-commercial use" shall mean that no revenue is being received by offering or permitting the use
+of this project.
+
+"generated voice" shall mean the audio output produced by using a VOICEVOX voicebank.
+
+"text reading only" shall mean the generated voice is used solely for reading text and not for any
+other purpose, such as commercial use or redistribution.
+
+### Legal Terms
 
 These are the legal expressions for the use of VOICEVOX voicebanks in this project. Each voicebank
 has its own terms of use, which are listed below:

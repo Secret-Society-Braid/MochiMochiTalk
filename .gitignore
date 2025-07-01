@@ -26,3 +26,4 @@ app/src/test/resources/property.json
 
 # ignore ide specific files
 .idea
+/app/src/main/resources/voicevox_legal.json

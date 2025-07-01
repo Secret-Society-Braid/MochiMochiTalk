@@ -32,6 +32,7 @@ These are the third-party libraries that make this project possible:
 - [Logback - A logging framework](https://logback.qos.ch/)
 - [Guava](https://github.com/google/guava)
 - [Jackson - JSON processing library](https://github.com/FasterXML/jackson-core)
+- [OkHttp - HTTP client library for Java and Kotlin](https://square.github.io/okhttp/)
 - [VOICEVOX - mid-quality text-to-speech engine](https://voicevox.hiroshiba.jp/)
     - Each VOICEVOX voicebank terms of use is described in
       the [declaration on the use of VOICEVOX](./VOICEVOX_LEGAL.md) file.
@@ -62,7 +63,7 @@ These are the third-party libraries that make this project possible:
 - [Logback - ロギングフレームワーク](https://logback.qos.ch/)
 - [Guava](https://github.com/google/guava)
 - [Jackson - JSON処理ライブラリ](https://github.com/FasterXML/jackson-core)
-- [OkHttp - HTTP client library for Java and kotlin](https://square.github.io/okhttp/)
+- [OkHttp - Java&Kotlin向けHTTPクライアントライブラリ](https://square.github.io/okhttp/)
 - [VOICEVOX - 中品質のテキスト読み上げエンジン](https://voicevox.hiroshiba.jp/)
   - 各VOICEVOX音声ライブラリの利用規約は、[VOICEVOXの利用に関する宣言](./VOICEVOX_LEGAL.md)
     ファイルに記載されています。

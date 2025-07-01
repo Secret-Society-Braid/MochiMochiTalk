@@ -29,24 +29,24 @@ repositories {
 }
 
 ext {
-  jacksonVersion = "2.18.3"
+  jacksonVersion = "2.19.0"
 }
 
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.0'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.2'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:33.4.0-jre'
+    implementation 'com.google.guava:guava:33.4.8-jre'
 
     // Java Discord API
     // https://mvnrepository.com/artifact/net.dv8tion/JDA
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.3.0'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.6.1'
 
 
     // logback
-    implementation('ch.qos.logback:logback-classic:1.5.17')
+    implementation('ch.qos.logback:logback-classic:1.5.18')
 
     // implementation 'com.google.cloud:google-cloud-speech:2.2.2'
     // implementation 'com.google.cloud:google-cloud-texttospeech:2.1.1'
@@ -56,13 +56,13 @@ dependencies {
     implementation group: 'com.google.api-client', name: 'google-api-client', version: '2.7.2'
 
 // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-texttospeech
-    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.60.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-texttospeech', version: '2.68.0'
 
 // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http
-    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.33.1'
+    implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.37.1'
 
 // google drive api
-    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20250216-2.0.0'
+    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev20250511-2.0.0'
 
 // libraries for regex matching
     implementation group: 'com.google.re2j', name: 're2j', version: '1.8'
@@ -77,11 +77,11 @@ dependencies {
     implementation(fileTree(dir: '..\\native', include: ['hajimeapi4j.jar']))
 
     // Lombok
-    implementation 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    implementation 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
-    testImplementation 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    testImplementation 'org.projectlombok:lombok:1.18.38'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
 }
 
 application {

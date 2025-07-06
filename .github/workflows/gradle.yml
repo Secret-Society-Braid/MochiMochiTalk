@@ -3,10 +3,12 @@ name: Java CI with Gradle
 on:
   pull_request:
     branches:
-      - develop
+      - main
   merge_group:
     branch:
-      - develop
+      - main
+    branch-ignore:
+      - release/*
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true

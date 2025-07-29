@@ -2,10 +2,10 @@ package MochiMochiTalk.lib.comms;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 public class InterClassComms implements IClassComms {
 

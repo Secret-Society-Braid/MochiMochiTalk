@@ -12,10 +12,10 @@ import com.google.cloud.texttospeech.v1.TextToSpeechClient;
 import com.google.cloud.texttospeech.v1.TextToSpeechSettings;
 import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class DeprecatedTTSEngine implements AudioSendHandler {
 
   public static final int AUDIO_FRAME = 3840; // 48000 / 50 (number of 20 ms in a second) * 2 (16-bit samples) * 2 (channels)
 
-  private Logger logger = LoggerFactory.getLogger(DeprecatedTTSEngine.class);
+  private final Logger logger = LoggerFactory.getLogger(DeprecatedTTSEngine.class);
   private byte[] out;
   private int index;
   private ByteBuffer lastFrame;

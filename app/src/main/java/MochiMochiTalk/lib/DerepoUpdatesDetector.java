@@ -2,6 +2,8 @@ package MochiMochiTalk.lib;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,8 +14,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -138,7 +138,6 @@ public class DerepoUpdatesDetector {
       groupNodeFuture.whenComplete((ret, ex) -> {
         if (ex != null) {
           log.error("Failed to get related posts.", ex);
-          return;
         }
       });
       JsonNode groupNode = Objects.requireNonNull(groupNodeFuture.join());

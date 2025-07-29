@@ -6,7 +6,7 @@ services:
     depends_on:
       - voicevox_api
   voicevox_api:
-    image: 'voicevox/voicevox_engine:cpu-0.24.0'
+    image: 'voicevox/voicevox_engine:cpu-0.24.1'
     container_name: voicevox_api
     ports:
       - "50021:50021"

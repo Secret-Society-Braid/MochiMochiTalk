@@ -1,10 +1,12 @@
-package MochiMochiTalk.voice.nvoice;
+package MochiMochiTalk.listeners;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import MochiMochiTalk.util.ConcurrencyUtil;
+import MochiMochiTalk.voice.nvoice.TtsEngine;
+import MochiMochiTalk.voice.nvoice.VoiceVoxTtsEngine;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import jakarta.annotation.Nonnull;

@@ -13,5 +13,19 @@ updates:
     target-branch: develop
     assignees:
       - hizumiaoba
-    reviewers:
+  - package-ecosystem: "docker-compose"
+    directory: /
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 1
+    target-branch: develop
+    assignees:
+      - hizumiaoba
+  - package-ecosystem: "github-actions"
+    directory: /
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 2
+    target-branch: develop
+    assignees:
       - hizumiaoba

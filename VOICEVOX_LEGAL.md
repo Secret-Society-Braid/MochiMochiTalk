@@ -66,7 +66,7 @@ has its own terms of use, which are listed below:
 - VOICEVOX:あいえるたん
 - VOICEVOX:満別花丸
 - VOICEVOX:琴詠ニア
-- VOICEVOX:Voidoll
+- VOICEVOX:Voidoll(CV:丹下桜)
     - Only for the purpose of individual use.
 - VOICEVOX:ぞん子
     - Only for the purpose of non-commercial use.

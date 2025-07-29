@@ -29,13 +29,13 @@ repositories {
 }
 
 ext {
-  jacksonVersion = "2.19.1"
+  jacksonVersion = "2.19.2"
 }
 
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:33.4.8-jre'

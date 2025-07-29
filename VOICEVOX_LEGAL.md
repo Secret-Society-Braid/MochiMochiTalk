@@ -40,17 +40,17 @@ has its own terms of use, which are listed below:
 - VOICEVOX:玄野武宏
 - VOICEVOX:白上虎太郎
 - VOICEVOX:青山龍星
-    - Only for the purpose of individual use.
+  - Only for the purpose of individual use.
 - VOICEVOX:冥鳴ひまり
 - VOICEVOX:九州そら
 - VOICEVOX:もち子さん(cv 明日葉よもぎ)
-    - Only for the purpose of individual use, and generated voice is intended for text reading only.
+  - Only for the purpose of individual use, and generated voice is intended for text reading only.
 - VOICEVOX:剣崎雌雄
 - VOICEVOX:WhiteCUL
 - VOICEVOX:後鬼
-    - Only for the purpose of individual use.
+  - Only for the purpose of individual use.
 - VOICEVOX:No.7
-    - Only for the purpose of individual, non-commercial use.
+  - Only for the purpose of individual, non-commercial use.
 - VOICEVOX:ちび式じい
 - VOICEVOX:櫻花ミコ
 - VOICEVOX:小夜/SAYO
@@ -67,9 +67,14 @@ has its own terms of use, which are listed below:
 - VOICEVOX:満別花丸
 - VOICEVOX:琴詠ニア
 - VOICEVOX:Voidoll(CV:丹下桜)
-    - Only for the purpose of individual use.
+  - Only for the purpose of individual use.
 - VOICEVOX:ぞん子
-    - Only for the purpose of non-commercial use.
+  - Only for the purpose of non-commercial use.
 - VOICEVOX:中部つるぎ
 - VOICEVOX:離途
 - VOICEVOX:黒沢冴白
+- VOICEVOX:ユーレイちゃん(CV:神崎零)
+  - Only for the purpose of individual, non-commercial use.
+- VOICEVOX:東北ずん子
+- VOICEVOX:東北きりたん
+- VOICEVOX:東北イタコ

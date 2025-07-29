@@ -2,7 +2,6 @@ package MochiMochiTalk.voice.nvoice;
 
 import MochiMochiTalk.lib.CacheFileController;
 import MochiMochiTalk.util.DiscordServerOperatorUtil;
-import MochiMochiTalk.voice.DeprecatedTTSEngine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import java.io.IOException;
@@ -25,7 +24,7 @@ import okhttp3.Response;
 @Slf4j
 public class VoiceVoxTtsEngine implements TtsEngine {
 
-  public static final int AUDIO_FRAME = DeprecatedTTSEngine.AUDIO_FRAME;
+  public static final int AUDIO_FRAME = 3840; // 48000 / 50 (number of 20 ms in a second) * 2 (16-bit samples) * 2 (channels)
   private static final OkHttpClient client = new OkHttpClient.Builder().build();
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final String VOICEVOX_API_URL = "http://voicevox_api:50021";

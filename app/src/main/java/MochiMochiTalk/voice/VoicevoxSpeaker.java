@@ -1,4 +1,4 @@
-package MochiMochiTalk.voice.nvoice;
+package MochiMochiTalk.voice;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;

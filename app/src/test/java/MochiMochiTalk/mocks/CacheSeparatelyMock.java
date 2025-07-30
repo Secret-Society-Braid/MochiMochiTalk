@@ -1,6 +1,6 @@
 package MochiMochiTalk.mocks;
 
-import com.google.api.client.util.Strings;
+import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

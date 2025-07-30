@@ -1,6 +1,6 @@
 package MochiMochiTalk.listeners;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class ReadyListener implements EventListener {
 
-  private Logger logger = LoggerFactory.getLogger(ReadyListener.class);
+  private final Logger logger = LoggerFactory.getLogger(ReadyListener.class);
 
   @Override
   public void onEvent(@Nonnull GenericEvent event) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import jakarta.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -31,7 +31,7 @@ public class CommandDictionary extends ListenerAdapter {
   private static final String DICT_API_URL = "https://script.google.com/macros/s/AKfycbxdQpZ4W4wlNcLJxX36fzSnp5BouNGB3sm_kQ0dim0ZKNnJzuGLfKLqnBlqUzeQV2nB/exec";
   private static final String DICPATH = "dictionary.json";
   private static CommandDictionary singleton;
-  private Logger logger = LoggerFactory.getLogger(CommandDictionary.class);
+  private final Logger logger = LoggerFactory.getLogger(CommandDictionary.class);
 
   public CommandDictionary() {
     if (Files.notExists(Paths.get(DICPATH))) {

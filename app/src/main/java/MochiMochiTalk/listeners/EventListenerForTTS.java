@@ -1,12 +1,15 @@
-package MochiMochiTalk.voice.nvoice;
+package MochiMochiTalk.listeners;
 
 import MochiMochiTalk.App;
 import MochiMochiTalk.commands.CommandDictionary;
 import MochiMochiTalk.commands.CommandWhatsNew;
 import MochiMochiTalk.lib.AllowedVCRead;
 import MochiMochiTalk.util.ConcurrencyUtil;
+import MochiMochiTalk.voice.TtsEngine;
+import MochiMochiTalk.voice.VoiceVoxTtsEngine;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
+import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -43,12 +45,12 @@ public class EventListenerForTTS extends ListenerAdapter {
 
   private MessageChannel boundedChannel;
   private AudioManager audioManager;
-  private final GoogleTTSEngine engine;
+  private final TtsEngine engine;
   private boolean flag;
   private ScheduledExecutorService schedulerService;
 
   public EventListenerForTTS() {
-    this.engine = new GoogleTTSEngine();
+    this.engine = new VoiceVoxTtsEngine();
   }
 
   private static List<String> readWhiteList() {
@@ -171,7 +173,7 @@ public class EventListenerForTTS extends ListenerAdapter {
       log.debug("current content: {}", content);
 
       try {
-        engine.say(content);
+        engine.say(content, author);
       } catch (InterruptedException ignore) {
         log.error("Cannot handle tts because another method(s) interrupt this thread:", ignore);
         log.warn(
@@ -286,10 +288,12 @@ public class EventListenerForTTS extends ListenerAdapter {
     embed.setTitle("テキスト読み上げBot「聖ちゃんの聖歌隊」");
     embed.setDescription("現在、以下の条件に当てはまる文章は読まれません。注意してください。");
     embed.addField("読まれないものの一覧",
-        "・文字数が40文字以上の文章\n\n・サーバーオリジナル絵文字\n\n・コードブロックを含む文章\n\n・URLを含む文章", false);
+      "- 文字数が40文字以上の文章\n- サーバーオリジナル絵文字\n- コードブロックを含む文章\n- URLを含む文章",
+      false);
+    embed.addField("音声使用に係る権利表記",
+      "音声合成にはVOICEVOXを使用しています。使用に係る宣言については[こちら](https://github.com/Secret-Society-Braid/MochiMochiTalk/blob/main/VOICEVOX_LEGAL.md)をご覧下さい。",
+      false);
     event.getChannel().sendMessageEmbeds(embed.build()).queue();
-    CommandWhatsNew whatsNew = CommandWhatsNew.getInstance();
-    event.getChannel().sendMessageEmbeds(whatsNew.buildMessage()).queue();
     schedulerService = Executors.newSingleThreadScheduledExecutor(factory);
     schedulerService.scheduleWithFixedDelay(this::checkVoiceChannel, 1, 5, TimeUnit.SECONDS);
     log.info("Connected to the voice channel.");

@@ -88,5 +88,11 @@
     "description": "useful trailing annotation library",
     "license": "MIT License",
     "url": "not provided"
+  },
+  {
+    "deps": "VOICEVOX Engine",
+    "description": "The Mid-quality Text-To-Speech Engine by @hiho_karuta",
+    "license": "LGPL-3.0 or Another license that don't need source code disclosure",
+    "url": "https://github.com/VOICEVOX/voicevox_engine/blob/master/LICENSE"
   }
 ]

@@ -2,12 +2,12 @@ package MochiMochiTalk.commands;
 
 import MochiMochiTalk.util.ConcurrencyUtil;
 import MochiMochiTalk.util.DiscordServerOperatorUtil;
+import jakarta.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;

@@ -1,0 +1,14 @@
+services:
+  mochimochitalk_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - voicevox_api
+  voicevox_api:
+    image: 'voicevox/voicevox_engine:cpu-0.24.1'
+    container_name: voicevox_api
+    ports:
+      - "50021:50021"
+    environment:
+      - VOICEVOX_API_PORT=50021

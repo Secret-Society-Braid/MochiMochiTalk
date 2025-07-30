@@ -1,12 +1,12 @@
 package MochiMochiTalk.listeners;
 
+import jakarta.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -23,7 +23,7 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
   private static final String REGEX_STRING = "https://discord.com/channels/\\d*/\\d*/\\d*";
   private static final Pattern PATTERN = Pattern.compile(REGEX_STRING);
   // Logger
-  private Logger logger = LoggerFactory.getLogger(CheckContainsDiscordURL.class);
+  private final Logger logger = LoggerFactory.getLogger(CheckContainsDiscordURL.class);
 
   @Override
   public void onMessageReceived(@Nonnull MessageReceivedEvent event) {

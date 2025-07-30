@@ -1,7 +1,7 @@
 package MochiMochiTalk.listeners;
 
 import MochiMochiTalk.App;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;

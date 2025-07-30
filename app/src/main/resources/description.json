@@ -1,8 +1,8 @@
 {
   "hotfix": "緊急の機能改修はありません。",
-  "feature": "新しい機能追加はありません。",
-  "bugfix": "DiscordSDKのアップデートによって使用が非推奨となっていた部分を更新しました",
-  "bugs": "今後、いくつかのコマンドにてより直感的に操作が出来るよう改良を行う予定です。",
-  "Developer": "Ranfa/hizumiaoba/Indigo_leaF P#4144",
-  "version": "MochiMochiTalk-v6.0.9"
+  "feature": "音声合成に使用するエンジンをVOICEVOXへ変更しました。音声はユーザーに紐付き、ランダムに決定されます。",
+  "bugfix": "不具合対応はありません。",
+  "bugs": "既知の不具合はOSSリポジトリをご確認ください。",
+  "Developer": "idol_ranfa_master",
+  "version": "MochiMochiTalk-v7.0.0"
 }

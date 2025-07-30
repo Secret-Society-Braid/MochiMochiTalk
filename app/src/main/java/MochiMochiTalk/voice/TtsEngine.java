@@ -1,4 +1,4 @@
-package MochiMochiTalk.voice.nvoice;
+package MochiMochiTalk.voice;
 
 import java.io.IOException;
 import net.dv8tion.jda.api.audio.AudioSendHandler;

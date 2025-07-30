@@ -1,9 +1,9 @@
 package MochiMochiTalk.commands;
 
 import MochiMochiTalk.App;
+import jakarta.annotation.Nonnull;
 import java.awt.Color;
 import java.util.Objects;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

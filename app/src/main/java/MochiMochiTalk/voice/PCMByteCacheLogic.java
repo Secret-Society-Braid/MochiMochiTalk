@@ -1,4 +1,4 @@
-package MochiMochiTalk.voice.nvoice;
+package MochiMochiTalk.voice;
 
 import MochiMochiTalk.lib.CacheFileController;
 import java.io.IOException;

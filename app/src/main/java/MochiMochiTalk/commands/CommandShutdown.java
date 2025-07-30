@@ -1,7 +1,7 @@
 package MochiMochiTalk.commands;
 
 import MochiMochiTalk.util.DiscordServerOperatorUtil;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;

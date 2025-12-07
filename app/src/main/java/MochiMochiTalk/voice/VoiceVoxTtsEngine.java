@@ -27,19 +27,23 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   public static final int AUDIO_FRAME = 3840; // 48000 / 50 (number of 20 ms in a second) * 2 (16-bit samples) * 2 (channels)
   private static final OkHttpClient client = new OkHttpClient.Builder().build();
   private static final ObjectMapper MAPPER = new ObjectMapper();
-  private static final String VOICEVOX_API_URL = "http://voicevox_api:50021";
+  private static final SecureRandom secureRandom = new SecureRandom();
+  private final String voicevoxApiBaseUrl;
+  private final PCMByteCacheLogic cacheLogic;
+  private final CacheFileController cacheController;
+  private final Map<Integer, Set<User>> tiedSpeakerCache;
   private byte[] out;
   private int index;
   private ByteBuffer lastFrame;
   private boolean isSpeaking = false;
-  private final PCMByteCacheLogic cacheLogic;
-  private final CacheFileController cacheController;
   private List<VoicevoxSpeaker> speakers;
-  private static final SecureRandom secureRandom = new SecureRandom();
-  private final Map<Integer, Set<User>> tiedSpeakerCache;
 
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
+
+    // load env variable for voicevox api port number
+    final String apiPort = System.getenv().getOrDefault("VOICEVOX_API_PORT", "50021");
+    voicevoxApiBaseUrl = "http://voicevox_api:{port}".replace("{port}", apiPort);
 
     // load cache
     cacheLogic = new PCMByteCacheLogic();
@@ -51,7 +55,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   private void loadSpeakers() {
     final String speakersPath = "/speakers";
     Request speakersRequest = new Request.Builder()
-      .url(VOICEVOX_API_URL + speakersPath)
+      .url(this.voicevoxApiBaseUrl + speakersPath)
       .get()
       .addHeader("Accept", "application/json")
       .build();
@@ -101,7 +105,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     final String audioQueryPath = "/audio_query?speaker=%s&text=%s";
     final RequestBody body = RequestBody.create("", MediaType.get("application/json"));
     Request audioQueryRequest = new Request.Builder()
-      .url(String.format(VOICEVOX_API_URL + audioQueryPath, speakerId, phrase))
+      .url(String.format(this.voicevoxApiBaseUrl + audioQueryPath, speakerId, phrase))
       .post(body)
       .addHeader("Accept", "application/json")
       .build();
@@ -119,7 +123,7 @@ public class VoiceVoxTtsEngine implements TtsEngine {
     final String synthesisPath = "/synthesis?speaker=%s";
     RequestBody body = RequestBody.create(audioQuery, MediaType.get("application/json"));
     Request synthesisRequest = new Request.Builder()
-      .url(String.format(VOICEVOX_API_URL + synthesisPath, speakerId))
+      .url(String.format(this.voicevoxApiBaseUrl + synthesisPath, speakerId))
       .post(body)
       .addHeader("Accept", "audio/wav")
       .build();

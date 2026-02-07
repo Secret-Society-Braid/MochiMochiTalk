@@ -30,7 +30,14 @@ dependencies {
   implementation(libs.re2j)
   implementation(libs.bundles.jackson)
 
-  implementation(fileTree(mapOf("dir" to "..\\native", "include" to listOf("hajimeapi4j.jar"))))
+  implementation(
+    fileTree(
+      mapOf(
+        "dir" to layout.projectDirectory.dir("../native").asFile,
+        "include" to listOf("hajimeapi4j.jar")
+      )
+    )
+  )
 
   implementation(libs.bundles.annotations)
 

@@ -3,11 +3,11 @@ LABEL authors="ranfa"
 
 WORKDIR /workspace
 
-COPY settings.gradle ./
-COPY app/build.gradle app/
+COPY settings.gradle.kts ./
+COPY app/build.gradle.kts app/
 COPY native/hajimeapi4j.jar native/hajimeapi4j.jar
 
-RUN gradle dependencies --no-daemon || true
+RUN gradle :app:dependencies --no-daemon
 
 COPY app/src app/src
 RUN gradle :app:shadowJar --no-daemon -x test

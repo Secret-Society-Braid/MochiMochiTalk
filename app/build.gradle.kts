@@ -23,34 +23,23 @@ repositories {
   }
 }
 
-val jacksonVersion = "2.19.2"
-
 dependencies {
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
-
-  implementation("com.google.guava:guava:33.5.0-jre")
-
-  implementation("net.dv8tion:JDA:5.6.1")
-
-  implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
-  annotationProcessor("jakarta.annotation:jakarta.annotation-api:3.0.0")
-
-  implementation("ch.qos.logback:logback-classic:1.5.27")
-
-  implementation("com.google.re2j:re2j:1.8")
-
-  implementation("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
-  implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
-  implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+  implementation(libs.guava)
+  implementation(libs.jda)
+  implementation(libs.logback.classic)
+  implementation(libs.re2j)
+  implementation(libs.bundles.jackson)
 
   implementation(fileTree(mapOf("dir" to "..\\native", "include" to listOf("hajimeapi4j.jar"))))
 
-  implementation("org.projectlombok:lombok:1.18.42")
-  annotationProcessor("org.projectlombok:lombok:1.18.42")
+  implementation(libs.bundles.annotations)
 
-  testImplementation("org.projectlombok:lombok:1.18.42")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+  annotationProcessor(libs.bundles.annotations)
+
+  testRuntimeOnly(libs.junit.platform.launcher)
+  testImplementation(libs.junit.jupiter)
+  testImplementation(libs.lombok)
+  testAnnotationProcessor(libs.lombok)
 }
 
 application {

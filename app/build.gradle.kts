@@ -73,12 +73,3 @@ java {
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
 }
-
-tasks.register("stage") {
-  dependsOn("build", "clean")
-}
-
-tasks.named("build") {
-  mustRunAfter("clean")
-}
-

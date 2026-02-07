@@ -30,7 +30,7 @@ repositories {
 
 ext {
   jacksonVersion = "2.19.2"
-    junitVersion = "6.0.2"
+  junitVersion = "6.0.2"
 }
 
 dependencies {

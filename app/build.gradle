@@ -68,11 +68,11 @@ dependencies {
     implementation(fileTree(dir: '..\\native', include: ['hajimeapi4j.jar']))
 
     // Lombok
-    implementation 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    implementation 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
 
-    testImplementation 'org.projectlombok:lombok:1.18.38'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+    testImplementation 'org.projectlombok:lombok:1.18.42'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
 }
 
 application {

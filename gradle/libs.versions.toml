@@ -1,9 +1,10 @@
 [versions]
 jackson = "2.19.2"
+junit = "6.0.2"
 
 [libraries]
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.13.4" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.13.4" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 
 guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
 jda = { module = "net.dv8tion:JDA", version = "5.6.1" }

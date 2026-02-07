@@ -70,6 +70,7 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_11
-  targetCompatibility = JavaVersion.VERSION_11
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(17))
+  }
 }

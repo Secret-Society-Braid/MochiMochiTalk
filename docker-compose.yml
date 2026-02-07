@@ -12,3 +12,4 @@ services:
       - "50021:50021"
     environment:
       - VOICEVOX_API_PORT=50021
+      - VOICEVOX_API_HOST=voicevox_api

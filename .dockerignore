@@ -5,6 +5,7 @@
 .vscode
 app/.vocalcord
 app/build
+app/src/test
 app/logs
 app/tmp
 logs

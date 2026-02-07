@@ -41,9 +41,12 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
 
-    // load env variable for voicevox api port number
+    // load env variable for voicevox api
     final String apiPort = System.getenv().getOrDefault("VOICEVOX_API_PORT", "50021");
-    voicevoxApiBaseUrl = "http://voicevox_api:{port}".replace("{port}", apiPort);
+    final String apiHost = System.getenv().getOrDefault("VOICEVOX_API_HOST", "localhost");
+    voicevoxApiBaseUrl = "http://{host}:{port}"
+      .replace("{host}", apiHost)
+      .replace("{port}", apiPort);
 
     // load cache
     cacheLogic = new PCMByteCacheLogic();

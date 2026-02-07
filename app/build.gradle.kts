@@ -39,13 +39,14 @@ dependencies {
     )
   )
 
-  implementation(libs.bundles.annotations)
+  implementation(libs.jakarta.annotation)
 
-  annotationProcessor(libs.bundles.annotations)
+  compileOnly(libs.lombok)
+  annotationProcessor(libs.lombok)
 
   testRuntimeOnly(libs.junit.platform.launcher)
   testImplementation(libs.junit.jupiter)
-  testImplementation(libs.lombok)
+  testCompileOnly(libs.lombok)
   testAnnotationProcessor(libs.lombok)
 }
 

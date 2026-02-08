@@ -1,0 +1,14 @@
+.git
+.gradle
+.idea
+.vocalcord
+.vscode
+app/.vocalcord
+app/build
+app/src/test
+app/logs
+app/tmp
+logs
+tmp
+CODEOWNERS
+Procfile

@@ -1,0 +1,23 @@
+[versions]
+jackson = "2.19.2"
+
+[libraries]
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.13.4" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.13.4" }
+
+guava = { module = "com.google.guava:guava", version = "33.5.0-jre" }
+jda = { module = "net.dv8tion:JDA", version = "5.6.1" }
+
+jakarta-annotation = { module = "jakarta.annotation:jakarta.annotation-api", version = "3.0.0" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.27" }
+re2j = { module = "com.google.re2j:re2j", version = "1.8" }
+
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+
+lombok = { module = "org.projectlombok:lombok", version = "1.18.42" }
+
+[bundles]
+jackson = ["jackson-core", "jackson-databind", "jackson-annotations"]
+annotations = ["jakarta-annotation", "lombok"]

@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.User;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -40,19 +41,64 @@ public class VoiceVoxTtsEngine implements TtsEngine {
 
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
+    this.voicevoxApiBaseUrl = buildVoiceVoxApiBaseUrl();
+    this.cacheLogic = new PCMByteCacheLogic();
+    this.cacheController = CacheFileController.getInstance();
+    this.tiedSpeakerCache = new ConcurrentHashMap<>(10);
+    loadSpeakers();
+  }
 
-    // load env variable for voicevox api
+  private String buildVoiceVoxApiBaseUrl() {
     final String apiPort = System.getenv().getOrDefault("VOICEVOX_API_PORT", "50021");
     final String apiHost = System.getenv().getOrDefault("VOICEVOX_API_HOST", "localhost");
-    voicevoxApiBaseUrl = "http://{host}:{port}"
-      .replace("{host}", apiHost)
-      .replace("{port}", apiPort);
 
-    // load cache
-    cacheLogic = new PCMByteCacheLogic();
-    cacheController = CacheFileController.getInstance();
-    loadSpeakers();
-    this.tiedSpeakerCache = new ConcurrentHashMap<>(10);
+    int port = validateAndParsePort(apiPort);
+    String cleanHost = validateAndCleanHost(apiHost);
+
+    HttpUrl baseUrl = new HttpUrl.Builder()
+      .scheme("http")
+      .host(cleanHost)
+      .port(port)
+      .build();
+
+    String url = baseUrl.toString();
+    log.info("VoiceVox API base URL: {}", url);
+    return url;
+  }
+
+  private int validateAndParsePort(String apiPort) {
+    try {
+      int port = Integer.parseInt(apiPort);
+      if (port <= 0 || port > 65535) {
+        log.warn("Port must be between 1 and 65535, got: {}", port);
+        log.warn("Defaulting to port 50021.");
+        return 50021;
+      }
+      return port;
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+        "Invalid VOICEVOX_API_PORT value: " + apiPort + ". Must be a valid integer.", e);
+    }
+  }
+
+  private String validateAndCleanHost(String apiHost) {
+    String cleanHost = apiHost.replaceAll("/$", "");
+
+    if (cleanHost.contains("://")) {
+      log.warn("VOICEVOX_API_HOST should not include scheme `http://`. Got: `{}`.", apiHost);
+      log.warn("Defaulting to `localhost`.");
+      return "localhost";
+    }
+
+    // Check if the host contains port (but allow IPv6 addresses in brackets)
+    if (cleanHost.contains(":") && !cleanHost.matches(".*\\[.*:.*].*")) {
+      log.warn("VOICEVOX_API_HOST should not include port. Use VOICEVOX_API_PORT instead. Got: {}",
+        apiHost);
+      log.warn("Defaulting to `localhost`.");
+      return "localhost";
+    }
+
+    return cleanHost;
   }
 
   private void loadSpeakers() {

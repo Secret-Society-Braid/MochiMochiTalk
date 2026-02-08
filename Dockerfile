@@ -5,6 +5,7 @@ WORKDIR /workspace
 
 COPY settings.gradle.kts ./
 COPY app/build.gradle.kts app/
+COPY gradle/libs.versions.toml gradle/
 COPY native/hajimeapi4j.jar native/hajimeapi4j.jar
 
 RUN gradle :app:dependencies --no-daemon

@@ -5,11 +5,11 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - voicevox_api
+    environment:
+      - VOICEVOX_API_PORT=50021
+      - VOICEVOX_API_HOST=voicevox_api
   voicevox_api:
     image: 'voicevox/voicevox_engine:cpu-0.25.0'
     container_name: voicevox_api
     ports:
       - "50021:50021"
-    environment:
-      - VOICEVOX_API_PORT=50021
-      - VOICEVOX_API_HOST=voicevox_api

@@ -9,7 +9,7 @@ services:
       - VOICEVOX_API_PORT=50021
       - VOICEVOX_API_HOST=voicevox_api
   voicevox_api:
-    image: 'voicevox/voicevox_engine:cpu-0.25.0'
+    image: 'voicevox/voicevox_engine:cpu-0.25.1'
     container_name: voicevox_api
     ports:
       - "50021:50021"

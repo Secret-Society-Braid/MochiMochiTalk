@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.User;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,31 +28,84 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   public static final int AUDIO_FRAME = 3840; // 48000 / 50 (number of 20 ms in a second) * 2 (16-bit samples) * 2 (channels)
   private static final OkHttpClient client = new OkHttpClient.Builder().build();
   private static final ObjectMapper MAPPER = new ObjectMapper();
-  private static final String VOICEVOX_API_URL = "http://voicevox_api:50021";
+  private static final SecureRandom secureRandom = new SecureRandom();
+  private final HttpUrl voicevoxApiBaseUrl;
+  private final PCMByteCacheLogic cacheLogic;
+  private final CacheFileController cacheController;
+  private final Map<Integer, Set<User>> tiedSpeakerCache;
   private byte[] out;
   private int index;
   private ByteBuffer lastFrame;
   private boolean isSpeaking = false;
-  private final PCMByteCacheLogic cacheLogic;
-  private final CacheFileController cacheController;
   private List<VoicevoxSpeaker> speakers;
-  private static final SecureRandom secureRandom = new SecureRandom();
-  private final Map<Integer, Set<User>> tiedSpeakerCache;
 
   public VoiceVoxTtsEngine() {
     this.out = new byte[0];
-
-    // load cache
-    cacheLogic = new PCMByteCacheLogic();
-    cacheController = CacheFileController.getInstance();
-    loadSpeakers();
+    this.voicevoxApiBaseUrl = buildVoiceVoxApiBaseUrl();
+    this.cacheLogic = new PCMByteCacheLogic();
+    this.cacheController = CacheFileController.getInstance();
     this.tiedSpeakerCache = new ConcurrentHashMap<>(10);
+    loadSpeakers();
+  }
+
+  private HttpUrl buildVoiceVoxApiBaseUrl() {
+    final String apiPort = System.getenv().getOrDefault("VOICEVOX_API_PORT", "50021");
+    final String apiHost = System.getenv().getOrDefault("VOICEVOX_API_HOST", "localhost");
+
+    int port = validateAndParsePort(apiPort);
+    String cleanHost = validateAndCleanHost(apiHost);
+
+    HttpUrl baseUrl = new HttpUrl.Builder()
+      .scheme("http")
+      .host(cleanHost)
+      .port(port)
+      .build();
+
+    log.info("VoiceVox API base URL: {}", baseUrl);
+    return baseUrl;
+  }
+
+  private int validateAndParsePort(String apiPort) {
+    try {
+      int port = Integer.parseInt(apiPort);
+      if (port <= 0 || port > 65535) {
+        log.warn("Port must be between 1 and 65535, got: {}", port);
+        log.warn("Defaulting to port 50021.");
+        return 50021;
+      }
+      return port;
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+        "Invalid VOICEVOX_API_PORT value: " + apiPort + ". Must be a valid integer.", e);
+    }
+  }
+
+  private String validateAndCleanHost(String apiHost) {
+    String cleanHost = apiHost.replaceAll("/$", "");
+
+    if (cleanHost.contains("://")) {
+      log.warn("VOICEVOX_API_HOST should not include scheme `http://`. Got: `{}`.", apiHost);
+      log.warn("Defaulting to `localhost`.");
+      return "localhost";
+    }
+
+    // Check if the host contains port (but allow IPv6 addresses in brackets)
+    if (cleanHost.contains(":") && !cleanHost.matches(".*\\[.*:.*].*")) {
+      log.warn("VOICEVOX_API_HOST should not include port. Use VOICEVOX_API_PORT instead. Got: {}",
+        apiHost);
+      log.warn("Defaulting to `localhost`.");
+      return "localhost";
+    }
+
+    return cleanHost;
   }
 
   private void loadSpeakers() {
-    final String speakersPath = "/speakers";
+    HttpUrl constructedUrl = this.voicevoxApiBaseUrl
+      .newBuilder()
+      .addPathSegment("speakers").build();
     Request speakersRequest = new Request.Builder()
-      .url(VOICEVOX_API_URL + speakersPath)
+      .url(constructedUrl)
       .get()
       .addHeader("Accept", "application/json")
       .build();
@@ -98,10 +152,15 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   }
 
   private String retrieveJsonAudioQuery(String phrase, int speakerId) {
-    final String audioQueryPath = "/audio_query?speaker=%s&text=%s";
+    HttpUrl constructedUrl = this.voicevoxApiBaseUrl
+      .newBuilder()
+      .addPathSegment("audio_query")
+      .addQueryParameter("speaker", String.valueOf(speakerId))
+      .addEncodedQueryParameter("text", phrase)
+      .build();
     final RequestBody body = RequestBody.create("", MediaType.get("application/json"));
     Request audioQueryRequest = new Request.Builder()
-      .url(String.format(VOICEVOX_API_URL + audioQueryPath, speakerId, phrase))
+      .url(constructedUrl)
       .post(body)
       .addHeader("Accept", "application/json")
       .build();
@@ -116,10 +175,14 @@ public class VoiceVoxTtsEngine implements TtsEngine {
   }
 
   private byte[] tts(String audioQuery, int speakerId) throws IOException {
-    final String synthesisPath = "/synthesis?speaker=%s";
+    HttpUrl constructedUrl = this.voicevoxApiBaseUrl
+      .newBuilder()
+      .addPathSegment("synthesis")
+      .addQueryParameter("speaker", String.valueOf(speakerId))
+      .build();
     RequestBody body = RequestBody.create(audioQuery, MediaType.get("application/json"));
     Request synthesisRequest = new Request.Builder()
-      .url(String.format(VOICEVOX_API_URL + synthesisPath, speakerId))
+      .url(constructedUrl)
       .post(body)
       .addHeader("Accept", "audio/wav")
       .build();

@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -40,7 +41,7 @@ public class SlashCommandRegisteration implements EventListener {
     changePrefixCommand = Commands.slash("prefix", "Prefixを変更します")
         .addOptions(new OptionData(OptionType.STRING, "new", "新しいPrefixを指定します。")
             .setRequired(true))
-        .setGuildOnly(true);
+      .setContexts(InteractionContextType.GUILD);
 
     log.debug("complete.");
     log.debug(LOG_FORMAT, "debugModeCommand");
@@ -61,7 +62,7 @@ public class SlashCommandRegisteration implements EventListener {
             .setRequired(true))
         .addOptions(new OptionData(OptionType.STRING, "dict", "変換先の単語を指定します。")
             .setRequired(true))
-        .setGuildOnly(true);
+      .setContexts(InteractionContextType.GUILD);
 
     log.debug("complete");
     log.debug(LOG_FORMAT, "helpCommand");
@@ -96,7 +97,7 @@ public class SlashCommandRegisteration implements EventListener {
             new SubcommandData("id", "指定された ふじわらはじめ楽曲DB管理ID を使用して詳細な情報を表示します。")
                 .addOptions(new OptionData(OptionType.STRING, "id", "管理IDを入力します。")
                     .setRequired(true)))
-        .setGuildOnly(true);
+      .setContexts(InteractionContextType.GUILD);
 
     log.debug("complete");
     log.debug(LOG_FORMAT, "whatsnew command");
@@ -108,7 +109,7 @@ public class SlashCommandRegisteration implements EventListener {
 
     vcCommand = Commands.slash("vc",
             "Botが現在VCに入室しているかどうか自動で判断し、入っていない場合は入室して読み上げを開始、入っている場合は退出して読み上げの終了処理を行います。")
-        .setGuildOnly(true);
+      .setContexts(InteractionContextType.GUILD);
 
     log.debug("complete.");
     log.debug(LOG_FORMAT, "showLicense command");

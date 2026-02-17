@@ -1,8 +1,8 @@
 {
-  "hotfix": "緊急の機能改修はありません。",
+  "hotfix": "アプリコマンドを登録する部分にて、内部的な機能更新を実施しました。ユーザーへの影響はありません。",
   "feature": "音声合成に使用するエンジンをVOICEVOXへ変更しました。音声はユーザーに紐付き、ランダムに決定されます。",
   "bugfix": "不具合対応はありません。",
   "bugs": "既知の不具合はOSSリポジトリをご確認ください。",
   "Developer": "idol_ranfa_master",
-  "version": "MochiMochiTalk-v7.0.0"
+  "version": "MochiMochiTalk-v7.0.1"
 }

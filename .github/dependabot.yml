@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "gradle" # See documentation for possible values
-    directory: "/app/" # Location of package manifests
+    directory: "/" # Include root settings + gradle/libs.versions.toml + app module
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10

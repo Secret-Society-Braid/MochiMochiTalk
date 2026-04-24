@@ -9,6 +9,13 @@ updates:
     directory: "/" # Include root settings + gradle/libs.versions.toml + app module
     schedule:
       interval: "daily"
+    groups:
+      gradle-non-major:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     open-pull-requests-limit: 10
     target-branch: main
     assignees:

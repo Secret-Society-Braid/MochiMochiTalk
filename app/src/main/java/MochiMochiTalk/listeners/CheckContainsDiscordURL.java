@@ -38,13 +38,14 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
 
     Matcher m = PATTERN.matcher(message.getContentRaw());
     if (m.find()) {
-      this.logger.info("recieved discord message url");
+      this.logger.info("received discord message url");
       this.logger.info("starting to parse...");
       String url = m.group();
       String data = url.substring(29);
       String[] ids = data.split("/");
       if (ids.length < 3) {
         logger.info("Invalid URL format. abort parsing");
+        return;
       }
       String guildID = ids[0];
       String channelID = Objects.requireNonNull(ids[1]);
@@ -70,7 +71,7 @@ public class CheckContainsDiscordURL extends ListenerAdapter {
           builder.setAuthor(authorName, null, avatarUrl);
           builder.setDescription(content);
           builder.setFooter(postedChannelName + " - " + postedDate);
-          channel.sendMessageEmbeds(builder.build()).queue();
+          channel.sendMessageEmbeds(builder.build()).queue(suc -> message.delete().queue());
         }, failure -> {
           this.logger.warn("Exception while processing and parsing message.", failure);
           EmbedBuilder builderOnException = new EmbedBuilder();

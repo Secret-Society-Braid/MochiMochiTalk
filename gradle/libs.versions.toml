@@ -1,6 +1,6 @@
 [versions]
-jackson = "2.21.2"
-junit = "6.0.3"
+jackson = "2.21.3"
+junit = "6.1.0"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

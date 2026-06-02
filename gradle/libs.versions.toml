@@ -1,6 +1,6 @@
 [versions]
-jackson = "2.21.2"
-junit = "6.0.3"
+jackson = "2.21.4"
+junit = "6.1.0"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
@@ -10,12 +10,12 @@ guava = { module = "com.google.guava:guava", version = "33.6.0-jre" }
 jda = { module = "net.dv8tion:JDA", version = "6.4.1" }
 
 jakarta-annotation = { module = "jakarta.annotation:jakarta.annotation-api", version = "3.0.0" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.32" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.34" }
 re2j = { module = "com.google.re2j:re2j", version = "1.8" }
 
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
-jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version = "2.21" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version = "2.22" }
 
 lombok = { module = "org.projectlombok:lombok", version = "1.18.46" }
 
